@@ -1,0 +1,38 @@
+{
+    "name": "os2forms/os2forms_fordelingskomponent",
+    "description": "Fordelingskomponent integration for OS2Forms",
+    "type": "drupal-module",
+    "authors": [
+        {
+            "name": "Mikkel Ricky",
+            "email": "rimi@aarhus.dk"
+        }
+    ],
+    "require": {
+        "drush/drush": "^12 || ^13",
+        "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten",
+        "os2web/os2web_audit": "^1.1",
+        "os2web/os2web_key": "^1.0"
+    },
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.49@dev",
+        "drupal/coder": "9.x-dev",
+        "mglaman/phpstan-drupal": "dev-main",
+        "phpstan/extension-installer": "1.4.x-dev"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "minimum-stability": "dev",
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true,
+            "ergebnis/composer-normalize": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
+    }
+}

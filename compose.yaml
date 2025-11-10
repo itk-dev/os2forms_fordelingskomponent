@@ -1,0 +1,5 @@
+services:
+  php:
+    image: itkdev/php8.3-fpm:latest
+    volumes:
+      - .:/app

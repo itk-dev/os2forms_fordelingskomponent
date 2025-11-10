@@ -1,0 +1,15 @@
+services:
+  _defaults:
+    autowire: true
+
+  logger.channel.os2forms_fordelingskomponent:
+    parent: logger.channel_base
+    arguments: [ 'os2forms_fordelingskomponent' ]
+
+  logger.channel.os2forms_fordelingskomponent_submission:
+      parent: logger.channel_base
+      arguments: [ 'webform_submission' ]
+
+  Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
+
+  Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900:

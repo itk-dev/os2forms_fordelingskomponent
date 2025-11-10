@@ -1,0 +1,13 @@
+name: 'Fordelingskomponent'
+type: module
+description: 'Fordelingsskomponent integration for OS2Forms'
+package: OS2Forms
+core_version_requirement: ^10 || ^11
+dependencies:
+  - advancedqueue:advancedqueue
+  - 'os2web_key:os2web_key'
+  - 'os2web_audit:os2web_audit'
+  # Why don't we get this dependency implicitly from os2web_key?
+  - 'key:key'
+
+configure: os2forms_fordelingskomponent.admin.settings
