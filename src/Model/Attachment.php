@@ -5,8 +5,7 @@ namespace Drupal\os2forms_fordelingskomponent\Model;
 /**
  * The Document class.
  */
-final class Attachment
-{
+final class Attachment {
   public const MIME_TYPE_PDF = 'application/pdf';
 
   /**
@@ -22,8 +21,7 @@ final class Attachment
   /**
    * Check if this document is a PDF.
    */
-  public function isPdf(): bool
-  {
+  public function isPdf(): bool {
     return static::MIME_TYPE_PDF === $this->mimeType;
   }
 

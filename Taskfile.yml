@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 tasks:
   compose:
@@ -13,7 +13,7 @@ tasks:
     cmds:
       - task: compose
         vars:
-          TASK_ARGS: run --rm php composer {{.TASK_ARGS}}
+          TASK_ARGS: run --rm phpfpm composer {{.TASK_ARGS}}
 
   coding-standards:coding-standards:check:
     desc: Apply and check coding-standards

@@ -75,8 +75,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * @phpstan-param array<string, mixed> $handlerSettings
    * @phpstan-param array<string, mixed> $submissionData
    */
-  public function afsend(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): array
-  {
+  public function afsend(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): array {
     $submissionData = $submissionData + $submission->getData();
     $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
     $attachment = $this->getAttachment($submission, $handlerSettings);
@@ -123,7 +122,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
     );
   }
 
-
   /**
    * Load webform submission by id.
    */
@@ -138,7 +136,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $processingSettings = $this->helper->getModuleConfig()->get(SettingsForm::SECTION_PROCESSING);
 
     /** @var \Drupal\advancedqueue\Entity\QueueInterface $queue */
-    $queue = $this->queueStorage->load($processingSettings['queue'] ?? null);
+    $queue = $this->queueStorage->load($processingSettings['queue'] ?? NULL);
 
     return $queue;
   }
@@ -183,13 +181,14 @@ final class WebformHelperSF2900 implements LoggerInterface {
         'handlerConfiguration' => $handlerConfiguration,
       ]);
       $queue = $this->loadQueue();
-      if (null !== $queue) {
+      if (NULL !== $queue) {
         $queue->enqueueJob($job);
         $context['@queue'] = $queue->id();
         $this->notice('Job for afsend added to the queue @queue.', $context + [
-            'operation' => 'Fordelingskomponent afsend queued',
-          ]);
-      } else {
+          'operation' => 'Fordelingskomponent afsend queued',
+        ]);
+      }
+      else {
         $this->processJob($job);
       }
 

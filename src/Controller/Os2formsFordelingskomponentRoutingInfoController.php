@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Drupal\os2forms_fordelingskomponent\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
@@ -18,13 +16,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 final class Os2formsFordelingskomponentRoutingInfoController extends ControllerBase {
 
-  private EntityStorageInterface $webformStorage;
-
+  /**
+   * Constructor.
+   */
   public function __construct(
-    EntityTypeManagerInterface $entityTypeManager,
     private readonly FordelingskomponentHelper $helper,
   ) {
-    $this->webformStorage = $entityTypeManager->getStorage('webform');
   }
 
   /**
@@ -46,7 +43,7 @@ final class Os2formsFordelingskomponentRoutingInfoController extends ControllerB
     $info = $this->helper->getRoutingInfo(
       routingMyndighed: $settings[FordelingskomponentHelper::ROUTING_MYNDIGHED],
       kleEmne: $settings[FordelingskomponentHelper::KLE_EMNE],
-      handlingFacet: $settings[FordelingskomponentHelper::HANDLING_FACET] ?: null,
+      handlingFacet: $settings[FordelingskomponentHelper::HANDLING_FACET] ?: NULL,
     );
     return [
       'stuff' => [

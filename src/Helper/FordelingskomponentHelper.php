@@ -71,14 +71,14 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   *
+   * Get module config.
    */
   public function getModuleConfig(): ImmutableConfig {
     return $this->configFactory->get(SettingsForm::CONFIG_NAME);
   }
 
   /**
-   *
+   * Get routing info.
    */
   public function getRoutingInfo(
     string $routingMyndighed,
@@ -93,13 +93,12 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   *
+   * Send journalpost.
    */
   public function sendJournalpost(
     WebformSubmissionInterface $submission,
     Attachment $attachment,
     array $configuration,
-    // @todo
     string $brugervendtNoegle,
     string $titel,
     string $beskrivelse,
@@ -111,8 +110,10 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
+   * Send dokument.
+   *
    * @return array
-   *    [The response, The kombi post message].
+   *   [The response, The kombi post message].
    *
    * @phpstan-return array<int, mixed>
    */
@@ -120,7 +121,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
     WebformSubmissionInterface $submission,
     Attachment $attachment,
     array $configuration,
-    // @todo
+    // @todo Hvad er brugervendt nøgle?
     string $brugervendtNoegle,
     string $titel,
     string $beskrivelse,
@@ -140,14 +141,14 @@ final class FordelingskomponentHelper implements LoggerInterface {
     $registreringItSystem = $configuration[SettingsForm::REGISTRERING_IT_SYSTEM];
 
     $routingMyndighed = $configuration[self::ROUTING_MYNDIGHED];
-    $routingHandlingFacet = $configuration[self::HANDLING_FACET] ?: null;
+    $routingHandlingFacet = $configuration[self::HANDLING_FACET] ?: NULL;
     // @todo This is probably not correct!
     $routingModtagerAktoer = $configuration[SettingsForm::SENDER_ID];
 
     $dokument = new DistributionDokumentType(
       iD: $id,
       kLEEmneForslag: $routingKLEEmne,
-      // handlingFacetForslag: null,
+      // handlingFacetForslag: null,.
       registrering: new DokumentRegistreringType(
         fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
         livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
@@ -155,7 +156,8 @@ final class FordelingskomponentHelper implements LoggerInterface {
         relationListe: new RelationsListe(
           variantListe: new VariantListeType([
             new VariantType(
-              // If we don't clone the “virking", the XML serializer adds IDs en references which SF2900 does not handle.
+              // If we don't clone the “virking", the XML serializer adds an
+              // ID and references which SF2900 does not handle.
               virkning: $this->clone($virkning),
               rolle: VariantRolleType::VALUE_VARIANT,
               indeks: '1',
@@ -172,7 +174,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
           new TilstandListeType(
             tilstand: [
               new TilstandType(
-              // @todo
+                // @todo Hvad er fremdrift?
                 fremdrift: FremdriftType::VALUE_ENDELIGT,
                 virkning: $this->clone($virkning),
               ),
@@ -191,7 +193,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
           ),
         ]),
       // importTidspunkt: null,
-      // brugerRef: null,
+      // brugerRef: null,.
       )
     );
 
@@ -234,19 +236,22 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   *
+   * Check if a string is a valid CVR.
    */
-  public static function isValidCVR(string $value): bool {
+  public static function isValidCvr(string $value): bool {
     return (bool) preg_match('/^[0-9]{8}$/', $value);
   }
 
   /**
-   *
+   * Check if a string is a valid UUID.
    */
   public static function isValidUuid(string $value): bool {
     return (bool) preg_match('/[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/', $value);
   }
 
+  /**
+   * The SF2900 singleton.
+   */
   private SF2900 $sf2900;
 
   /**
@@ -268,7 +273,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
         'sftp' => [
           'private_key' => $privateKey,
           // $options['sftp']['private_key_pass'] ?? '',
-      //          'private_key_password' => '',
+          // 'private_key_password' => '',
           'username' => $options['sftp']['username'],
         ],
       ];
@@ -283,12 +288,14 @@ final class FordelingskomponentHelper implements LoggerInterface {
    * Get handler settings combined with select module setting.
    *
    * @param \Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900 $handlerSettings
+   *   The handler settings.
    *
-   * @return mixed
+   * @return array
+   *   The combined configuration.
    */
   public function getHandlerConfiguration(
     array $handlerSettings,
-  ) {
+  ): array {
     $settings = $handlerSettings;
     $options = $this->getModuleConfig()->get('sf2900');
 
@@ -301,8 +308,10 @@ final class FordelingskomponentHelper implements LoggerInterface {
     return $settings;
   }
 
-  private function buildVirkning(array $configuration): VirkningType
-  {
+  /**
+   * Build a Virkning object.
+   */
+  private function buildVirkning(array $configuration): VirkningType {
     $aktoer = $configuration[SettingsForm::REGISTRERING_IT_SYSTEM];
 
     return new VirkningType(
@@ -310,20 +319,20 @@ final class FordelingskomponentHelper implements LoggerInterface {
       aktoerType: AktoerTypeType::VALUE_IT_SYSTEM,
     // fraTidsPunkt: null,
     // tilTidspunkt: null,
-    // noteTekst: null,
+    // noteTekst: null,.
     );
   }
 
-
   /**
-   * Deep clone.
+   * Deep clone an object.
    *
-   * @param AbstractStructBase<T> $object
+   * @param \WsdlToPhp\PackageBase\AbstractStructBase<T> $object
+   *   The object to clone.
    *
-   * @return AbstractStructBase<T>
+   * @return \WsdlToPhp\PackageBase\AbstractStructBase<T>
+   *   The cloned object.
    */
-  private function clone(AbstractStructBase $object): AbstractStructBase
-  {
+  private function clone(AbstractStructBase $object): AbstractStructBase {
     return unserialize(serialize($object));
   }
 

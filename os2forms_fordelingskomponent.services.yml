@@ -4,11 +4,11 @@ services:
 
   logger.channel.os2forms_fordelingskomponent:
     parent: logger.channel_base
-    arguments: [ 'os2forms_fordelingskomponent' ]
+    arguments: ["os2forms_fordelingskomponent"]
 
   logger.channel.os2forms_fordelingskomponent_submission:
-      parent: logger.channel_base
-      arguments: [ 'webform_submission' ]
+    parent: logger.channel_base
+    arguments: ["webform_submission"]
 
   Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
 

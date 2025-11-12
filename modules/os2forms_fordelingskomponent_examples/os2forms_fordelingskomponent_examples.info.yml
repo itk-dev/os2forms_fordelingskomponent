@@ -1,8 +1,8 @@
-name: 'OS2Forms Fordelingskomponent examples'
+name: "OS2Forms Fordelingskomponent examples"
 type: module
-description: 'Example forms for OS2Forms Fordelingskomponent.'
-package: 'OS2Forms'
+description: "Example forms for OS2Forms Fordelingskomponent."
+package: "OS2Forms"
 
 core_version_requirement: ^9 || ^10
 dependencies:
-  - 'os2forms_fordelingskomponent:os2forms_fordelingskomponent'
+  - "os2forms_fordelingskomponent:os2forms_fordelingskomponent"

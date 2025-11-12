@@ -47,6 +47,9 @@ final class SettingsForm extends ConfigFormBase {
    */
   private readonly EntityStorageInterface $queueStorage;
 
+  /**
+   * Constructor.
+   */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
@@ -57,7 +60,7 @@ final class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -100,7 +103,7 @@ final class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   *
+   * Build form section "SF2900".
    */
   private function buildFormSf2900(array &$form, FormStateInterface $formState): void {
     $config = $this->config(self::CONFIG_NAME)->get(self::SECTION_SF2900) ?? [];
@@ -171,7 +174,7 @@ final class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   *
+   * Build form section "Processing".
    */
   private function buildFormProcessing(array &$form, FormStateInterface $formState): void {
     $config = $this->config(self::CONFIG_NAME)->get(self::SECTION_PROCESSING);
@@ -208,17 +211,17 @@ final class SettingsForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     $value = $form_state->getValue(self::SECTION_SF2900)[self::SENDER_ID] ?? '';
-    if (!FordelingskomponentHelper::isValidCVR($value)) {
+    if (!FordelingskomponentHelper::isValidCvr($value)) {
       $form_state->setErrorByName('sf2900][sender_id', $this->t('The sender ID is not a valid CVR.'));
     }
 
     $value = $form_state->getValue(self::SECTION_SF2900)[self::ROUTING_MYNDIGHED] ?? '';
-    if (!empty($value) && !FordelingskomponentHelper::isValidCVR($value)) {
+    if (!empty($value) && !FordelingskomponentHelper::isValidCvr($value)) {
       $form_state->setErrorByName('sf2900][routing_myndighed', $this->t('The routing myndighed is not a valid CVR.'));
     }
 
     $value = $form_state->getValue(self::SECTION_SF2900)[self::REGISTRERING_IT_SYSTEM] ?? '';
-    if (!empty($value) && !FordelingskomponentHelper::isValidUUID($value)) {
+    if (!empty($value) && !FordelingskomponentHelper::isValidUuid($value)) {
       $form_state->setErrorByName('sf2900][registrering_it_system', $this->t('The registrering it system is not a valid UUID.'));
     }
 

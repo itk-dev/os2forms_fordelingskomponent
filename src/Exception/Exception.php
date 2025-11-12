@@ -3,7 +3,7 @@
 namespace Drupal\os2forms_fordelingskomponent\Exception;
 
 /**
- * Exception.
+ * Base Exception for module.
  */
 class Exception extends \Exception {
 
