@@ -1,0 +1,1 @@
+# Fordelingskomponent for Drupal
