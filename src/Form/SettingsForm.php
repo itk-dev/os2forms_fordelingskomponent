@@ -62,6 +62,7 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
@@ -87,6 +88,7 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $config = $this->config(self::CONFIG_NAME);
 
@@ -191,7 +193,7 @@ final class SettingsForm extends ConfigFormBase {
       : $this->t("Optional queue for fordelingskomponent jobs. If no queue is specified, all fordelingskomponent jobs are run immediately. <a href=':queue_url'>The queue</a> must be run via Drupal's cron or via <code>drush advancedqueue:queue:process @queue</code> (in a cron job).",
         [
           '@queue' => $defaultValue,
-          ':queue_url' => '/admin/config/system/queues/jobs/' . urlencode($defaultValue),
+          ':queue_url' => '/admin/config/system/queues/jobs/' . urlencode((string) $defaultValue),
         ]);
     $form[self::SECTION_PROCESSING][self::QUEUE] = [
       '#type' => 'select',
@@ -209,6 +211,7 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     $value = $form_state->getValue(self::SECTION_SF2900)[self::SENDER_ID] ?? '';
     if (!FordelingskomponentHelper::isValidCvr($value)) {
@@ -231,6 +234,7 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->config(self::CONFIG_NAME)
       ->set(self::TEST_MODE, $form_state->getValue(self::TEST_MODE))

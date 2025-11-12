@@ -10,16 +10,17 @@
         }
     ],
     "require": {
+        "drupal/webform": "^6.1",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten",
-        "os2web/os2web_audit": "^1.1",
+        "os2web/os2web_audit": "^1.2",
         "os2web/os2web_key": "^1.0"
     },
     "require-dev": {
-        "drupal/coder": "9.x-dev",
-        "ergebnis/composer-normalize": "^2.49@dev",
-        "mglaman/phpstan-drupal": "dev-main",
-        "phpstan/extension-installer": "1.4.x-dev"
+        "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2.49",
+        "mglaman/phpstan-drupal": "^2.0",
+        "phpstan/extension-installer": "^1.4"
     },
     "repositories": [
         {
@@ -28,6 +29,7 @@
         }
     ],
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "allow-plugins": {
             "cweagans/composer-patches": true,

@@ -29,7 +29,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
   public const string ID = 'os2forms_fordelingskomponent_sf2900';
 
-  public const ATTACHMENT_ELEMENT = 'attachment_element';
+  public const string ATTACHMENT_ELEMENT = 'attachment_element';
 
   /**
    * The webform helper.
@@ -87,12 +87,12 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     $kleEMne = $form_state->getValue(FordelingskomponentHelper::KLE_EMNE);
-    if (!preg_match('/' . FordelingskomponentHelper::KLE_EMNE_PATTERN . '/', $kleEMne)) {
+    if (!preg_match('/' . FordelingskomponentHelper::KLE_EMNE_PATTERN . '/', (string) $kleEMne)) {
       $form_state->setErrorByName(FordelingskomponentHelper::KLE_EMNE, $this->t('Invalid KLE-emne: %kle_emne.', ['%kle_emne' => $kleEMne]));
     }
 
     $handling_facet = $form_state->getValue(FordelingskomponentHelper::HANDLING_FACET);
-    if (!empty($handling_facet) && !preg_match('/' . FordelingskomponentHelper::HANDLING_FACET_PATTERN . '/', $handling_facet)) {
+    if (!empty($handling_facet) && !preg_match('/' . FordelingskomponentHelper::HANDLING_FACET_PATTERN . '/', (string) $handling_facet)) {
       $form_state->setErrorByName(FordelingskomponentHelper::HANDLING_FACET,
         $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $handling_facet]));
     }
@@ -192,14 +192,10 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     ];
     $elements = array_filter(
       $elements,
-      static function (array $element) use ($elementTypes) {
-        return in_array($element['#type'], $elementTypes, TRUE);
-      }
+      static fn(array $element) => in_array($element['#type'], $elementTypes, TRUE)
     );
 
-    return array_map(static function (array $element) {
-      return $element['#title'];
-    }, $elements);
+    return array_map(static fn(array $element) => $element['#title'], $elements);
   }
 
 }

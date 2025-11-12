@@ -5,16 +5,16 @@ namespace Drupal\os2forms_fordelingskomponent\Model;
 /**
  * The Document class.
  */
-final class Attachment {
-  public const MIME_TYPE_PDF = 'application/pdf';
+final readonly class Attachment {
+  public const string MIME_TYPE_PDF = 'application/pdf';
 
   /**
    * Constructor.
    */
   public function __construct(
-    readonly public string $contents,
-    readonly public string $mimeType,
-    readonly public string $filename,
+    public string $contents,
+    public string $mimeType,
+    public string $filename,
   ) {
   }
 

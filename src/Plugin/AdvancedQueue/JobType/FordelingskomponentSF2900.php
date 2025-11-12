@@ -20,12 +20,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 final class FordelingskomponentSF2900 extends JobTypeBase implements ContainerFactoryPluginInterface {
-  /**
-   * The webform helper.
-   *
-   * @var \Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900
-   */
-  private WebformHelperSF2900 $helper;
 
   /**
    * {@inheritdoc}
@@ -50,10 +44,12 @@ final class FordelingskomponentSF2900 extends JobTypeBase implements ContainerFa
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    WebformHelperSF2900 $helper,
+    /**
+     * The webform helper.
+     */
+    private readonly WebformHelperSF2900 $helper,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->helper = $helper;
   }
 
   /**
