@@ -27,6 +27,9 @@ final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
     parent::__construct();
   }
 
+  /**
+   * The config keys to clear.
+   */
   private static array $configKeysToClear = [
     'uuid',
     '_core',

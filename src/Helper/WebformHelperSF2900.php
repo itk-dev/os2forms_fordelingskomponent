@@ -244,8 +244,10 @@ final class WebformHelperSF2900 implements LoggerInterface {
     }
   }
 
-  public function deleteMessages(array $array)
-  {
+  /**
+   * Delete messages.
+   */
+  public function deleteMessages(array $array) {
     // @todo Clean up
   }
 

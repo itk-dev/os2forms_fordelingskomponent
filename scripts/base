@@ -77,22 +77,33 @@ setup() {
   compose down --remove-orphans
   compose pull
   compose up --detach --remove-orphans --wait
+  # Allow all plugins to run.
+  composer --no-plugins config allow-plugins true
 
   composer config minimum-stability dev
 
-  # https://getcomposer.org/doc/03-cli.md#modifying-repositories
-  composer config repositories.module '{
-    "type": "path",
-    "url": "web/modules/contrib/os2forms_fordelingskomponent",
-    "options": {
-      "symlink": false,
-      "versions": {
-        "os2forms/os2forms_fordelingskomponent": "1.0-dev"
-      }
-    }
-  }'
+  # --------------------------------------------------------------------------------------------------------------------
+  # We need to install dev requirements from our module, so we use
+  # wikimedia/composer-merge-plugin to merge our module composer.json into
+  # Drupal's.
+  #
+  # wikimedia/composer-merge-plugin is dead and has some issues
+  # https://github.com/wikimedia/composer-merge-plugin/issues/159 »
+  # https://github.com/wikimedia/composer-merge-plugin/pull/253
+  #
+  # Install wikimedia/composer-merge-plugin without any configuration
+  composer require wikimedia/composer-merge-plugin --with-all-dependencies
+  # Patch to make COMPOSER_IGNORE_PLATFORM_REQS=1 have effect
+  shell sh -c 'cd vendor/wikimedia/composer-merge-plugin/ && curl https://patch-diff.githubusercontent.com/raw/wikimedia/composer-merge-plugin/pull/253.diff | patch --strip=1'
 
-  composer require os2forms/os2forms_fordelingskomponent --with-all-dependencies
+  # Configure wikimedia/composer-merge-plugin
+  composer --no-plugins config extra.merge-plugin.include "$module_path/composer.json"
+  # Use --json to actually set a boolean value (rather that a string value, e.g. "true")
+  composer --no-plugins config extra.merge-plugin.merge-extra --json true
+  composer --no-plugins config extra.merge-plugin.merge-extra-deep --json true
+  composer update
+  # Our module and its dev requirements are now installed.
+  # --------------------------------------------------------------------------------------------------------------------
 
   # Reset Drupal installation
   compose exec drupal sh -c 'find . -name .ht.sqlite -ls -delete; rm web/sites/default/settings.php' || true

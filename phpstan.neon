@@ -5,4 +5,6 @@ parameters:
   customRulesetUsed: true
   reportUnmatchedIgnoredErrors: false
   excludePaths:
-      - vendor
+      - rector.php
+      # Ignore any vendor folder (https://phpstan.org/user-guide/ignoring-errors#excluding-whole-files)
+      - vendor (?)
