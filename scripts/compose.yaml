@@ -19,5 +19,4 @@ services:
       # Let the module path, i.e. the mounted path, be known in the container
       MODULE_PATH: web/modules/contrib/$MODULE_NAME
       # https://getcomposer.org/doc/03-cli.md#composer-ignore-platform-req-or-composer-ignore-platform-reqs
-      COMPOSER_IGNORE_PLATFORM_REQ: ext-soap,ext-xsl
       COMPOSER_IGNORE_PLATFORM_REQS: 1

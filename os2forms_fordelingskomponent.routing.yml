@@ -1,4 +1,4 @@
-os2forms_fordelingskomponent.settings:
+os2forms_fordelingskomponent.admin.settings:
   path: "/admin/os2forms_fordelingskomponent/settings"
   defaults:
     _title: "Fordelingskomponent settings"

@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManagerInterface;
+use Drupal\Core\Utility\Token;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
 use Drupal\os2forms_fordelingskomponent\Form\SettingsForm;
@@ -17,6 +18,7 @@ use Drupal\os2forms_fordelingskomponent\Plugin\AdvancedQueue\JobType\Fordelingsk
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
+use Drupal\webform\WebformTokenManagerInterface;
 use Drupal\webform_attachment\Element\WebformAttachmentBase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
@@ -48,8 +50,10 @@ final class WebformHelperSF2900 implements LoggerInterface {
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
     #[Autowire(service: 'plugin.manager.element_info')]
-    readonly protected ElementInfoManagerInterface $elementInfoManager,
+    private readonly ElementInfoManagerInterface $elementInfoManager,
     private readonly FordelingskomponentHelper $helper,
+    #[Autowire(service: 'webform.token_manager')]
+    private readonly WebformTokenManagerInterface $webformTokenManager,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
@@ -80,9 +84,9 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
     $attachment = $this->getAttachment($submission, $handlerSettings);
 
-    $titel = __METHOD__;
-    $beskrivelse = __FILE__;
-    $brugervendtNoegle = __METHOD__;
+    $titel = $this->replaceTokens($configuration[FordelingskomponentHelper::TITEL] ?? '', $submission);
+    $beskrivelse = $this->replaceTokens($configuration[FordelingskomponentHelper::BESKRIVELSE] ?? '', $submission);
+    $brugervendtNoegle = $this->replaceTokens($configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? '', $submission);
 
     return $this->helper->sendDokument(
       $submission,
@@ -250,5 +254,13 @@ final class WebformHelperSF2900 implements LoggerInterface {
   public function deleteMessages(array $array) {
     // @todo Clean up
   }
+
+  /**
+   * Replace tokens.
+   */
+  private function replaceTokens(string $text, WebformSubmissionInterface $submission): string {
+    return $this->webformTokenManager->replace($text, $submission);
+  }
+
 
 }

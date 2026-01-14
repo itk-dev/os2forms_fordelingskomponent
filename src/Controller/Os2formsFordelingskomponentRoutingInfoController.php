@@ -39,12 +39,13 @@ final class Os2formsFordelingskomponentRoutingInfoController extends ControllerB
       throw new NotFoundHttpException();
     }
 
-    $settings = $this->helper->getHandlerConfiguration($handler->getConfiguration());
+    $settings = $this->helper->getHandlerConfiguration($handler);
     $info = $this->helper->getRoutingInfo(
       routingMyndighed: $settings[FordelingskomponentHelper::ROUTING_MYNDIGHED],
       kleEmne: $settings[FordelingskomponentHelper::KLE_EMNE],
       handlingFacet: $settings[FordelingskomponentHelper::HANDLING_FACET] ?: NULL,
     );
+
     return [
       'stuff' => [
         '#prefix' => '<pre>',

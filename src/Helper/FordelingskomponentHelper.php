@@ -8,6 +8,7 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Form\SettingsForm;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\os2web_audit\Service\Logger as AuditLogger;
 use Drupal\os2web_key\KeyHelper;
 use Drupal\webform\WebformSubmissionInterface;
@@ -51,6 +52,9 @@ final class FordelingskomponentHelper implements LoggerInterface {
   public const string HANDLING_FACET = 'handling_facet';
   public const string KLE_EMNE_PATTERN = '^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$';
   public const string HANDLING_FACET_PATTERN = '^[A-Z,Æ,Ø,Å][0-9][0-9]$';
+  public const string TITEL = 'titel';
+  public const string BESKRIVELSE = 'beskrivelse';
+  public const string BRUGERVENDT_NOEGLE = 'brugervendt_noegle';
 
   /**
    * Constructor.
@@ -143,7 +147,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
     $routingMyndighed = $configuration[self::ROUTING_MYNDIGHED];
     $routingHandlingFacet = $configuration[self::HANDLING_FACET] ?: NULL;
     // @todo This is probably not correct!
-    $routingModtagerAktoer = $configuration[SettingsForm::SENDER_ID];
+    $routingModtagerAktoer = NULL;
 
     $dokument = new DistributionDokumentType(
       iD: $id,
@@ -294,8 +298,11 @@ final class FordelingskomponentHelper implements LoggerInterface {
    *   The combined configuration.
    */
   public function getHandlerConfiguration(
-    array $handlerSettings,
+    array|WebformHandlerSF2900 $handlerSettings,
   ): array {
+    if ($handlerSettings instanceof WebformHandlerSF2900) {
+      $handlerSettings = (array) $handlerSettings->getSetting(WebformHandlerSF2900::SECTION_SF2900);
+    }
     $settings = $handlerSettings;
     $options = $this->getModuleConfig()->get('sf2900');
 

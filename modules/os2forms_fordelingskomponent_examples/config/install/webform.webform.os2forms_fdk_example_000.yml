@@ -277,7 +277,11 @@ handlers:
     conditions: {}
     weight: 0
     settings:
-      kle_emne: 01.01.01
-      handling_facet: ""
-      attachment_element: digital_post_content_pdf
+      sf2900:
+        kle_emne: 01.01.01
+        handling_facet: G87
+        attachment_element: afsend_content_pdf
+        brugervendt_noegle: "What is “Brugervendt nøgle”?"
+        titel: "Your document"
+        beskrivelse: "This is a very important document"
 variants: {}
