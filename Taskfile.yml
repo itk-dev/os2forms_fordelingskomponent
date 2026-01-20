@@ -29,3 +29,7 @@ tasks:
     cmds:
       - task --list
     silent: true
+
+  xdebug:test:
+    cmds:
+      - PHP_XDEBUG_MODE=debug PHP_XDEBUG_WITH_REQUEST=yes PHP_IDE_CONFIG=serverName=localhost docker compose run --env PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST --env PHP_IDE_CONFIG --rm phpfpm vendor/bin/phpunit {{.CLI_ARGS}}

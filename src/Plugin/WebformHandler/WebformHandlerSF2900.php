@@ -4,7 +4,6 @@ namespace Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Lock\NullLockBackend;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
@@ -55,7 +54,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $form[static::SECTION_SF2900] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Fordelingskomponent'),
-      '#tree' => true,
+      '#tree' => TRUE,
     ];
 
     $configuration = $this->configuration[static::SECTION_SF2900] ?? NULL;
@@ -92,16 +91,16 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $form[static::SECTION_SF2900][FordelingskomponentHelper::BRUGERVENDT_NOEGLE] = [
       '#title' => $this->t('Brugervendt nøgle'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? null,
-      '#required' => true,
+      '#default_value' => $configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? NULL,
+      '#required' => TRUE,
       '#description' => 'WHAT IS THIS?!',
     ];
 
     $form[static::SECTION_SF2900][FordelingskomponentHelper::TITEL] = [
       '#title' => $this->t('Titel'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::TITEL] ?? null,
-      '#required' => true,
+      '#default_value' => $configuration[FordelingskomponentHelper::TITEL] ?? NULL,
+      '#required' => TRUE,
     ];
 
     $form[static::SECTION_SF2900][FordelingskomponentHelper::BESKRIVELSE] = [
@@ -121,12 +120,12 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $values = $form_state->getValue(static::SECTION_SF2900);
     $kleEMne = $values[FordelingskomponentHelper::KLE_EMNE];
     if (!preg_match('/' . FordelingskomponentHelper::KLE_EMNE_PATTERN . '/', (string) $kleEMne)) {
-      $form_state->setErrorByName(static::SECTION_SF2900.']['.FordelingskomponentHelper::KLE_EMNE, $this->t('Invalid KLE-emne: %kle_emne.', ['%kle_emne' => $kleEMne]));
+      $form_state->setErrorByName(static::SECTION_SF2900 . '][' . FordelingskomponentHelper::KLE_EMNE, $this->t('Invalid KLE-emne: %kle_emne.', ['%kle_emne' => $kleEMne]));
     }
 
     $handling_facet = $values[FordelingskomponentHelper::HANDLING_FACET];
     if (!empty($handling_facet) && !preg_match('/' . FordelingskomponentHelper::HANDLING_FACET_PATTERN . '/', (string) $handling_facet)) {
-      $form_state->setErrorByName(static::SECTION_SF2900.']['.FordelingskomponentHelper::HANDLING_FACET,
+      $form_state->setErrorByName(static::SECTION_SF2900 . '][' . FordelingskomponentHelper::HANDLING_FACET,
         $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $handling_facet]));
     }
 
