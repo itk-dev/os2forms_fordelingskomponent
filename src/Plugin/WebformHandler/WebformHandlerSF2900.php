@@ -175,8 +175,8 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    * {@inheritdoc}
    */
   public function getSummary() {
-    $kleEmne = $this->configuration[FordelingskomponentHelper::KLE_EMNE];
-    $handlingFacet = $this->configuration[FordelingskomponentHelper::HANDLING_FACET];
+    $kleEmne = $this->configuration[self::SECTION_SF2900][FordelingskomponentHelper::KLE_EMNE];
+    $handlingFacet = $this->configuration[self::SECTION_SF2900][FordelingskomponentHelper::HANDLING_FACET];
 
     $build = [
       'info' => [
