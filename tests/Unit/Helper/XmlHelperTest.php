@@ -13,6 +13,11 @@ use Twig\Loader\ArrayLoader;
  */
 class XmlHelperTest extends AbstractTestCase {
   /**
+   * The Twig environment.
+   */
+  private Environment $twig;
+
+  /**
    * The XML helper.
    */
   private XmlHelper $helper;
@@ -22,12 +27,24 @@ class XmlHelperTest extends AbstractTestCase {
    */
   protected function setUp(): void {
     // @todo Do this is the right way.
-    $this->helper = new XmlHelper(new Environment(new ArrayLoader()));
+    $this->twig = new Environment(new ArrayLoader());
+    $this->helper = new XmlHelper($this->twig);
   }
 
   /**
    * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
-   * @dataProvider provideRenderData
+   */
+  public function testStrictVariables(): void {
+    $this->assertFalse($this->twig->isStrictVariables());
+    $this->helper->validateTemplate('<e/>');
+    $this->helper->validateXml('<e/>');
+    $this->helper->render('<e/>', []);
+    $this->assertFalse($this->twig->isStrictVariables());
+  }
+
+  /**
+   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
+   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideRenderData
    */
   public function testRender(
     string $template,
@@ -44,9 +61,25 @@ class XmlHelperTest extends AbstractTestCase {
 
   /**
    * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
-   * @dataProvider provideValidateData
+   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideValidateTemplateData()
    */
-  public function testValidate(
+  public function testValidateTemplate(
+    string $template,
+    ?InvalidXmlTemplateException $expected = NULL,
+  ) {
+    if ($expected instanceof InvalidXmlTemplateException) {
+      $this->expectException($expected::class);
+    }
+
+    $this->helper->validateTemplate($template);
+    $this->assertTrue(TRUE);
+  }
+
+  /**
+   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
+   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideValidateXmlData()
+   */
+  public function testValidateXml(
     string $template,
     string $xsdUrl,
     ?InvalidXmlTemplateException $expected = NULL,
@@ -55,149 +88,8 @@ class XmlHelperTest extends AbstractTestCase {
       $this->expectException($expected::class);
     }
 
-    $this->helper->validate($template, $xsdUrl);
+    $this->helper->validateXml($template, $xsdUrl);
     $this->assertTrue(TRUE);
-  }
-
-  /**
-   * Data provider.
-   */
-  public static function provideRenderData(): iterable {
-    yield [
-      'This is not an XML document',
-    [],
-      new InvalidXmlTemplateException(),
-    ];
-
-    yield [
-      <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <Header>
-        <Myndighed>urn:oio:cvr-nr:{{ handlers.settings.cvr }}</Myndighed>
-        <ModtagetDato>{{ webform_submission.completed|date('Y-m-d') }}</ModtagetDato>
-        <KLE>{{ handlers.settings.kle }}</KLE>
-    </Header>
-    <AnsoegerOplysninger>
-        <Ansoeger>
-            <Fornavn>{{ webform_submission.data.fornavn }}</Fornavn>
-            <Efternavn>{{ webform_submission.data.efternavn }}</Efternavn>
-            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
-        </Ansoeger>
-    </AnsoegerOplysninger>
-    <Sagstype>
-        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
-    </Sagstype>
-    <Underskriftsoplysninger>
-        <Underskrift>Underskrift0</Underskrift>
-        <Underskriftsdato>{{ webform_submission.completed|date('Y-m-d') }}</Underskriftsdato>
-    </Underskriftsoplysninger>
-</Anmodning>
-XML,
-      [
-        'handlers' => [
-          'settings' => [
-            'cvr' => '12345678',
-            'kle' => '01.02.03',
-          ],
-        ],
-        'webform_submission' => self::createWebformSubmission([
-          'completed' => (new \DateTimeImmutable('2001-01-01T00:00:00Z'))->getTimestamp(),
-          'data' => [
-            'fornavn' => 'Anders',
-            'efternavn' => 'And',
-          ],
-        ]),
-      ],
-      <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <Header>
-        <Myndighed>urn:oio:cvr-nr:12345678</Myndighed>
-        <ModtagetDato>2001-01-01</ModtagetDato>
-        <KLE>01.02.03</KLE>
-    </Header>
-    <AnsoegerOplysninger>
-        <Ansoeger>
-            <Fornavn>Anders</Fornavn>
-            <Efternavn>And</Efternavn>
-            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
-        </Ansoeger>
-    </AnsoegerOplysninger>
-    <Sagstype>
-        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
-    </Sagstype>
-    <Underskriftsoplysninger>
-        <Underskrift>Underskrift0</Underskrift>
-        <Underskriftsdato>2001-01-01</Underskriftsdato>
-    </Underskriftsoplysninger>
-</Anmodning>
-XML,
-    ];
-  }
-
-  /**
-   * Create webform submission.
-   */
-  private static function createWebformSubmission(array $values): array {
-    return $values;
-  }
-
-  /**
-   * Data provider.
-   */
-  public static function provideValidateData(): iterable {
-    yield [
-      <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <Header>
-        <Myndighed>urn:oio:cvr-nr:12345678</Myndighed>
-        <ModtagetDato>2001-01-01</ModtagetDato>
-        <KLE>01.02.03</KLE>
-    </Header>
-    <AnsoegerOplysninger>
-        <Ansoeger>
-            <Fornavn>Anders</Fornavn>
-            <Efternavn>And</Efternavn>
-            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
-        </Ansoeger>
-    </AnsoegerOplysninger>
-    <Sagstype>
-        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
-    </Sagstype>
-    <Underskriftsoplysninger>
-        <Underskrift>Underskrift0</Underskrift>
-        <Underskriftsdato>2001-01-01</Underskriftsdato>
-    </Underskriftsoplysninger>
-</Anmodning>
-XML,
-      'file://' . realpath(__DIR__ . '/../../resources/xsd/Anmodning.xsd'),
-    ];
-
-    yield [
-      <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <AnsoegerOplysninger>
-        <Ansoeger>
-            <Fornavn>Anders</Fornavn>
-            <Efternavn>And</Efternavn>
-            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
-        </Ansoeger>
-    </AnsoegerOplysninger>
-    <Sagstype>
-        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
-    </Sagstype>
-    <Underskriftsoplysninger>
-        <Underskrift>Underskrift0</Underskrift>
-        <Underskriftsdato>2001-01-01</Underskriftsdato>
-    </Underskriftsoplysninger>
-</Anmodning>
-XML,
-      'file://' . realpath(__DIR__ . '/../../resources/xsd/Anmodning.xsd'),
-      new InvalidXmlTemplateException(),
-    ];
   }
 
 }

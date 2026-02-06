@@ -4,6 +4,7 @@ namespace Drupal\os2forms_fordelingskomponent\Helper;
 
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
 use Twig\Environment;
+use Twig\TemplateWrapper;
 
 /**
  * XML helper.
@@ -19,12 +20,39 @@ class XmlHelper {
   }
 
   /**
+   * Wrapper to enable strict variables on the Twig environment.
+   *
+   * To not break the Twig instance for others, we restore the strict variables
+   * state on the instance after running our code.
+   *
+   * Important: All code in this class that uses the Twig instance must be run
+   * with this wrapper.
+   */
+  private function useTwig(callable $callback): mixed {
+    try {
+      $strictVariables = $this->twig->isStrictVariables();
+      $this->twig->enableStrictVariables();
+      return $callback();
+    } finally {
+      if ($strictVariables) {
+        $this->twig->enableStrictVariables();
+      }
+      else {
+        $this->twig->disableStrictVariables();
+      }
+    }
+  }
+
+  /**
    * Render XML template.
    */
   public function render(string $template, array $context): string {
     try {
       $this->checkXml($template);
-      return $this->twig->createTemplate($template)->render($context);
+
+      return $this->useTwig(
+        fn () => $this->createTemplate($template)->render($context)
+      );
     }
     catch (\Throwable $exception) {
       throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
@@ -32,10 +60,26 @@ class XmlHelper {
   }
 
   /**
-   * Validate XML using an XSD.
+   * Check that Twig template is valid, i.e. has no syntax errors.
    */
-  public function validate(string $xml, string $xsdUrl): void {
+  public function validateTemplate(string $template): void {
+    try {
+      $this->createTemplate($template);
+    }
+    catch (\Throwable $exception) {
+      throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
+    }
+  }
+
+  /**
+   * Check that XML is valid. Optionally validate using an XSD.
+   */
+  public function validateXml(string $xml, ?string $xsdUrl = NULL): void {
     $this->checkXml($xml);
+
+    if (NULL === $xsdUrl) {
+      return;
+    }
 
     // https://www.php.net/manual/en/function.libxml-use-internal-errors.php
     $useInternalErrors = libxml_use_internal_errors(TRUE);
@@ -97,6 +141,15 @@ class XmlHelper {
     } finally {
       libxml_use_internal_errors($useInternalErrors);
     }
+  }
+
+  /**
+   * Create a Twig template.
+   */
+  private function createTemplate(string $template): TemplateWrapper {
+    return $this->useTwig(
+      fn() => $this->twig->createTemplate($template)
+    );
   }
 
   /**

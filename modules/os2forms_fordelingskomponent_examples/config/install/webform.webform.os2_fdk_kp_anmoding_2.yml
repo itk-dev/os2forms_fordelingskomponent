@@ -64,8 +64,8 @@ close: null
 uid: 1
 template: false
 archive: false
-id: os2_fdk_kp_anmoding
-title: "OS2Forms Fordelingskomponent: Anmodning (KP)"
+id: os2_fdk_kp_anmoding_2
+title: "OS2Forms Fordelingskomponent: Anmodning (KP) – II"
 description: ""
 categories:
   - Example
@@ -298,28 +298,7 @@ handlers:
               Underskriftsdato: "[webform_submission:completed:custom:Y-m-d]"
 
         xml_template: |
-          <?xml version="1.0" encoding="UTF-8"?>
-          <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handlers.settings.cvr }}</Myndighed>
-                  <ModtagetDato>{{ webform_submission.complete|date(Y-m-d) }}</ModtagetDato>
-                  <KLE>{{ handlers.settings.kle }}</KLE>
-              </Header>
-              <AnsoegerOplysninger>
-                  <Ansoeger>
-                      <Fornavn>{{ webform_submission.values.fornavn }}</Fornavn>
-                      <Efternavn>{{ webform_submission.values.efternavn }}</Efternavn>
-                      <Personnummer>urn:oio:cpr:0000000000</Personnummer>
-                  </Ansoeger>
-              </AnsoegerOplysninger>
-              <Sagstype>
-                  <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
-              </Sagstype>
-              <Underskriftsoplysninger>
-                  <Underskrift>Underskrift0</Underskrift>
-                  <Underskriftsdato>{{ webform_submission.complete|date('Y-m-d') }}</Underskriftsdato>
-              </Underskriftsoplysninger>
-          </Anmodning>
+          module://os2forms_fordelingskomponent_examples/resources/templates/os2_fdk_kp_anmoding.xml.twig
 
         xsd_url: module://os2forms_fordelingskomponent_examples/resources/xsd/Anmodning.xsd
 

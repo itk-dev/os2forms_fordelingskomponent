@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManagerInterface;
-use Drupal\Core\Utility\Token;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
 use Drupal\os2forms_fordelingskomponent\Form\SettingsForm;
@@ -261,6 +260,5 @@ final class WebformHelperSF2900 implements LoggerInterface {
   private function replaceTokens(string $text, WebformSubmissionInterface $submission): string {
     return $this->webformTokenManager->replace($text, $submission);
   }
-
 
 }
