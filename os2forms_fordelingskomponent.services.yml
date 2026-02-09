@@ -13,3 +13,7 @@ services:
   Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
 
   Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900:
+
+  Drupal\os2forms_fordelingskomponent\Helper\XmlHelper:
+
+  Drupal\os2forms_fordelingskomponent\Hook\Hooks:

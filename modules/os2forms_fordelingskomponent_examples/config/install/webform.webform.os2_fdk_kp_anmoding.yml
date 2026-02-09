@@ -271,44 +271,18 @@ handlers:
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
-        xml_structure:
-          - name: Anmodning
-            elements:
-          - name: Header
-            elements:
-              - name:
-
-        xml_stuff:
-          Anmodning:
-            Header:
-              # Static values
-              Myndighed: "urn:oio:cvr-nr:00000000"
-              ModtagetDato: "2006-05-04"
-              KLE: KLE
-            AnsoegerOplysninger:
-              Ansoeger:
-                # Submission values
-                Fornavn: "[webform_submission:values:fornavn]"
-                Efternavn: "[webform_submission:values:efternavn]"
-                Personnummer: "[webform_submission:values:personnummer]"
-            Sagstype:
-              AlmindeligtHelbredstillaeg: "[webform_submission:values:almindeligthelbredstillaeg]"
-            Underskriftsoplysninger:
-              Underskrift: "[webform_submission:values:underskrift]"
-              Underskriftsdato: "[webform_submission:completed:custom:Y-m-d]"
-
         xml_template: |
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handlers.settings.cvr }}</Myndighed>
-                  <ModtagetDato>{{ webform_submission.complete|date(Y-m-d) }}</ModtagetDato>
-                  <KLE>{{ handlers.settings.kle }}</KLE>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
               </Header>
               <AnsoegerOplysninger>
                   <Ansoeger>
-                      <Fornavn>{{ webform_submission.values.fornavn }}</Fornavn>
-                      <Efternavn>{{ webform_submission.values.efternavn }}</Efternavn>
+                      <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+                      <Efternavn>{{ submission.data.efternavn }}</Efternavn>
                       <Personnummer>urn:oio:cpr:0000000000</Personnummer>
                   </Ansoeger>
               </AnsoegerOplysninger>
@@ -317,7 +291,7 @@ handlers:
               </Sagstype>
               <Underskriftsoplysninger>
                   <Underskrift>Underskrift0</Underskrift>
-                  <Underskriftsdato>{{ webform_submission.complete|date('Y-m-d') }}</Underskriftsdato>
+                  <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
               </Underskriftsoplysninger>
           </Anmodning>
 

@@ -190,19 +190,30 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       ],
     ];
 
-    if ($kleEmne) {
-      $build['routing_info'] = [
-        '#prefix' => '<div>',
-        '#suffix' => '</div>',
+    $items = [];
+
+    $items[] = Link::createFromRoute(
+      $this->t('Preview payload'),
+      'os2forms_fordelingskomponent.fordelingskomponent_payload.preview', [
+        'webform' => $this->getWebform()->id(),
+        'handler' => $this->getHandlerId(),
       ]
-        + Link::createFromRoute(
+    );
+
+    if ($kleEmne) {
+      $items[] = Link::createFromRoute(
           $this->t('Show routing info'),
           'os2forms_fordelingskomponent.routing_info', [
             'webform' => $this->getWebform()->id(),
             'handler' => $this->getHandlerId(),
           ]
-        )->toRenderable();
+        );
     }
+
+    $build['links'] = [
+      '#theme' => 'item_list',
+      '#items' => $items,
+    ];
 
     return $build;
   }

@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Module file for os2forms_fordelingskomponent.
+ */
+
+use Drupal\os2forms_fordelingskomponent\Hook\Hooks;
+
+/**
+ * Implements hook_theme().
+ */
+function os2forms_fordelingskomponent_theme(array $existing, string $type, string $theme, string $path) : array {
+  return \Drupal::service(Hooks::class)->theme($existing, $type, $theme, $path);
+}

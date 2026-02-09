@@ -2,7 +2,12 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\webform\Plugin\WebformHandlerInterface;
+use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\TemplateWrapper;
 
@@ -10,13 +15,20 @@ use Twig\TemplateWrapper;
  * XML helper.
  */
 class XmlHelper {
+  /**
+   * The module config.
+   */
+  private ImmutableConfig $moduleSettings;
 
   /**
    * Constructor.
    */
   public function __construct(
+    #[Autowire(service: 'twig')]
     private readonly Environment $twig,
+    ConfigFactoryInterface $configFactory,
   ) {
+    $this->moduleSettings = $configFactory->get('os2forms_fordelingskomponent.settings');
   }
 
   /**
@@ -60,6 +72,19 @@ class XmlHelper {
   }
 
   /**
+   * Get render context.
+   */
+  public function getRenderContext(WebformHandlerInterface $handler, WebformSubmissionInterface $submission) {
+    return [
+      'module' => [
+        'settings' => $this->moduleSettings->get(),
+      ],
+      'handler' => $handler,
+      'submission' => $submission,
+    ];
+  }
+
+  /**
    * Check that Twig template is valid, i.e. has no syntax errors.
    */
   public function validateTemplate(string $template): void {
@@ -73,8 +98,11 @@ class XmlHelper {
 
   /**
    * Check that XML is valid. Optionally validate using an XSD.
+   *
+   * @throws \Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException
+   *   An exception.
    */
-  public function validateXml(string $xml, ?string $xsdUrl = NULL): void {
+  public function validateXml(string $xml, ?string $xsdUrl = NULL, bool $loadXsdContent = FALSE): void {
     $this->checkXml($xml);
 
     if (NULL === $xsdUrl) {
@@ -83,6 +111,13 @@ class XmlHelper {
 
     // https://www.php.net/manual/en/function.libxml-use-internal-errors.php
     $useInternalErrors = libxml_use_internal_errors(TRUE);
+
+    if ($loadXsdContent) {
+      $content = file_get_contents($xsdUrl);
+      if (FALSE === $content) {
+        throw new InvalidXmlTemplateException(sprintf('Error loading XSD: %s', $xsdUrl));
+      }
+    }
 
     try {
       $reader = new \XMLReader();

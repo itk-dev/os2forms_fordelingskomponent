@@ -9,5 +9,7 @@ dependencies:
   - "os2web_audit:os2web_audit"
   # Why don't we get this dependency implicitly from os2web_key?
   - "key:key"
+  - "system_stream_wrapper:system_stream_wrapper"
+  - "webform:webform"
 
 configure: os2forms_fordelingskomponent.admin.settings

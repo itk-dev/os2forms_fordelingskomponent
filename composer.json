@@ -11,12 +11,12 @@
     ],
     "require": {
         "ext-dom": "*",
-        "drupal/webform": "^6.1",
+        "drupal/system_stream_wrapper": "^2.1",
+        "drupal/webform": "^6.2",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten",
         "os2web/os2web_audit": "^1.2",
-        "os2web/os2web_key": "^1.0",
-        "drupal/system_stream_wrapper": "^2.1"
+        "os2web/os2web_key": "^1.0"
     },
     "require-dev": {
         "drupal/coder": "^8.3",
