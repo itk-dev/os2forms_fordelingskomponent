@@ -62,3 +62,22 @@ key_provider_settings:
 key_input: none
 key_input_settings: {  }
 ```
+
+## Development
+
+``` shell
+task composer:install
+```
+
+### Composer install hacks
+
+``` shell name=composer-install-hack
+# Create a temporary composer file to install https://github.com/mglaman/composer-drupal-lenient before the real install needs it.
+docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer init --no-interaction
+docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
+docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer require mglaman/composer-drupal-lenient
+docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm rm composer.lenient.*
+
+# Now we can install what we actually need.
+docker compose run --rm phpfpm composer install
+```

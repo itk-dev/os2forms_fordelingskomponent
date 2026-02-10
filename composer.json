@@ -12,15 +12,13 @@
     "require": {
         "ext-dom": "*",
         "drupal/system_stream_wrapper": "^2.1",
-        "drupal/webform": "^6.2",
         "drush/drush": "^12 || ^13",
-        "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten",
-        "os2web/os2web_audit": "^1.2",
-        "os2web/os2web_key": "^1.0"
+        "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten as 1.7.9999",
+        "os2forms/os2forms": "^5.0"
     },
     "require-dev": {
         "drupal/coder": "^8.3",
-        "ergebnis/composer-normalize": "^2.49",
+        "ergebnis/composer-normalize": "^2.50",
         "mglaman/phpstan-drupal": "^2.0",
         "phpstan/extension-installer": "^1.4",
         "phpunit/phpunit": "^9.6",
@@ -45,7 +43,19 @@
             "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
-            "phpstan/extension-installer": true
+            "mglaman/composer-drupal-lenient": true,
+            "phpstan/extension-installer": true,
+            "simplesamlphp/composer-module-installer": false,
+            "simplesamlphp/composer-xmlprovider-installer": false,
+            "zaporylie/composer-drupal-optimizations": true
+        }
+    },
+    "extra": {
+        "drupal-lenient": {
+            "allowed-list": [
+                "drupal/coc_forms_auto_export",
+                "drupal/webform_node_element"
+            ]
         }
     }
 }

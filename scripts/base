@@ -77,6 +77,15 @@ setup() {
   compose down --remove-orphans
   compose pull
   compose up --detach --remove-orphans --wait
+
+  # @todo Do this in a dockerfile.
+  compose exec drupal sh -c 'apt update && apt --yes install git'
+
+  COMPOSER=composer.lenient.json composer init --no-interaction
+  COMPOSER=composer.lenient.json composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
+  COMPOSER=composer.lenient.json composer require mglaman/composer-drupal-lenient
+  # COMPOSER=composer.lenient.json rm composer.lenient.*
+
   # Allow all plugins to run.
   composer --no-plugins config allow-plugins true
 
