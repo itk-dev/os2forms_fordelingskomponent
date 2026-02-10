@@ -19,7 +19,7 @@ os2forms_fordelingskomponent.routing_info:
     _permission: "administer site configuration"
 
 os2forms_fordelingskomponent.fordelingskomponent_payload.preview:
-  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/payload/{handler}/preview"
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/payload/{webform_handler}/preview"
   defaults:
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentPayloadPreviewController'
     _title: "Fordelingskomponent payload preview"
@@ -27,13 +27,11 @@ os2forms_fordelingskomponent.fordelingskomponent_payload.preview:
     parameters:
       webform:
         type: "entity:webform"
-      handler:
-        type: "entity:webform_handler"
   requirements:
     _permission: "view any webform submission"
 
 os2forms_fordelingskomponent.fordelingskomponent_payload.preview_render:
-  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/payload/{handler}/preview/render/{submission}"
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/payload/{webform_handler}/preview/render/{submission}"
   defaults:
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentPayloadPreviewRenderController'
     _title: "Fordelingskomponent payload preview"

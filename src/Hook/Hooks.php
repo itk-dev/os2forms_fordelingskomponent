@@ -10,7 +10,7 @@ class Hooks {
   /**
    * Implements hook_theme().
    */
-  public function theme(array $existing, string $type, string $theme, string $path) : array {
+  public function theme(array $existing, string $type, string $theme, string $path): array {
     {
     return [
       'os2forms_fordelingskomponent_payload_preview' => [

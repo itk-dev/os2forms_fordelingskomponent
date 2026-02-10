@@ -14,19 +14,19 @@
               <pre><code>{{ template }}</code></pre>
           </details>
 
-      {% for exception in exceptions %}
-          <div class="alert alert-danger" role="alert">
-              {{ exception.message }}
-          </div>
-      {% endfor %}
+          {% for exception in exceptions %}
+              <div class="alert alert-danger" role="alert">
+                  {{ exception.message }}
+              </div>
+          {% endfor %}
 
-      {% for warning in warnings %}
-          <div class="alert alert-warning" role="alert">
-              {{ warning.message }}
-          </div>
-      {% endfor %}
+          {% for warning in warnings %}
+              <div class="alert alert-warning" role="alert">
+                  {{ warning.message }}
+              </div>
+          {% endfor %}
 
-      <pre><code>{{ xml }}</code></pre>
+          <pre><code>{{ xml }}</code></pre>
       </div>
   </body>
 </html>

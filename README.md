@@ -12,3 +12,53 @@
    Note: The "SFTP private key" key must be passwordless.
 
 2. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
+
+## Console commands
+
+``` shell
+drush os2forms-fordelingskomponent:sftp:ls
+```
+
+---
+
+``` shell name=key-create-sf2900_certificate
+drush config:set --input-format=yaml key.key.sf2900_certificate '?' - <<'EOF'
+langcode: da
+status: true
+dependencies:
+  module:
+    - os2web_key
+id: sf2900_certificate
+label: 'SF2900 Certificate'
+description: ''
+key_type: os2web_key_certificate
+key_type_settings:
+  passphrase: …
+  input_format: pfx
+  output_format: pem
+key_provider: file
+key_provider_settings:
+  file_location: /app/cert/OS2Forms_FordelingUdvikling.p12
+  strip_line_breaks: false
+key_input: none
+key_input_settings: {  }
+EOF
+```
+
+``` shell name=key-create-sf2900_sftp_private_key
+drush config:set --input-format=yaml key.key.sf2900_sftp_private_key '?' - <<'EOF'
+langcode: da
+status: true
+dependencies: {  }
+id: sf2900_sftp_private_key
+label: 'SF2900 SFTP private key'
+description: ''
+key_type: authentication
+key_type_settings: {  }
+key_provider: file
+key_provider_settings:
+  file_location: /app/cert/OS2Forms_FordelingUdvikling-sftp-nopass
+  strip_line_breaks: false
+key_input: none
+key_input_settings: {  }
+```

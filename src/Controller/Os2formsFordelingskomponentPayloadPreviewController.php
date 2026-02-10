@@ -31,8 +31,8 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
   /**
    * Builds the response.
    */
-  public function __invoke(Request $request, WebformInterface $webform, string $handler): array|Response {
-    $handler = $webform->getHandler($handler);
+  public function __invoke(Request $request, WebformInterface $webform, string $webform_handler): array|Response {
+    $handler = $webform->getHandler($webform_handler);
     $submissionIds = array_keys($this->submissionStorage->getQuery()
       ->accessCheck()
       ->condition('webform_id', $webform->id())
@@ -48,7 +48,7 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
     $previewUrls = array_map(
       static fn($submission) => Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_payload.preview', [
         'webform' => $webform->id(),
-        'handler' => $handler->getHandlerId(),
+        'webform_handler' => $handler->getHandlerId(),
         'submission' => $submission,
       ]),
       array_filter([
@@ -61,7 +61,7 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
     $renderUrl = NULL !== $currentSubmission
       ? Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_payload.preview_render', [
         'webform' => $webform->id(),
-        'handler' => $handler->getHandlerId(),
+        'webform_handler' => $handler->getHandlerId(),
         'submission' => $currentSubmission,
       ])
       : NULL;

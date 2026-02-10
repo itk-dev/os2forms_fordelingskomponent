@@ -26,8 +26,8 @@ final class Os2formsFordelingskomponentPayloadPreviewRenderController extends Co
   /**
    * Builds the response.
    */
-  public function __invoke(WebformInterface $webform, string $handler, WebformSubmissionInterface $submission): Response {
-    $handler = $webform->getHandler($handler);
+  public function __invoke(WebformInterface $webform, string $webform_handler, WebformSubmissionInterface $submission): Response {
+    $handler = $webform->getHandler($webform_handler);
     $handlerSettings = $handler->getSetting('sf2900');
 
     $exceptions = [];

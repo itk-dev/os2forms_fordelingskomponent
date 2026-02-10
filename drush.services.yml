@@ -1,0 +1,14 @@
+services:
+  os2forms_fordelingskomponent.sftp.ls:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpLsCommand
+    arguments:
+      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    tags:
+      - { name: console.command }
+
+  os2forms_fordelingskomponent.sned.journalnotat:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SendJournalnotat
+    arguments:
+      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    tags:
+      - { name: console.command }

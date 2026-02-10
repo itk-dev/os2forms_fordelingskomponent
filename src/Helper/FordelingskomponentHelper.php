@@ -261,7 +261,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
   /**
    * Get a singleton instance of SF2900.
    */
-  private function sf2900(): SF2900 {
+  public function sf2900(): SF2900 {
     if (!isset($this->sf2900)) {
       $options = $this->getModuleConfig()->get('sf2900');
       $certificateKey = $this->keyRepository->getKey($options['certificate']);

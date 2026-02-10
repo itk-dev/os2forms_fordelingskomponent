@@ -271,6 +271,10 @@ handlers:
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
+        distribution_type: DISTRIBUTION_DOKUMENT_TYPE
+        # DISTRIBUTION_JOURNAL_POST_TYPE
+        # DISTRIBUTION_FORMULAR_TYPE
+
         xml_template: |
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

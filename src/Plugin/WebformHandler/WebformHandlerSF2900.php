@@ -196,7 +196,15 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       $this->t('Preview payload'),
       'os2forms_fordelingskomponent.fordelingskomponent_payload.preview', [
         'webform' => $this->getWebform()->id(),
-        'handler' => $this->getHandlerId(),
+        'webform_handler' => $this->getHandlerId(),
+      ]
+    );
+
+    $items[] = Link::createFromRoute(
+      $this->t('Edit handler'),
+      'entity.webform.handler.edit_form', [
+        'webform' => $this->getWebform()->id(),
+        'webform_handler' => $this->getHandlerId(),
       ]
     );
 
