@@ -11,6 +11,13 @@
 
    Note: The "SFTP private key" key must be passwordless.
 
+   You can use `ssh-keygen` to remove the password from a certificate:
+
+   ``` shell
+   cp cert/sf2900-sftp cert/sf2900-sftp-nopass
+   ssh-keygen -p -N "" -f cert/sf2900-sftp-nopass
+   ```
+
 2. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
 
 ## Console commands

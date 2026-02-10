@@ -13,10 +13,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 // phpcs:disable Drupal.Commenting.ClassComment.Missing
 #[AsCommand(
-  name: 'os2forms-fordelingskomponent:sftp:ls',
-  description: 'List files on SFTP server',
+  name: 'os2forms-fordelingskomponent:sftp:get',
+  description: 'Get file from SFTP server',
 )]
-final class SftpLsCommand extends AbstractCommand {
+final class SftpGetCommand extends AbstractCommand {
 
   /**
    * {@inheritdoc}
@@ -25,7 +25,8 @@ final class SftpLsCommand extends AbstractCommand {
    */
   protected function configure(): void {
     $this
-      ->addArgument('dir', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'List of directory paths', [SftpHelper::OUTGOING_FOLDER]);
+      ->addArgument('filename', InputArgument::REQUIRED, 'Name of file to get')
+      ->addArgument('dir', InputArgument::OPTIONAL, 'Directory', SftpHelper::OUTGOING_FOLDER);
   }
 
   /**
@@ -34,18 +35,22 @@ final class SftpLsCommand extends AbstractCommand {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
     $sftp = $this->helper->sf2900()->sftp();
-    $dirs = (array) $input->getArgument('dir');
-    foreach ($dirs as $dir) {
-      // @todo getFiles does not complain when using an invalid directory …
-      $files = $sftp->getFiles($dir);
-      $files = array_filter($files, fn (string $file) => !preg_match('/^[.]+$/', $file));
-      $io->section($dir);
-      foreach ($files as $file) {
-        $io->writeln($file);
-      }
-    }
 
-    return self::SUCCESS;
+    $filename = $input->getArgument('filename');
+    $dir = $input->getArgument('dir');
+
+    try {
+      $contents = $sftp->getContents($filename, $dir);
+
+      echo $contents;
+
+      return self::SUCCESS;
+    }
+    catch (\Exception $exception) {
+      $io->error($exception->getMessage());
+
+      return self::FAILURE;
+    }
   }
 
 }

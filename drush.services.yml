@@ -6,8 +6,22 @@ services:
     tags:
       - { name: console.command }
 
+  os2forms_fordelingskomponent.sftp.put:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpPutCommand
+    arguments:
+      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    tags:
+      - { name: console.command }
+
+  os2forms_fordelingskomponent.sftp.get:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpGetCommand
+    arguments:
+      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    tags:
+      - { name: console.command }
+
   os2forms_fordelingskomponent.sned.journalnotat:
-    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SendJournalnotat
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SendJournalnotatCommand
     arguments:
       - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
     tags:

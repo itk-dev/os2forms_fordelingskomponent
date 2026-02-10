@@ -272,6 +272,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
       $privateKeyKey = $this->keyRepository->getKey($options['sftp']['private_key']);
       $privateKey = $privateKeyKey->getKeyValue();
       $sf2900options = [
+        'test_mode' => (bool) $this->getModuleConfig()->get('test_mode'),
         'authority_cvr' => $options['sender_id'],
         'certificate' => $certificate,
         'sftp' => [
