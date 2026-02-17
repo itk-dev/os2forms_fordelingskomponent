@@ -265,15 +265,15 @@ handlers:
     settings:
       sf2900:
         kle_emne: 01.01.01
-        handling_facet: G87
-        attachment_element: afsend_content_pdf
+        handling_facet: ""
+        attachment_element: attachment
         brugervendt_noegle: "What is “Brugervendt nøgle”?"
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
-        distribution_type: DISTRIBUTION_DOKUMENT_TYPE
-        # DISTRIBUTION_JOURNAL_POST_TYPE
-        # DISTRIBUTION_FORMULAR_TYPE
+        # distribution_type: JOURNALPOST
+        # distribution_type: DOKUMENT
+        distribution_type: FORMULAR
 
         xml_template: |
           <?xml version="1.0" encoding="UTF-8"?>
@@ -299,16 +299,151 @@ handlers:
               </Underskriftsoplysninger>
           </Anmodning>
 
-        xsd_url: module://os2forms_fordelingskomponent_examples/resources/xsd/Anmodning.xsd
+        xsd_url: module://os2forms_fordelingskomponent_examples/resources/SP/SF2900_XSD/Anmodning.xsd
+
+  os2forms_fordelingskomponent_sf2900_malformed_xml:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: os2forms_fordelingskomponent_sf2900_malformed_xml
+    label: "Fordelingskomponent (sf2900) (malformed XML)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: 0
+    settings:
+      sf2900:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        attachment_element: attachment
+        brugervendt_noegle: "What is “Brugervendt nøgle”?"
+        titel: "Your document"
+        beskrivelse: "This is a very important document"
+
+        # distribution_type: JOURNALPOST
+        # distribution_type: DOKUMENT
+        distribution_type: FORMULAR
+
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
+              <AnsoegerOplysninger>
+                  <Ansoeger>
+                      <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+                      <Efternavn>{{ submission.data.efternavn }}</Efternavn>
+                      <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+                  </Ansoeger>
+              </AnsoegerOplysninger>
+              <Sagstype>
+                  <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
+              </Sagstype>
+              <Underskriftsoplysninger>
+                  <Underskrift>Underskrift0</Underskrift>
+                  <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
+              </Underskriftsoplysninger>
+          </Anmodning>
+
+        xsd_url: module://os2forms_fordelingskomponent_examples/resources/SP/SF2900_XSD/Anmodning.xsd
+
+  os2forms_fordelingskomponent_sf2900_invalid_twig:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: os2forms_fordelingskomponent_sf2900_invalid_twig
+    label: "Fordelingskomponent (sf2900) (invalid Twig)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: 0
+    settings:
+      sf2900:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        attachment_element: attachment
+        brugervendt_noegle: "What is “Brugervendt nøgle”?"
+        titel: "Your document"
+        beskrivelse: "This is a very important document"
+
+        # distribution_type: JOURNALPOST
+        # distribution_type: DOKUMENT
+        distribution_type: FORMULAR
+
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.sf2900.kle_emne </KLE>
+              </Header>
+              <AnsoegerOplysninger>
+                  <Ansoeger>
+                      <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+                      <Efternavn>{{ submission.data.efternavn }}</Efternavn>
+                      <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+                  </Ansoeger>
+              </AnsoegerOplysninger>
+              <Sagstype>
+                  <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
+              </Sagstype>
+              <Underskriftsoplysninger>
+                  <Underskrift>Underskrift0</Underskrift>
+                  <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
+              </Underskriftsoplysninger>
+          </Anmodning>
+
+        xsd_url: module://os2forms_fordelingskomponent_examples/resources/SP/SF2900_XSD/Anmodning.xsd
+
+  os2forms_fordelingskomponent_sf2900_invalid_xml:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: os2forms_fordelingskomponent_sf2900_invalid_xml
+    label: "Fordelingskomponent (sf2900) (invalid XML)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: 0
+    settings:
+      sf2900:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        attachment_element: attachment
+        brugervendt_noegle: "What is “Brugervendt nøgle”?"
+        titel: "Your document"
+        beskrivelse: "This is a very important document"
+
+        # distribution_type: JOURNALPOST
+        # distribution_type: DOKUMENT
+        distribution_type: FORMULAR
+
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
+              </Header>
+              <AnsoegerOplysninger>
+                  <Ansoeger>
+                      <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+                      <Efternavn>{{ submission.data.efternavn }}</Efternavn>
+                      <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+                  </Ansoeger>
+              </AnsoegerOplysninger>
+              <Sagstype>
+                  <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
+              </Sagstype>
+              <Underskriftsoplysninger>
+                  <Underskrift>Underskrift0</Underskrift>
+                  <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
+              </Underskriftsoplysninger>
+          </Anmodning>
+
+        xsd_url: module://os2forms_fordelingskomponent_examples/resources/SP/SF2900_XSD/SP501.xsd
 
 variants: {}
 
 elements: |-
-  afsend_content_pdf:
-    '#type': 'entity_print_attachment:pdf'
-    '#title': 'Fordelingskomponent (PDF)'
-    '#display_on': view
-    '#filename': hat-og-briller.pdf
   ansoeger_oplysninger:
     '#type': fieldset
     '#title': AnsoegerOplysninger
@@ -344,3 +479,16 @@ elements: |-
         Kiropraktik: Kiropraktik
         Psykologhjaelp: Psykologhjaelp
         Hoereappartbehandling: Hoereapparatbehandling
+  afsend_content_pdf:
+    '#type': 'entity_print_attachment:pdf'
+    '#title': 'Fordelingskomponent (PDF) hest'
+    '#display_on': view
+    '#filename': hat-og-briller.pdf
+  attachment:
+    '#type': os2forms_attachment
+    '#title': attachment
+    '#export_type': pdf
+    '#digital_signature': 0
+    '#excluded_elements': {  }
+    '#exclude_empty': 0
+    '#exclude_empty_checkbox': 0

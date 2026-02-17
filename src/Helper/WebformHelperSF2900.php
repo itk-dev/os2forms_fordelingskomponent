@@ -105,7 +105,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    */
   protected function getAttachment(WebformSubmissionInterface $submission, array $handlerSettings): Attachment {
     // Lifted from Drupal\webform_attachment\Controller\WebformAttachmentController::download.
-    $element = $handlerSettings[WebformHandlerSF2900::ATTACHMENT_ELEMENT];
+    $element = $handlerSettings[FordelingskomponentHelper::ATTACHMENT_ELEMENT];
     $element = $submission->getWebform()->getElement($element) ?: [];
     [$type] = explode(':', $element['#type']);
     $instance = $this->elementInfoManager->createInstance($type);
@@ -138,7 +138,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
   private function loadQueue(): ?QueueInterface {
     $processingSettings = $this->helper->getModuleConfig()->get(SettingsForm::SECTION_PROCESSING);
 
-    /** @var \Drupal\advancedqueue\Entity\QueueInterface $queue */
+    /** @var ?\Drupal\advancedqueue\Entity\QueueInterface $queue */
     $queue = $this->queueStorage->load($processingSettings['queue'] ?? NULL);
 
     return $queue;
@@ -198,7 +198,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
       return $job;
     }
     catch (\Exception $exception) {
-      $this->error('Error creating job for afsen.', $context + [
+      $this->error('Error creating job for afsend.', $context + [
         'operation' => 'Fordelingskomponent afsend failed',
       ]);
       return NULL;

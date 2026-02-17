@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2012 rel. 2 sp1 (x64) (http://www.altova.com) by Hampus Holmström (Netcompany A/S) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="SP246">
+		<xs:annotation>
+			<xs:documentation>Specificeret overslag fra optiker/oejenlaege</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Header">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Myndighed" type="myndighedstype"/>
+							<xs:element name="ModtagetDato" type="xs:date"/>
+							<xs:element name="KLE" type="max_laengde_strings_200"/>
+							<xs:element name="Dokumenter" minOccurs="0" maxOccurs="30">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Dokumentnavn" type="max_laengde_strings_200"/>
+										<xs:element name="Dokumenttype" type="dokumenttype">
+											<xs:annotation>
+												<xs:documentation>- Overslag
+													- Faktura
+													- Bilag
+												</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Aarsag">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="HarBriller" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Har briller/kontaktlinser</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Alder" type="positive_integer_type">
+											<xs:annotation>
+												<xs:documentation>Brillens/kontaktlinsernes alder</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="AndenBegrundelse" type="max_laengde_strings_200" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Anden/yderligere/mere specifik begrundelse</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="SpecielleForhold" type="max_laengde_strings_200" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Specielle forhold, fx allergi, der goer sig gaeldende for valg af stel/glas (husk laegeerklaering)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Overslag">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Brilleglas" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Venstre" type="oeje"/>
+										<xs:element name="Hoejre" type="oeje"/>
+										<xs:element name="Pris" type="positiv_decimal_type"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Brillestel" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Navn" type="max_laengde_strings_200"/>
+										<xs:element name="Pris" type="positiv_decimal_type"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Andet" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Brilleglas">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Venstre" type="oeje"/>
+													<xs:element name="Hoejre" type="oeje"/>
+													<xs:element name="Pris" type="positiv_decimal_type"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Brillestel">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Navn" type="max_laengde_strings_200"/>
+													<xs:element name="Pris" type="positiv_decimal_type"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Pris" type="positiv_decimal_type">
+								<xs:annotation>
+									<xs:documentation>I alt</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Erklaering">
+					<xs:annotation>
+						<xs:documentation>Optiker/oejenlaege maa videregive overslaget til kommunen til brug for behandling af ansoegning om udvidet helbredstillaeg og kender rettigheder og pligter om behandling af personoplysninger</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NavnAnsoeger" type="max_laengde_strings_200"/>
+							<xs:element name="CPRAnsoeger" type="personnummer"/>
+							<xs:element name="UnderskriftsoplysningerAnsoeger">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="UnderskriftAnsoeger" type="max_laengde_strings_200"/>
+										<xs:element name="UnderskriftsdatoAnsoeger" type="xs:date"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Behandler">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UnderskriftsoplysningerBehandler">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="UnderskriftBehandler" type="max_laengde_strings_200"/>
+										<xs:element name="UnderskriftsdatoBehandler" type="xs:date"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="TelefonnummerBehandler" type="telefonnummer"/>
+							<xs:element name="EMailBehandler" type="mail"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="personnummer">
+		<xs:annotation>
+			<xs:documentation>Personnummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="22"/>
+			<xs:pattern value="urn:oio:cpr:\d+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="telefonnummer">
+		<xs:annotation>
+			<xs:documentation>Telefonnummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="mail">
+		<xs:annotation>
+			<xs:documentation>E-mail address</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".+@.+\..+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="oeje">
+		<xs:annotation>
+			<xs:documentation>Oeje specifikation</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Styrke" type="decimal_type"/>
+			<xs:element name="Cylinder" type="decimal_type"/>
+			<xs:element name="Addition" type="decimal_type"/>
+			<xs:element name="Akse" type="positive_integer_type_or_empty" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="accept">
+		<xs:annotation>
+			<xs:documentation>Tilkendegiver accept</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="Accepteret"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="dokumenttype">
+		<xs:annotation>
+			<xs:documentation>Angiver dokumenttype</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Overslag"/>
+			<xs:enumeration value="Faktura"/>
+			<xs:enumeration value="Bilag"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="begrundelsestype">
+		<xs:annotation>
+			<xs:documentation>Angiver begrundelsen for ny brille</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Synsaendring"/>
+			<xs:enumeration value="Styrkeforskel"/>
+			<xs:enumeration value="Synsnedsaettelse"/>
+			<xs:enumeration value="Uanvendelig"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="myndighedstype">
+		<xs:annotation>
+			<xs:documentation>Myndighedstype</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="urn:oio:cvr-nr:[0-9]{8}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="max_laengde_strings_200">
+		<xs:annotation>
+			<xs:documentation>Angiver generell max længde for strænger</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="decimal_type">
+		<xs:annotation>
+			<xs:documentation>Angiver max længde for decimaler</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:totalDigits value="14"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="positiv_decimal_type">
+		<xs:annotation>
+			<xs:documentation>Angiver max længde for decimaler</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:totalDigits value="14"/>
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="positive_integer_type">
+		<xs:annotation>
+			<xs:documentation>Angiver max længde for positive heltal</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:positiveInteger">
+			<xs:totalDigits value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="positive_integer_type_or_empty">
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="xs:positiveInteger">
+					<xs:totalDigits value="10"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+</xs:schema>

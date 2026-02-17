@@ -46,7 +46,7 @@ class XmlHelper {
       $this->twig->enableStrictVariables();
       return $callback();
     } finally {
-      if ($strictVariables) {
+      if (isset($strictVariables) && $strictVariables) {
         $this->twig->enableStrictVariables();
       }
       else {

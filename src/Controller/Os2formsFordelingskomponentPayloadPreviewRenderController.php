@@ -66,7 +66,7 @@ final class Os2formsFordelingskomponentPayloadPreviewRenderController extends Co
       '#exceptions' => $exceptions,
       '#warnings' => $warnings,
       '#template' => $template,
-      '#context' => $context,
+      '#context' => $context ?? [],
       '#xml' => $xml ?? NULL,
     ];
 

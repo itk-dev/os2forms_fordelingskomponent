@@ -26,3 +26,10 @@ Test the newly exported config by reinstalling the `os2forms_fordelingskomponent
 drush pm:uninstall os2forms_fordelingskomponent_examples
 drush pm:install os2forms_fordelingskomponent_examples
 ```
+
+Alternatively, import a single webform, e.g.
+
+``` shell
+drush config:set --input-format=yaml webform.webform.os2_fdk_kp_anmoding '?' - < config/install/webform.webform.os2_fdk_kp_anmoding.yml
+# drush config:get webform.webform.os2_fdk_kp_anmoding
+```

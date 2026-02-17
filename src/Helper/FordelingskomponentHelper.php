@@ -18,6 +18,7 @@ use ItkDev\Serviceplatformen\SF2900\EnumType\AktoerTypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\DokumenttypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\FremdriftType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\LivscyklusKodeType;
+use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\RetningType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\VariantRolleType;
 use ItkDev\Serviceplatformen\SF2900\StructType\AttributterListeType;
@@ -55,6 +56,18 @@ final class FordelingskomponentHelper implements LoggerInterface {
   public const string TITEL = 'titel';
   public const string BESKRIVELSE = 'beskrivelse';
   public const string BRUGERVENDT_NOEGLE = 'brugervendt_noegle';
+
+  public const string DISTRIBUTION_TYPE = 'distribution_type';
+  public const string DISTRIBUTION_TYPE_JOURNALPOST = ObjektTypeType::VALUE_JOURNALPOST;
+  public const string DISTRIBUTION_TYPE_DOKUMENT = ObjektTypeType::VALUE_DOKUMENT;
+  public const string DISTRIBUTION_TYPE_FORMULAR = ObjektTypeType::VALUE_FORMULAR;
+
+  public const string JOURNALPOST_MESSAGE = 'journalpost_message';
+
+  public const string ATTACHMENT_ELEMENT = 'attachment_element';
+
+  public const string XML_TEMPLATE = 'xml_template';
+  public const string XSD_URL = 'xsd_url';
 
   /**
    * Constructor.
@@ -109,7 +122,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
   ) {
     $msg = sprintf('Fordelingskomponent afsend journalpost.');
     // If the cause is a submission, add webform id to audit logging message.
-    $msg .= $submission ? sprintf(' Webform id %s.', $submission->getWebform()->id()) : '';
+    $msg .= sprintf(' Webform id %s.', $submission->getWebform()->id());
     $this->auditLogger->info('Fordelingskomponent', $msg);
   }
 
@@ -213,7 +226,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
 
     $msg = sprintf('Fordelingskomponent afsend dokument.');
     // If the cause is a submission, add webform id to audit logging message.
-    $msg .= $submission ? sprintf(' Webform id %s.', $submission->getWebform()->id()) : '';
+    $msg .= sprintf(' Webform id %s.', $submission->getWebform()->id());
     $this->auditLogger->info('Fordelingskomponent', $msg);
 
     return [$response, $sf2900->getLastRequest()];
