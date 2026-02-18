@@ -6,6 +6,8 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\key\KeyRepositoryInterface;
+use Drupal\os2forms_fordelingskomponent\Exception\Exception;
+use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Form\SettingsForm;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
@@ -25,7 +27,12 @@ use ItkDev\Serviceplatformen\SF2900\StructType\AttributterListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\AttributterType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DelAttributterType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DistributionDokumentType;
+use ItkDev\Serviceplatformen\SF2900\StructType\DistributionFormularType;
+use ItkDev\Serviceplatformen\SF2900\StructType\DistributionJournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DokumentRegistreringType;
+use ItkDev\Serviceplatformen\SF2900\StructType\FormularType;
+use ItkDev\Serviceplatformen\SF2900\StructType\FormularXMLType;
+use ItkDev\Serviceplatformen\SF2900\StructType\MeddelelseType;
 use ItkDev\Serviceplatformen\SF2900\StructType\RelationsListe;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandType;
@@ -75,6 +82,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
   public function __construct(
     private readonly ConfigFactoryInterface $configFactory,
     private readonly EventDispatcherInterface $eventDispatcher,
+    private readonly XmlHelper $xmlHelper,
     #[Autowire(service: 'key.repository')]
     private readonly KeyRepositoryInterface $keyRepository,
     private readonly KeyHelper $keyHelper,
@@ -127,6 +135,192 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
+   *
+   */
+  public function buildDistributionObject(
+    WebformSubmissionInterface $submission,
+    array $configuration,
+    string $brugervendtNoegle,
+    string $titel,
+    string $beskrivelse,
+  ): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
+    $virkning = $this->buildVirkning($configuration);
+
+    $id = Serializer::createUuid();
+    $fraTidsPunkt = new \DateTime();
+    $brevDato = new \DateTime();
+    $registreringItSystem = $configuration[SettingsForm::REGISTRERING_IT_SYSTEM];
+
+    $routingKLEEmne = $configuration[self::KLE_EMNE];
+    $handlingFacet = (string) ($configuration[self::HANDLING_FACET] ?? NULL);
+    if (empty(trim($handlingFacet))) {
+      $handlingFacet = NULL;
+    }
+
+    $type = $configuration[self::DISTRIBUTION_TYPE];
+    $distributionObject = match ($type) {
+      self::DISTRIBUTION_TYPE_JOURNALPOST => $this->buildDistributionJournalPostType(
+
+      ),
+      self::DISTRIBUTION_TYPE_DOKUMENT => $this->buildDistributionDokumentType(
+        $id,
+        $fraTidsPunkt,
+        $brevDato,
+        $registreringItSystem,
+        $routingKLEEmne,
+        $handlingFacet,
+        $virkning,
+        $brugervendtNoegle,
+        $titel,
+        $beskrivelse,
+        $submission,
+        $configuration,
+      ),
+      self::DISTRIBUTION_TYPE_FORMULAR => $this->buildDistributionFormularType(
+        $id,
+        $fraTidsPunkt,
+        $brevDato,
+        $registreringItSystem,
+        $routingKLEEmne,
+        $handlingFacet,
+        $submission,
+        $configuration,
+      ),
+      default => throw new Exception(sprintf('Invalid distribution type: %s', $type)),
+    };
+
+    return $distributionObject;
+  }
+
+  /**
+   *
+   */
+  private function buildDistributionJournalPostType(): DistributionJournalPostType {
+    throw new \RuntimeException(__METHOD__ . ' not implemented');
+  }
+
+  /**
+   *
+   */
+  private function buildDistributionDokumentType(
+    $id,
+    $fraTidsPunkt,
+    $brevDato,
+    $registreringItSystem,
+    $routingKLEEmne,
+    ?string $handlingFacetForslag,
+    VirkningType $virkning,
+    string $brugervendtNoegle,
+    string $titel,
+    string $beskrivelse,
+    WebformSubmissionInterface $submission,
+    array $configuration,
+  ): DistributionDokumentType {
+    return new DistributionDokumentType(
+    iD: $id,
+    kLEEmneForslag: $routingKLEEmne,
+    handlingFacetForslag: $handlingFacetForslag,
+    registrering: new DokumentRegistreringType(
+      fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
+      livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
+      registreringItSystem: new UUID_URN($registreringItSystem),
+      relationListe: new RelationsListe(
+        variantListe: new VariantListeType([
+          new VariantType(
+          // If we don't clone the “virking", the XML serializer adds an
+          // ID and references which SF2900 does not handle.
+            virkning: $this->clone($virkning),
+            rolle: VariantRolleType::VALUE_VARIANT,
+            indeks: '1',
+            variantAttributter: new VariantAttributterType(
+              variantType: 'PDF',
+            ),
+            delAttributter: new DelAttributterType(
+              delTekst: 'Hele dokumentet',
+            ),
+          ),
+        ]),
+      ),
+      tilstandsListe: [
+        new TilstandListeType(
+          tilstand: [
+            new TilstandType(
+            // @todo Hvad er fremdrift?
+              fremdrift: FremdriftType::VALUE_ENDELIGT,
+              virkning: $this->clone($virkning),
+            ),
+          ]
+        ),
+      ],
+      attributListe: new AttributterListeType([
+        new AttributterType(
+          brugervendtNoegleTekst: $brugervendtNoegle,
+          titelTekst: $titel,
+          beskrivelseTekst: $beskrivelse,
+          dokumenttype: DokumenttypeType::VALUE_ANDEN,
+          retning: RetningType::VALUE_UDGAAENDE,
+          brevdato: SF2900::formatDate($brevDato),
+          virkning: $this->clone($virkning),
+        ),
+      ]),
+    // importTidspunkt: null,
+    // brugerRef: null,.
+    )
+    );
+  }
+
+  /**
+   * @throws \Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException
+   * @throws \Drupal\os2forms_fordelingskomponent\Exception\RuntimeException
+   */
+  private function buildDistributionFormularType(
+    $id,
+    $fraTidsPunkt,
+    $brevDato,
+    $registreringItSystem,
+    $routingKLEEmne,
+    ?string $handlingFacetForslag,
+    WebformSubmissionInterface $submission,
+    array $configuration,
+  ): DistributionFormularType {
+    $template = $configuration[self::XML_TEMPLATE] ?? NULL;
+    if (NULL === $template) {
+      throw new RuntimeException('Missing XML template');
+    }
+
+    /** @var ?string $xml */
+    $xml = NULL;
+    $context = $this->xmlHelper->getRenderContext($configuration, $submission);
+    $xml = $this->xmlHelper->render($template, $context);
+
+    $this->xmlHelper->validateXml($xml);
+
+    $xsdUrl = $configuration[self::XSD_URL] ?? NULL;
+    if (NULL !== $xsdUrl) {
+      $this->xmlHelper->validateXml($xml, $xsdUrl, loadXsdContent: TRUE);
+    }
+
+    $meddelelse = new MeddelelseType(
+      // @todo What is this?!
+      formularType: __METHOD__,
+      formular: new FormularType(
+        // @todo
+        titelTekst: __METHOD__,
+        formatNavn: __METHOD__,
+        formularIndhold: __METHOD__,
+        formularXML: new FormularXMLType($xml),
+      ),
+    );
+
+    return new DistributionFormularType(
+      iD: $id,
+      kLEEmneForslag: $routingKLEEmne,
+      meddelelse: $meddelelse,
+      handlingFacetForslag: $handlingFacetForslag,
+    );
+  }
+
+  /**
    * Send dokument.
    *
    * @return array
@@ -136,83 +330,21 @@ final class FordelingskomponentHelper implements LoggerInterface {
    */
   public function sendDokument(
     WebformSubmissionInterface $submission,
+    DistributionFormularType|DistributionDokumentType|DistributionJournalPostType $dokument,
     Attachment $attachment,
     array $configuration,
-    // @todo Hvad er brugervendt nøgle?
-    string $brugervendtNoegle,
-    string $titel,
-    string $beskrivelse,
   ) {
+
     $sf2900 = $this->sf2900();
     $sftp = $sf2900->sftp();
-
-    $transactionId = Serializer::createUuid();
     $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename);
 
-    $virkning = $this->buildVirkning($configuration);
-
-    $id = Serializer::createUuid();
-    $fraTidsPunkt = new \DateTime();
-    $brevDato = new \DateTime();
-    $routingKLEEmne = $configuration[self::KLE_EMNE];
-    $registreringItSystem = $configuration[SettingsForm::REGISTRERING_IT_SYSTEM];
-
+    $transactionId = Serializer::createUuid();
     $routingMyndighed = $configuration[self::ROUTING_MYNDIGHED];
+    $routingKLEEmne = $configuration[self::KLE_EMNE];
     $routingHandlingFacet = $configuration[self::HANDLING_FACET] ?: NULL;
     // @todo This is probably not correct!
     $routingModtagerAktoer = NULL;
-
-    $dokument = new DistributionDokumentType(
-      iD: $id,
-      kLEEmneForslag: $routingKLEEmne,
-      // handlingFacetForslag: null,.
-      registrering: new DokumentRegistreringType(
-        fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
-        livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
-        registreringItSystem: new UUID_URN($registreringItSystem),
-        relationListe: new RelationsListe(
-          variantListe: new VariantListeType([
-            new VariantType(
-              // If we don't clone the “virking", the XML serializer adds an
-              // ID and references which SF2900 does not handle.
-              virkning: $this->clone($virkning),
-              rolle: VariantRolleType::VALUE_VARIANT,
-              indeks: '1',
-              variantAttributter: new VariantAttributterType(
-                variantType: 'PDF',
-              ),
-              delAttributter: new DelAttributterType(
-                delTekst: 'Hele dokumentet',
-              ),
-            ),
-          ]),
-        ),
-        tilstandsListe: [
-          new TilstandListeType(
-            tilstand: [
-              new TilstandType(
-                // @todo Hvad er fremdrift?
-                fremdrift: FremdriftType::VALUE_ENDELIGT,
-                virkning: $this->clone($virkning),
-              ),
-            ]
-          ),
-        ],
-        attributListe: new AttributterListeType([
-          new AttributterType(
-            brugervendtNoegleTekst: $brugervendtNoegle ?? $titel,
-            titelTekst: $titel,
-            beskrivelseTekst: $beskrivelse,
-            dokumenttype: DokumenttypeType::VALUE_ANDEN,
-            retning: RetningType::VALUE_UDGAAENDE,
-            brevdato: SF2900::formatDate($brevDato),
-            virkning: $this->clone($virkning),
-          ),
-        ]),
-      // importTidspunkt: null,
-      // brugerRef: null,.
-      )
-    );
 
     $response = $sf2900->afsend(
       transactionId: $transactionId,

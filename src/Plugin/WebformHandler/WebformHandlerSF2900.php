@@ -245,9 +245,6 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    * {@inheritdoc}
    */
   public function postSave(WebformSubmissionInterface $webform_submission, $update = TRUE) {
-    if (!$this->isEnabled()) {
-      return;
-    }
     // Run only when submission is completed.
     if (!$webform_submission->isCompleted()) {
       return;
@@ -296,8 +293,8 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $items = [];
 
     $items[] = Link::createFromRoute(
-      $this->t('Preview payload'),
-      'os2forms_fordelingskomponent.fordelingskomponent_payload.preview', [
+      $this->t('Preview distribution object'),
+      'os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview', [
         'webform' => $this->getWebform()->id(),
         'webform_handler' => $this->getHandlerId(),
       ]

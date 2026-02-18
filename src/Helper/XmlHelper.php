@@ -5,7 +5,6 @@ namespace Drupal\os2forms_fordelingskomponent\Helper;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
-use Drupal\webform\Plugin\WebformHandlerInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
@@ -74,12 +73,12 @@ class XmlHelper {
   /**
    * Get render context.
    */
-  public function getRenderContext(WebformHandlerInterface $handler, WebformSubmissionInterface $submission) {
+  public function getRenderContext(array $handlerSettings, WebformSubmissionInterface $submission) {
     return [
       'module' => [
         'settings' => $this->moduleSettings->get(),
       ],
-      'handler' => $handler,
+      'handler' => ['settings' => $handlerSettings],
       'submission' => $submission,
     ];
   }

@@ -6,8 +6,7 @@ namespace Drupal\os2forms_fordelingskomponent\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\os2forms_fordelingskomponent\Exception\Exception;
-use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
+use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Returns responses for Fordelingskomponent routes.
  */
-final class Os2formsFordelingskomponentPayloadPreviewRenderController extends ControllerBase {
+final class Os2formsFordelingskomponentDistributionObjectPreviewRenderController extends ControllerBase {
 
   public function __construct(
-    private readonly XmlHelper $xmlHelper,
+    private readonly WebformHelperSF2900 $helper,
     private readonly RendererInterface $renderer,
   ) {
   }
@@ -33,41 +32,29 @@ final class Os2formsFordelingskomponentPayloadPreviewRenderController extends Co
     $exceptions = [];
     $warnings = [];
 
-    $template = $handlerSettings['xml_template'] ?? NULL;
-    if (NULL === $template) {
-      // @todo Handle this
-    }
-
-    /** @var ?string $xml */
+    // @todo Set these for a better preview in case of errors.
     $xml = NULL;
+    $context = [];
+
     try {
-      $context = $this->xmlHelper->getRenderContext($handler, $submission);
-      $xml = $this->xmlHelper->render($template, $context);
-
-      $this->xmlHelper->validateXml($xml);
-
-      $xsdUrl = $handlerSettings['xsd_url'] ?? NULL;
-      if (NULL === $xsdUrl) {
-        $warnings[] = new \RuntimeException('XSD URL not defined');
-      }
-      else {
-        $this->xmlHelper->validateXml($xml, $xsdUrl, loadXsdContent: TRUE);
-      }
+      $distributionObject = $this->helper->buildDistributionObject($submission, $handlerSettings);
     }
-    catch (Exception $e) {
-      $exceptions[] = $e;
+    catch (\Exception $exception) {
+      $exceptions[] = $exception;
     }
 
     $build = [
-      '#theme' => 'os2forms_fordelingskomponent_payload_preview_render_xml',
+      '#theme' => 'os2forms_fordelingskomponent_distribution_object_preview_render',
       '#webform' => $webform,
       '#handler' => $handler,
+      '#handler_settings' => $handlerSettings,
       '#submission' => $submission,
       '#exceptions' => $exceptions,
       '#warnings' => $warnings,
-      '#template' => $template,
-      '#context' => $context ?? [],
-      '#xml' => $xml ?? NULL,
+      '#distribution_object' => $distributionObject ?? NULL,
+      '#distribution_type' => $handlerSettings['distribution_type'] ?? NULL,
+      '#context' => $context,
+      '#xml' => $xml,
     ];
 
     return new Response((string) $this->renderer->renderRoot($build));

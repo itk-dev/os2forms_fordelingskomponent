@@ -13,7 +13,7 @@ class Hooks {
   public function theme(array $existing, string $type, string $theme, string $path): array {
     {
     return [
-      'os2forms_fordelingskomponent_payload_preview' => [
+      'os2forms_fordelingskomponent_distribution_object_preview' => [
         'variables' => [
           'webform' => NULL,
           'handler' => NULL,
@@ -28,16 +28,17 @@ class Hooks {
         ],
       ],
 
-      'os2forms_fordelingskomponent_payload_preview_render_xml' => [
+      'os2forms_fordelingskomponent_distribution_object_preview_render' => [
         'variables' => [
           'webform' => NULL,
           'handler' => NULL,
+          'handler_settings' => NULL,
           'submission' => NULL,
           'exceptions' => NULL,
           'warnings' => NULL,
           'context' => NULL,
-          'template' => NULL,
-          'xml' => NULL,
+          'distribution_object' => NULL,
+          'distribution_type' => NULL,
         ],
       ],
     ];

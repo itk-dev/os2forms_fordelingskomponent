@@ -19,6 +19,9 @@ use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Drupal\webform\WebformTokenManagerInterface;
 use Drupal\webform_attachment\Element\WebformAttachmentBase;
+use ItkDev\Serviceplatformen\SF2900\StructType\DistributionDokumentType;
+use ItkDev\Serviceplatformen\SF2900\StructType\DistributionFormularType;
+use ItkDev\Serviceplatformen\SF2900\StructType\DistributionJournalPostType;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -63,6 +66,26 @@ final class WebformHelperSF2900 implements LoggerInterface {
   }
 
   /**
+   *
+   */
+  public function buildDistributionObject(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
+    $submissionData += $submission->getData();
+    $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
+
+    $titel = $this->replaceTokens($configuration[FordelingskomponentHelper::TITEL] ?? '', $submission);
+    $beskrivelse = $this->replaceTokens($configuration[FordelingskomponentHelper::BESKRIVELSE] ?? '', $submission);
+    $brugervendtNoegle = $this->replaceTokens($configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? '', $submission);
+
+    return $this->helper->buildDistributionObject(
+      $submission,
+      $configuration,
+      titel: $titel,
+      beskrivelse: $beskrivelse,
+      brugervendtNoegle: $brugervendtNoegle,
+    );
+  }
+
+  /**
    * Afsend med Fordelingskomponenten.
    *
    * @param \Drupal\webform\WebformSubmissionInterface $submission
@@ -79,20 +102,15 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * @phpstan-param array<string, mixed> $submissionData
    */
   public function afsend(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): array {
-    $submissionData = $submissionData + $submission->getData();
-    $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
+    $distributionObject = $this->buildDistributionObject($submission, $handlerSettings, $submissionData);
     $attachment = $this->getAttachment($submission, $handlerSettings);
-
-    $titel = $this->replaceTokens($configuration[FordelingskomponentHelper::TITEL] ?? '', $submission);
-    $beskrivelse = $this->replaceTokens($configuration[FordelingskomponentHelper::BESKRIVELSE] ?? '', $submission);
-    $brugervendtNoegle = $this->replaceTokens($configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? '', $submission);
+    $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
 
     return $this->helper->sendDokument(
       $submission,
-      $attachment, $configuration,
-      titel: $titel,
-      beskrivelse: $beskrivelse,
-      brugervendtNoegle: $brugervendtNoegle,
+      $distributionObject,
+      $attachment,
+      $configuration,
     );
   }
 

@@ -279,7 +279,7 @@ handlers:
     settings:
       sf2900:
         kle_emne: 01.01.01
-        handling_facet: G87
+        handling_facet: ""
         attachment_element: afsend_content_pdf
         brugervendt_noegle: "What is “Brugervendt nøgle”?"
         titel: "Your document"

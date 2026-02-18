@@ -36,10 +36,14 @@
   <div class="navigation">
     <div class="paging">
       {% if preview_urls.prev %}
-        <a href="{{ preview_urls.prev }}">{{ 'Previous submission'|t }}</a>
+          <a href="{{ preview_urls.prev }}">{{ 'Previous submission'|t }}</a>
+      {% else %}
+          <span disabled>{{ 'Previous submission'|t }}</span>
       {% endif %}
       {% if preview_urls.next %}
-        <a href="{{ preview_urls.next }}">{{ 'Next submission'|t }}</a>
+          <a href="{{ preview_urls.next }}">{{ 'Next submission'|t }}</a>
+      {% else %}
+          <span disabled>{{ 'Next submission'|t }}</span>
       {% endif %}
     </div>
 

@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Returns responses for Fordelingskomponent routes.
  */
-final class Os2formsFordelingskomponentPayloadPreviewController extends ControllerBase {
+final class Os2formsFordelingskomponentDistributionObjectPreviewController extends ControllerBase {
 
   /**
    * The webform submission storage.
@@ -33,6 +33,8 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
    */
   public function __invoke(Request $request, WebformInterface $webform, string $webform_handler): array|Response {
     $handler = $webform->getHandler($webform_handler);
+
+    // Get previous, self and next submission IDs.
     $submissionIds = array_keys($this->submissionStorage->getQuery()
       ->accessCheck()
       ->condition('webform_id', $webform->id())
@@ -45,8 +47,9 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
       $index = array_search($currentSubmission, $submissionIds);
     }
 
+    $routeName = $request->attributes->get('_route');
     $previewUrls = array_map(
-      static fn($submission) => Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_payload.preview', [
+      static fn($submission) => Url::fromRoute($routeName, [
         'webform' => $webform->id(),
         'webform_handler' => $handler->getHandlerId(),
         'submission' => $submission,
@@ -59,7 +62,7 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
     );
 
     $renderUrl = NULL !== $currentSubmission
-      ? Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_payload.preview_render', [
+      ? Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview_render', [
         'webform' => $webform->id(),
         'webform_handler' => $handler->getHandlerId(),
         'submission' => $currentSubmission,
@@ -67,7 +70,7 @@ final class Os2formsFordelingskomponentPayloadPreviewController extends Controll
       : NULL;
 
     return [
-      '#theme' => 'os2forms_fordelingskomponent_payload_preview',
+      '#theme' => 'os2forms_fordelingskomponent_distribution_object_preview',
       '#webform' => $webform,
       '#handler' => $handler,
       '#submission' => $currentSubmission,

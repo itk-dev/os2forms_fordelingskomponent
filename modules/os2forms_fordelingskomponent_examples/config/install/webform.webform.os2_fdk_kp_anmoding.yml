@@ -279,9 +279,9 @@ handlers:
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
                   <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
-                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
+                  <KLE>{{ handler.settings.kle_emne }}</KLE>
               </Header>
               <AnsoegerOplysninger>
                   <Ansoeger>
@@ -326,9 +326,9 @@ handlers:
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
                   <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
-                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
+                  <KLE>{{ handler.settings.kle_emne }}</KLE>
               <AnsoegerOplysninger>
                   <Ansoeger>
                       <Fornavn>{{ submission.data.fornavn }}</Fornavn>
@@ -372,9 +372,9 @@ handlers:
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
                   <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
-                  <KLE>{{ handler.settings.sf2900.kle_emne </KLE>
+                  <KLE>{{ handler.settings.kle_emne </KLE>
               </Header>
               <AnsoegerOplysninger>
                   <Ansoeger>
@@ -419,9 +419,9 @@ handlers:
           <?xml version="1.0" encoding="UTF-8"?>
           <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <Header>
-                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sf2900.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.cvr|default(module.settings.sf2900.sender_id|default("")) }}</Myndighed>
                   <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
-                  <KLE>{{ handler.settings.sf2900.kle_emne }}</KLE>
+                  <KLE>{{ handler.settings.kle_emne }}</KLE>
               </Header>
               <AnsoegerOplysninger>
                   <Ansoeger>
