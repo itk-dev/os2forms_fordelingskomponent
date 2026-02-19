@@ -300,14 +300,6 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       ]
     );
 
-    $items[] = Link::createFromRoute(
-      $this->t('Edit handler'),
-      'entity.webform.handler.edit_form', [
-        'webform' => $this->getWebform()->id(),
-        'webform_handler' => $this->getHandlerId(),
-      ]
-    );
-
     if ($kleEmne) {
       $items[] = Link::createFromRoute(
           $this->t('Show routing info'),
@@ -317,6 +309,14 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
           ]
         );
     }
+
+    $items[] = Link::createFromRoute(
+      $this->t('Edit handler'),
+      'entity.webform.handler.edit_form', [
+        'webform' => $this->getWebform()->id(),
+        'webform_handler' => $this->getHandlerId(),
+      ]
+    );
 
     $build['links'] = [
       '#theme' => 'item_list',

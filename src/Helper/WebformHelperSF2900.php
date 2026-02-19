@@ -121,7 +121,11 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @phpstan-param array<string, mixed> $handlerSettings
    */
-  protected function getAttachment(WebformSubmissionInterface $submission, array $handlerSettings): Attachment {
+  protected function getAttachment(WebformSubmissionInterface $submission, array $handlerSettings): ?Attachment {
+    if (FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST === ($handlerSettings[FordelingskomponentHelper::DISTRIBUTION_TYPE] ?? NULL)) {
+      return NULL;
+    }
+
     // Lifted from Drupal\webform_attachment\Controller\WebformAttachmentController::download.
     $element = $handlerSettings[FordelingskomponentHelper::ATTACHMENT_ELEMENT];
     $element = $submission->getWebform()->getElement($element) ?: [];

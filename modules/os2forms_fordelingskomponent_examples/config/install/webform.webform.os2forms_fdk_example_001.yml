@@ -279,9 +279,13 @@ handlers:
     settings:
       sf2900:
         kle_emne: 01.01.01
-        handling_facet: ""
+        handling_facet: ''
+        brugervendt_noegle: 'What is “Brugervendt nøgle”?'
+        titel: 'Your document'
+        beskrivelse: 'This is a very important document'
+        distribution_type: JOURNALPOST
         attachment_element: afsend_content_pdf
-        brugervendt_noegle: "What is “Brugervendt nøgle”?"
-        titel: "Your document"
-        beskrivelse: "This is a very important document"
+        xml_template: ''
+        xsd_url: ''
+        journalpost_message: 'Dette er et fordelingsobjekt fra [site:base-url].'
 variants: {}

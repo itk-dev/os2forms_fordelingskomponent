@@ -19,6 +19,7 @@ use ItkDev\Serviceplatformen\Service\SF2900\SF2900;
 use ItkDev\Serviceplatformen\SF2900\EnumType\AktoerTypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\DokumenttypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\FremdriftType;
+use ItkDev\Serviceplatformen\SF2900\EnumType\JournalPostRolleType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\LivscyklusKodeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\RetningType;
@@ -32,6 +33,10 @@ use ItkDev\Serviceplatformen\SF2900\StructType\DistributionJournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DokumentRegistreringType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FormularType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FormularXMLType;
+use ItkDev\Serviceplatformen\SF2900\StructType\JournalNotatEgenskaberType;
+use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRegistreringType;
+use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRelationsListeType;
+use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\MeddelelseType;
 use ItkDev\Serviceplatformen\SF2900\StructType\RelationsListe;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandListeType;
@@ -160,7 +165,12 @@ final class FordelingskomponentHelper implements LoggerInterface {
     $type = $configuration[self::DISTRIBUTION_TYPE];
     $distributionObject = match ($type) {
       self::DISTRIBUTION_TYPE_JOURNALPOST => $this->buildDistributionJournalPostType(
-
+        $id,
+        $routingKLEEmne,
+        $fraTidsPunkt,
+        $registreringItSystem,
+        $virkning,
+        $configuration,
       ),
       self::DISTRIBUTION_TYPE_DOKUMENT => $this->buildDistributionDokumentType(
         $id,
@@ -195,8 +205,39 @@ final class FordelingskomponentHelper implements LoggerInterface {
   /**
    *
    */
-  private function buildDistributionJournalPostType(): DistributionJournalPostType {
-    throw new \RuntimeException(__METHOD__ . ' not implemented');
+  private function buildDistributionJournalPostType(
+    string $id,
+    string $kleEmneForslag,
+    \DateTimeInterface $fraTidsPunkt,
+    string $registreringItSystem,
+    VirkningType $virkning,
+    array $configuration,
+  ): DistributionJournalPostType {
+    // @todo
+    $titel = $this->replaceTokens($configuration[FordelingskomponentHelper::TITEL] ?? '', $submission);
+    $notat = $this->replaceTokens($configuration[FordelingskomponentHelper::BESKRIVELSE] ?? '', $submission);
+
+    return new DistributionJournalPostType(
+      iD: $id,
+      kLEEmneForslag: $kleEmneForslag,
+      registrering: new JournalPostRegistreringType(
+        fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
+        livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
+        registreringItSystem: new UUID_URN($registreringItSystem),
+        relationListe: new JournalPostRelationsListeType([
+          new JournalPostType(
+            virkning: $virkning,
+            rolle: JournalPostRolleType::VALUE_JOURNALPOST,
+            // @todo What is "indeks"?
+            indeks: '1',
+            journalnotatAttributter: new JournalNotatEgenskaberType(
+              notat: $notat,
+              titel: $titel,
+            )
+          ),
+        ])
+      )
+    );
   }
 
   /**
@@ -331,13 +372,16 @@ final class FordelingskomponentHelper implements LoggerInterface {
   public function sendDokument(
     WebformSubmissionInterface $submission,
     DistributionFormularType|DistributionDokumentType|DistributionJournalPostType $dokument,
-    Attachment $attachment,
+    ?Attachment $attachment,
     array $configuration,
   ) {
 
     $sf2900 = $this->sf2900();
-    $sftp = $sf2900->sftp();
-    $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename);
+    $dokumentFilNavn = NULL;
+    if (NULL !== $attachment) {
+      $sftp = $sf2900->sftp();
+      $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename);
+    }
 
     $transactionId = Serializer::createUuid();
     $routingMyndighed = $configuration[self::ROUTING_MYNDIGHED];

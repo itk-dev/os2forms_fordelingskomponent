@@ -300,7 +300,7 @@ handlers:
         xml_template: |
           module://os2forms_fordelingskomponent_examples/resources/templates/os2_fdk_kp_anmoding.xml.twig
 
-        xsd_url: module://os2forms_fordelingskomponent_examples/resources/xsd/Anmodning.xsd
+        xsd_url: module://os2forms_fordelingskomponent/resources/xsd/Anmodning.xsd
 
 variants: {}
 

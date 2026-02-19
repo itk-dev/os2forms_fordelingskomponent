@@ -27,7 +27,8 @@
           {% endfor %}
 
           {% if distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Helper\\FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST') %}
-{{ dump() }}
+              {{ distribution_type }}
+              <pre><code>{{ distribution_object|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
           {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Helper\\FordelingskomponentHelper::DISTRIBUTION_TYPE_DOKUMENT') %}
               {{ distribution_type }}
               <pre><code>{{ distribution_object|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
