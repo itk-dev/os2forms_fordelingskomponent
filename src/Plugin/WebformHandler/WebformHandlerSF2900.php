@@ -5,10 +5,13 @@ namespace Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
-use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
+use Drupal\os2forms_fordelingskomponent\Settings;
+use Drupal\os2forms_fordelingskomponent\Settings\DistributionContextSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
 use Drupal\webform\Plugin\WebformHandlerBase;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,6 +37,11 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   public const string SECTION_SF2900 = 'sf2900';
 
   /**
+   * The settings.
+   */
+  private readonly Settings $settingsService;
+
+  /**
    * The webform helper.
    */
   private readonly WebformHelperSF2900 $helper;
@@ -48,6 +56,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->settingsService = $container->get(Settings::class);
     $instance->helper = $container->get(WebformHelperSF2900::class);
     $instance->xmlHelper = $container->get(XmlHelper::class);
 
@@ -58,74 +67,91 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form[self::SECTION_SF2900] = [
+    $form[DistributionContextSettings::NAME] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Fordelingskomponent'),
       '#tree' => TRUE,
-    ];
+    ] + $this->buildConfigurationFormDistributionContext();
 
-    $configuration = $this->configuration[self::SECTION_SF2900] ?? NULL;
+    $form[DistributionObjectSettings::NAME] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Fordelingsobjekt'),
+      '#tree' => TRUE,
+    ] + $this->buildConfigurationFormDistributionObject();
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::KLE_EMNE] = [
+    return parent::buildConfigurationForm($form, $form_state);
+  }
+
+  /**
+   *
+   */
+  private function buildConfigurationFormDistributionContext(): array {
+    $settings = $this->settingsService->getDistributionContextSettings((array) ($this->getSettings()[DistributionContextSettings::NAME] ?? NULL));
+    $globalSettings = $this->settingsService->getDistributionContextSettings();
+
+    $section[DistributionContextSettings::KLE_EMNE] = [
       '#title' => $this->t('KLE-emne'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::KLE_EMNE] ?? NULL,
+      '#default_value' => $settings->kleEmne,
+    // @todo Show default global value for all fields.
+      '#placeholder' => $globalSettings->kleEmne,
       '#required' => TRUE,
       '#attributes' => [
-        'pattern' => FordelingskomponentHelper::KLE_EMNE_PATTERN,
+        'pattern' => DistributionContextSettings::KLE_EMNE_PATTERN,
       ],
       '#description' => $this->t('KLE-emne (format: dd.dd.dd)'),
     ];
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::HANDLING_FACET] = [
+    $section[DistributionContextSettings::HANDLING_FACET] = [
       '#title' => $this->t('Handling-facet'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::HANDLING_FACET] ?? NULL,
+      '#default_value' => $settings->handlingFacet,
       '#attributes' => [
-        'pattern' => FordelingskomponentHelper::HANDLING_FACET_PATTERN,
+        'pattern' => DistributionContextSettings::HANDLING_FACET_PATTERN,
       ],
+      '#description' => $this->t('handlingfacet (format: [A-Å]dd)'),
     ];
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::BRUGERVENDT_NOEGLE] = [
+    $section[DistributionContextSettings::BRUGERVENDT_NOEGLE] = [
       '#title' => $this->t('Brugervendt nøgle'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? NULL,
+      '#default_value' => $settings->brugervendtNoegle,
       '#required' => TRUE,
       '#description' => 'WHAT IS THIS?!',
     ];
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::TITEL] = [
+    $section[DistributionContextSettings::TITEL] = [
       '#title' => $this->t('Titel'),
       '#type' => 'textfield',
-      '#default_value' => $configuration[FordelingskomponentHelper::TITEL] ?? NULL,
+      '#default_value' => $settings->titel,
       '#required' => TRUE,
     ];
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::BESKRIVELSE] = [
+    $section[DistributionContextSettings::BESKRIVELSE] = [
       '#title' => $this->t('Beskrivelse'),
       '#type' => 'textarea',
-      '#default_value' => $configuration[FordelingskomponentHelper::BESKRIVELSE] ?? NULL,
+      '#default_value' => $settings->beskrivelse,
       '#required' => TRUE,
     ];
 
-    $this->buildDistributionForm($form, $configuration, $form_state);
-
-    return $this->setSettingsParents($form);
+    return $section;
   }
 
   /**
-   * Build distribution form.
+   *
    */
-  private function buildDistributionForm(array &$form, array $configuration): void {
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::DISTRIBUTION_TYPE] = [
+  private function buildConfigurationFormDistributionObject(): array {
+    $settings = $this->settingsService->getDistributionObjectSettings((array) ($this->getSettings()[DistributionObjectSettings::NAME] ?? NULL));
+
+    $section[DistributionObjectSettings::DISTRIBUTION_TYPE] = [
       '#title' => $this->t('Distribution type'),
       '#type' => 'select',
       '#options' => [
-        FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST => $this->t('Journalpost'),
-        FordelingskomponentHelper::DISTRIBUTION_TYPE_DOKUMENT => $this->t('Dokument'),
-        FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR => $this->t('Formular'),
+        DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST => $this->t('Journalpost'),
+        DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT => $this->t('Dokument'),
+        DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR => $this->t('Formular'),
       ],
-      '#default_value' => $configuration[FordelingskomponentHelper::DISTRIBUTION_TYPE] ?? NULL,
+      '#default_value' => $settings->distributionType,
       '#required' => TRUE,
     ];
 
@@ -133,15 +159,20 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
      * Set "visible" and "required" states on element depending on
      * distribution types.
      */
-    $setStates = function (array &$element, array $distributionTypes, string $connector = 'or', bool $require = TRUE): void {
-      $conditions = array_map(static fn (string $type) => ['value' => $type], $distributionTypes);
+    $setStates = function (
+      array &$element,
+      array $distributionTypes,
+      string $connector = 'or',
+      bool $require = TRUE,
+    ): void {
+      $conditions = array_map(static fn(string $type) => ['value' => $type], $distributionTypes);
       // Insert connector between all conditions.
       $numberOfValues = count($conditions);
       for ($i = 0; $i < $numberOfValues - 1; $i++) {
         array_splice($conditions, 2 * $i + 1, 0, [$connector]);
       }
       $state = [
-        ':input[name="settings[' . self::SECTION_SF2900 . '][' . FordelingskomponentHelper::DISTRIBUTION_TYPE . ']"]' => $conditions,
+        ':input[name="settings[' . DistributionObjectSettings::NAME . '][' . DistributionObjectSettings::DISTRIBUTION_TYPE . ']"]' => $conditions,
       ];
       $element['#states']['visible'][] = $state;
       if ($require) {
@@ -149,81 +180,97 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       }
     };
 
-    $availableElements = $this->getAttachmentElements();
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::ATTACHMENT_ELEMENT] = [
+    $section[DistributionObjectSettings::JOURNALPOST_MESSAGE] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Message'),
+      '#default_value' => $settings->journalpostMessage,
+      '#description' => $this->t('Journal post message. Supports tokens.'),
+    ];
+    $setStates($section[DistributionObjectSettings::JOURNALPOST_MESSAGE], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST,
+    ]);
+
+    $attachmentElements = $this->getAttachmentElements();
+    $section[DistributionObjectSettings::ATTACHMENT_ELEMENT] = [
       '#type' => 'select',
       '#title' => $this->t('Element that contains the document to send'),
-      '#default_value' => $configuration[FordelingskomponentHelper::ATTACHMENT_ELEMENT] ?? NULL,
-      '#options' => $availableElements,
+      '#default_value' => $settings->attachmentElement,
+      '#options' => $attachmentElements,
     ];
-    $setStates($form[self::SECTION_SF2900][FordelingskomponentHelper::ATTACHMENT_ELEMENT], [
-      FordelingskomponentHelper::DISTRIBUTION_TYPE_DOKUMENT,
-      FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR,
+    $setStates($section[DistributionObjectSettings::ATTACHMENT_ELEMENT], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT,
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ]);
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::XML_TEMPLATE] = [
-      '#type' => 'textarea',
-      '#rows' => 30,
-      '#title' => $this->t('XML template'),
-      '#default_value' => $configuration[FordelingskomponentHelper::XML_TEMPLATE] ?? NULL,
-    ];
-    $setStates($form[self::SECTION_SF2900][FordelingskomponentHelper::XML_TEMPLATE], [
-      FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR,
-    ]);
-
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::XSD_URL] = [
+    $section[DistributionObjectSettings::FORMULAR_TYPE] = [
       '#type' => 'textfield',
-      '#title' => $this->t('XSD URL'),
-      '#default_value' => $configuration[FordelingskomponentHelper::XSD_URL] ?? NULL,
+      '#title' => $this->t('Formulartype'),
+      '#default_value' => $settings->formularType,
     ];
-    $setStates($form[self::SECTION_SF2900][FordelingskomponentHelper::XSD_URL], [
-      FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR,
+    $setStates($section[DistributionObjectSettings::FORMULAR_TYPE], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 
-    $form[self::SECTION_SF2900][FordelingskomponentHelper::JOURNALPOST_MESSAGE] = [
+    $section[DistributionObjectSettings::XML_TEMPLATE] = [
       '#type' => 'textarea',
-      '#rows' => 30,
-      '#title' => $this->t('Message'),
-      '#default_value' => $configuration[FordelingskomponentHelper::JOURNALPOST_MESSAGE] ?? NULL,
+      '#title' => $this->t('XML template'),
+      '#default_value' => $settings->xmlTemplate,
     ];
-    $setStates($form[self::SECTION_SF2900][FordelingskomponentHelper::JOURNALPOST_MESSAGE], [
-      FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST,
+    $setStates($section[DistributionObjectSettings::XML_TEMPLATE], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ]);
+
+    $section[DistributionObjectSettings::XSD_URL] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('XSD URL'),
+      '#default_value' => $settings->xsdUrl,
+    ];
+    $setStates($section[DistributionObjectSettings::XSD_URL], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
+    ], require: FALSE);
+
+    return $section;
   }
 
   /**
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValue(self::SECTION_SF2900);
-    $kleEMne = $values[FordelingskomponentHelper::KLE_EMNE];
-    if (!preg_match('/' . FordelingskomponentHelper::KLE_EMNE_PATTERN . '/', (string) $kleEMne)) {
-      $form_state->setErrorByName(self::SECTION_SF2900 . '][' . FordelingskomponentHelper::KLE_EMNE, $this->t('Invalid KLE-emne: %kle_emne.', ['%kle_emne' => $kleEMne]));
+    $setError = static fn (string|array $path, TranslatableMarkup $message) =>   $form_state->setErrorByName(implode('][', (array) $path), $message);
+
+    $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::KLE_EMNE] ?? '';
+    if (!preg_match('/' . DistributionContextSettings::KLE_EMNE_PATTERN . '/', $value)) {
+      $setError(
+        [DistributionContextSettings::NAME, DistributionContextSettings::KLE_EMNE],
+        $this->t('Invalid KLE-emne: %value.', ['%value' => $value])
+      );
     }
 
-    $handlingFacet = $values[FordelingskomponentHelper::HANDLING_FACET];
-    if (!empty($handlingFacet) && !preg_match('/' . FordelingskomponentHelper::HANDLING_FACET_PATTERN . '/', (string) $handlingFacet)) {
-      $form_state->setErrorByName(self::SECTION_SF2900 . '][' . FordelingskomponentHelper::HANDLING_FACET,
-        $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $handlingFacet]));
+    $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::HANDLING_FACET] ?? '';
+    if (!empty($value) && !preg_match('/' . DistributionContextSettings::HANDLING_FACET_PATTERN . '/', (string) $value)) {
+      $setError(
+        [DistributionContextSettings::NAME, DistributionContextSettings::HANDLING_FACET],
+        $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $value])
+      );
     }
 
-    $type = $values[FordelingskomponentHelper::DISTRIBUTION_TYPE];
-    if (FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR === $type) {
-      $template = (string) ($values[FordelingskomponentHelper::XML_TEMPLATE] ?? NULL);
+    $type = $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::DISTRIBUTION_TYPE] ?? '';
+    if (DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR === $type) {
+      $template = (string) $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XML_TEMPLATE] ?? '';
       try {
         $this->xmlHelper->validateXml($template);
         $this->xmlHelper->validateTemplate($template);
       }
       catch (InvalidXmlTemplateException $e) {
-        $form_state->setErrorByName(self::SECTION_SF2900 . '][' . FordelingskomponentHelper::XML_TEMPLATE,
+        $form_state->setErrorByName(self::SECTION_SF2900 . '][' . DistributionObjectSettings::XML_TEMPLATE,
           $this->t('Invalid XML template: %message.', ['%message' => $e->getMessage()]));
       }
 
-      $url = (string) ($values[FordelingskomponentHelper::XSD_URL] ?? NULL);
+      $url = (string) $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XSD_URL] ?? '';
       if ($url) {
         $contents = @file_get_contents($url);
         if (FALSE === $contents) {
-          $form_state->setErrorByName(self::SECTION_SF2900 . '][' . FordelingskomponentHelper::XSD_URL,
+          $form_state->setErrorByName(self::SECTION_SF2900 . '][' . DistributionObjectSettings::XSD_URL,
             $this->t('Cannot read XSD URL %url.', ['%url' => $url]));
         }
       }
@@ -238,7 +285,13 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
-    $this->configuration[self::SECTION_SF2900] = $form_state->getValue(self::SECTION_SF2900);
+    foreach ([
+      DistributionContextSettings::NAME,
+      DistributionObjectSettings::NAME,
+               // SenderSettings::NAME,.
+    ] as $name) {
+      $this->configuration[$name] = $form_state->getValue($name);
+    }
   }
 
   /**
@@ -250,7 +303,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       return;
     }
 
-    $this->helper->createJob($webform_submission, $this->configuration[self::SECTION_SF2900]);
+    $this->helper->createJob($webform_submission, $this);
   }
 
   /**
@@ -275,8 +328,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    * {@inheritdoc}
    */
   public function getSummary() {
-    $kleEmne = $this->configuration[self::SECTION_SF2900][FordelingskomponentHelper::KLE_EMNE];
-    $handlingFacet = $this->configuration[self::SECTION_SF2900][FordelingskomponentHelper::HANDLING_FACET];
+    $settings = $this->settingsService->getHandlerSettings($this);
 
     $build = [
       'info' => [
@@ -284,8 +336,8 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
         '#suffix' => '</div>',
         '#markup' => $this->t('KLE-emne: %kle_emne; Handling-facet: %handling_facet',
           [
-            '%kle_emne' => $kleEmne,
-            '%handling_facet' => $handlingFacet,
+            '%kle_emne' => $settings->distributionContext->kleEmne,
+            '%handling_facet' => $settings->distributionContext->handlingFacet,
           ]),
       ],
     ];
@@ -300,12 +352,12 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       ]
     );
 
-    if ($kleEmne) {
+    if ($settings->distributionContext->kleEmne) {
       $items[] = Link::createFromRoute(
           $this->t('Show routing info'),
           'os2forms_fordelingskomponent.routing_info', [
             'webform' => $this->getWebform()->id(),
-            'handler' => $this->getHandlerId(),
+            'webform_handler' => $this->getHandlerId(),
           ]
         );
     }

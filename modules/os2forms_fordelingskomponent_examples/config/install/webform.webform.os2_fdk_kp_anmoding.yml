@@ -263,17 +263,19 @@ handlers:
     conditions: {}
     weight: 0
     settings:
-      sf2900:
+      distribution_context:
         kle_emne: 01.01.01
         handling_facet: ""
-        attachment_element: attachment
         brugervendt_noegle: "What is “Brugervendt nøgle”?"
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
+      distribution_object:
         # distribution_type: JOURNALPOST
         # distribution_type: DOKUMENT
         distribution_type: FORMULAR
+
+        # attachment_element: attachment
 
         xml_template: |
           <?xml version="1.0" encoding="UTF-8"?>
@@ -310,16 +312,14 @@ handlers:
     conditions: {}
     weight: 0
     settings:
-      sf2900:
+      distribution_context:
         kle_emne: 01.01.01
         handling_facet: ""
-        attachment_element: attachment
         brugervendt_noegle: "What is “Brugervendt nøgle”?"
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
-        # distribution_type: JOURNALPOST
-        # distribution_type: DOKUMENT
+      distribution_object:
         distribution_type: FORMULAR
 
         xml_template: |
@@ -356,16 +356,14 @@ handlers:
     conditions: {}
     weight: 0
     settings:
-      sf2900:
+      distribution_context:
         kle_emne: 01.01.01
         handling_facet: ""
-        attachment_element: attachment
         brugervendt_noegle: "What is “Brugervendt nøgle”?"
         titel: "Your document"
         beskrivelse: "This is a very important document"
 
-        # distribution_type: JOURNALPOST
-        # distribution_type: DOKUMENT
+      distribution_object:
         distribution_type: FORMULAR
 
         xml_template: |

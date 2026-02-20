@@ -3,9 +3,12 @@
 namespace Drupal\os2forms_fordelingskomponent\Hook;
 
 /**
- * Hook implementations.
+ * Theme hook implementations.
  */
-class Hooks {
+final class ThemeHooks {
+  const ROUTING_INFO = 'os2forms_fordelingskomponent_routing_info';
+  const DISTRIBUTION_OBJECT_PREVIEW = 'os2forms_fordelingskomponent_distribution_object_preview';
+  const DISTRIBUTION_OBJECT_PREVIEW_RENDER = 'os2forms_fordelingskomponent_distribution_object_preview_render';
 
   /**
    * Implements hook_theme().
@@ -13,12 +16,21 @@ class Hooks {
   public function theme(array $existing, string $type, string $theme, string $path): array {
     {
     return [
-      'os2forms_fordelingskomponent_distribution_object_preview' => [
+      self::ROUTING_INFO => [
         'variables' => [
           'webform' => NULL,
           'handler' => NULL,
-          'submission' => NULL,
+          'handler_settings' => NULL,
+          'info' => NULL,
           'return_url' => NULL,
+        ],
+      ],
+
+      self::DISTRIBUTION_OBJECT_PREVIEW => [
+        'variables' => [
+          'webform' => NULL,
+          'handler' => NULL,
+          'handler_settings' => NULL,
           'render_url' => NULL,
           'preview_urls' => [
             'prev' => NULL,
@@ -28,7 +40,7 @@ class Hooks {
         ],
       ],
 
-      'os2forms_fordelingskomponent_distribution_object_preview_render' => [
+      self::DISTRIBUTION_OBJECT_PREVIEW_RENDER => [
         'variables' => [
           'webform' => NULL,
           'handler' => NULL,
@@ -36,9 +48,8 @@ class Hooks {
           'submission' => NULL,
           'exceptions' => NULL,
           'warnings' => NULL,
-          'context' => NULL,
           'distribution_object' => NULL,
-          'distribution_type' => NULL,
+          'xml' => NULL,
         ],
       ],
     ];

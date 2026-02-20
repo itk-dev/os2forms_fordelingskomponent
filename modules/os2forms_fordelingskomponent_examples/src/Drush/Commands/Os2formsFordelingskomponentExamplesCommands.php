@@ -16,6 +16,11 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
   use AutowireTrait;
 
+  private const CONFIG_NAME_PATTERNS = [
+    '/^webform\.webform\.os2forms_fdk_/',
+    '/^webform\.webform\.o2f_fdk_/',
+  ];
+
   /**
    * Constructs an Os2formsFordelingskomponentExamplesCommands object.
    */
@@ -42,11 +47,23 @@ final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
    */
   #[CLI\Command(name: 'os2forms_fordelingskomponent_examples:export-examples')]
   public function commandName() {
+    $io = $this->io();
+
+    $io->info(array_merge([
+      'Exporting webforms with IDs matching one of',
+    ], self::CONFIG_NAME_PATTERNS)
+    );
+
     $configFactory = $this->configManager->getConfigFactory();
     $configNames = array_values(
       array_filter(
         $configFactory->listAll(),
-        static fn (string $name): bool => (bool) preg_match('/^webform\.webform\.os2forms_fdk_/', $name)
+        static fn (string $name): bool => !empty(array_filter(
+          array_map(
+            static fn (string $pattern) => preg_match($pattern, $name),
+            self::CONFIG_NAME_PATTERNS
+          )
+        )),
       )
     );
 
@@ -56,15 +73,15 @@ final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
     foreach ($configNames as $name) {
       $targetName = $targetDir . '/' . $name . '.yml';
 
-      $this->io()->section($name);
+      $io->section($name);
       $config = $configFactory->getEditable($name);
       foreach (static::$configKeysToClear as $key) {
-        $this->io()->writeln(dt('Clearing key %key', ['%key' => $key]));
+        $io->writeln(dt('Clearing key %key', ['%key' => $key]));
         $config->clear($key);
       }
       // @todo (Hon) Can we use the config manager (or factory) to do this?
       file_put_contents($targetName, Yaml::encode($config->get()));
-      $this->io()->success(dt('Config written to %file', ['%file' => $targetName]));
+      $io->success(dt('Config written to %file', ['%file' => $targetName]));
     }
   }
 

@@ -11,10 +11,13 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
-use Drupal\os2forms_fordelingskomponent\Form\SettingsForm;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
 use Drupal\os2forms_fordelingskomponent\Plugin\AdvancedQueue\JobType\FordelingskomponentSF2900;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
+use Drupal\os2forms_fordelingskomponent\Settings;
+use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Drupal\webform\WebformTokenManagerInterface;
@@ -51,6 +54,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    */
   public function __construct(
     EntityTypeManagerInterface $entityTypeManager,
+    private readonly Settings $settings,
     #[Autowire(service: 'plugin.manager.element_info')]
     private readonly ElementInfoManagerInterface $elementInfoManager,
     private readonly FordelingskomponentHelper $helper,
@@ -68,21 +72,21 @@ final class WebformHelperSF2900 implements LoggerInterface {
   /**
    *
    */
-  public function buildDistributionObject(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
-    $submissionData += $submission->getData();
-    $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
-
-    $titel = $this->replaceTokens($configuration[FordelingskomponentHelper::TITEL] ?? '', $submission);
-    $beskrivelse = $this->replaceTokens($configuration[FordelingskomponentHelper::BESKRIVELSE] ?? '', $submission);
-    $brugervendtNoegle = $this->replaceTokens($configuration[FordelingskomponentHelper::BRUGERVENDT_NOEGLE] ?? '', $submission);
+  public function buildDistributionObject(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, ?Attachment $attachment): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
+    $handlerSettings = $this->replaceTokens($handlerSettings, $submission);
 
     return $this->helper->buildDistributionObject(
       $submission,
-      $configuration,
-      titel: $titel,
-      beskrivelse: $beskrivelse,
-      brugervendtNoegle: $brugervendtNoegle,
+      $handlerSettings,
+      $attachment,
     );
+  }
+
+  /**
+   *
+   */
+  public function renderXml(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, bool $validateXml = TRUE): XmlRenderResult {
+    return $this->helper->renderXml($handlerSettings, $submission, validateXml: $validateXml);
   }
 
   /**
@@ -92,8 +96,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *   The submission.
    * @param array $handlerSettings
    *   The Handler settings.
-   * @param array $submissionData
-   *   Submission data. Only for overriding during testing and development.
    *
    * @return array
    *   [The response, The kombi post message].
@@ -101,16 +103,15 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * @phpstan-param array<string, mixed> $handlerSettings
    * @phpstan-param array<string, mixed> $submissionData
    */
-  public function afsend(WebformSubmissionInterface $submission, array $handlerSettings, array $submissionData = []): array {
-    $distributionObject = $this->buildDistributionObject($submission, $handlerSettings, $submissionData);
+  public function afsend(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): array {
     $attachment = $this->getAttachment($submission, $handlerSettings);
-    $configuration = $this->helper->getHandlerConfiguration($handlerSettings);
+    $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
 
     return $this->helper->sendDokument(
       $submission,
       $distributionObject,
       $attachment,
-      $configuration,
+      $handlerSettings,
     );
   }
 
@@ -121,14 +122,20 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @phpstan-param array<string, mixed> $handlerSettings
    */
-  protected function getAttachment(WebformSubmissionInterface $submission, array $handlerSettings): ?Attachment {
-    if (FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST === ($handlerSettings[FordelingskomponentHelper::DISTRIBUTION_TYPE] ?? NULL)) {
+  protected function getAttachment(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): ?Attachment {
+    if (!in_array($handlerSettings->distributionObject->distributionType, [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT,
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
+    ])) {
       return NULL;
     }
 
     // Lifted from Drupal\webform_attachment\Controller\WebformAttachmentController::download.
-    $element = $handlerSettings[FordelingskomponentHelper::ATTACHMENT_ELEMENT];
+    $element = $handlerSettings->distributionObject->attachmentElement;
     $element = $submission->getWebform()->getElement($element) ?: [];
+    if (!isset($element['#type'])) {
+      throw new InvalidAttachmentElementException(sprintf('Cannot get attachment element %s', $handlerSettings->distributionObject->attachmentElement));
+    }
     [$type] = explode(':', $element['#type']);
     $instance = $this->elementInfoManager->createInstance($type);
 
@@ -158,10 +165,10 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Load queue.
    */
   private function loadQueue(): ?QueueInterface {
-    $processingSettings = $this->helper->getModuleConfig()->get(SettingsForm::SECTION_PROCESSING);
+    $id = $this->settings->getGeneralSettings()->queue;
 
     /** @var ?\Drupal\advancedqueue\Entity\QueueInterface $queue */
-    $queue = $this->queueStorage->load($processingSettings['queue'] ?? NULL);
+    $queue = $this->queueStorage->load($id ?? NULL);
 
     return $queue;
   }
@@ -193,7 +200,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @phpstan-param array<string, mixed> $handlerConfiguration
    */
-  public function createJob(WebformSubmissionInterface $webformSubmission, array $handlerConfiguration): ?Job {
+  public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900 $handler): ?Job {
     $context = [
       'handler_id' => WebformHandlerSF2900::ID,
       'webform_submission' => $webformSubmission,
@@ -203,7 +210,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
       $job = Job::create(FordelingskomponentSF2900::class, [
         'formId' => $webformSubmission->getWebform()->id(),
         'submissionId' => $webformSubmission->id(),
-        'handlerConfiguration' => $handlerConfiguration,
+        'handlerSettings' => $this->settings->getHandlerSettings($handler)->toArray(),
       ]);
       $queue = $this->loadQueue();
       if (NULL !== $queue) {
@@ -254,7 +261,8 @@ final class WebformHelperSF2900 implements LoggerInterface {
       }
 
       $context['webform_submission'] = $submission;
-      $this->afsend($submission, $payload['handlerConfiguration']);
+      $handlerSettings = new HandlerSettings($payload['handlerSettings']);
+      $this->afsend($submission, $handlerSettings);
 
       $this->notice('Fordelingskomponent afsendt', $context);
 
@@ -263,6 +271,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     catch (\Exception $e) {
       $this->error('Error: @message', $context + [
         '@message' => $e->getMessage(),
+        'exception' => $e,
       ]);
 
       return JobResult::failure($e->getMessage());
@@ -277,10 +286,17 @@ final class WebformHelperSF2900 implements LoggerInterface {
   }
 
   /**
-   * Replace tokens.
+   * Replace tokens in handler settings supporting tokens.
    */
-  private function replaceTokens(string $text, WebformSubmissionInterface $submission): string {
-    return $this->webformTokenManager->replace($text, $submission);
+  private function replaceTokens(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): HandlerSettings {
+    // @todo Should we clone the settings before making changes?
+    $handlerSettings->distributionContext->titel = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->titel, $submission);
+    $handlerSettings->distributionContext->beskrivelse = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->beskrivelse, $submission);
+    $handlerSettings->distributionContext->brugervendtNoegle = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->brugervendtNoegle, $submission);
+
+    $handlerSettings->distributionObject->journalpostMessage = $this->webformTokenManager->replace((string) $handlerSettings->distributionObject->journalpostMessage, $submission);
+
+    return $handlerSettings;
   }
 
 }

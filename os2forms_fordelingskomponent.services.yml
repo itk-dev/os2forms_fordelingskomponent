@@ -10,10 +10,12 @@ services:
     parent: logger.channel_base
     arguments: ["webform_submission"]
 
+  Drupal\os2forms_fordelingskomponent\Settings:
+
   Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
 
   Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900:
 
   Drupal\os2forms_fordelingskomponent\Helper\XmlHelper:
 
-  Drupal\os2forms_fordelingskomponent\Hook\Hooks:
+  Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks:

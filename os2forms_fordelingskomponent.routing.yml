@@ -7,7 +7,7 @@ os2forms_fordelingskomponent.admin.settings:
     _permission: "administer site configuration"
 
 os2forms_fordelingskomponent.routing_info:
-  path: "/os2forms-fordelingskomponent/routing/{webform}/{handler}"
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/routing_info/{webform_handler}"
   defaults:
     _title: "Fordelingskomponent routing info"
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentRoutingInfoController'

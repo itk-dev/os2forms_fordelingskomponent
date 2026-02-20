@@ -1,0 +1,81 @@
+{#{% import "module://os2forms_fordelingskomponent/templates/_partials.html.twig" as _partials %}#}
+{#{% include('module://os2forms_fordelingskomponent/templates/_partials.html.twig') %}#}
+{#
+  /**
+  * @file
+  * Template for Fordelingskomponent routing info.
+  *
+  * Available variables:
+  * - webform: The webform
+  * - handler: The handler
+  * - return_url: The return URL (to list of webform handlers)
+  */
+  #}
+<div class="os2forms-fordelingskomponent">
+{% block styles %}
+  <style>
+.os2forms-fordelingskomponent {
+    .navigation,
+    .header {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    a.active {
+      font-weight: bold;
+    }
+
+    .preview {
+      width: 100%;
+      height: 40em;
+    }
+
+      [disabled] {
+          opacity: 50%;
+      }
+}
+  </style>
+{% endblock %}
+
+{% block navigation %}
+  <div class="navigation">
+    <div class="paging">
+        {% if preview_urls is defined %}
+            {% if preview_urls.prev %}
+                <a href="{{ preview_urls.prev }}">{{ 'Previous submission'|t }}</a>
+            {% else %}
+                <span disabled>{{ 'Previous submission'|t }}</span>
+            {% endif %}
+            {% if preview_urls.next %}
+                <a href="{{ preview_urls.next }}">{{ 'Next submission'|t }}</a>
+            {% else %}
+                <span disabled>{{ 'Next submission'|t }}</span>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="edit-handler">
+        <a href="{{ path('entity.webform.handler.edit_form', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Edit handler %handler'|trans({'%handler': handler.label}) }}</a>
+    </div>
+    <div class="return">
+        <a href="{{ path('entity.webform.handlers', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Back to webform handlers'|trans({'%handler': handler.label}) }}</a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block handler_setting %}
+  {{ _self.render_handler_settings(handler_settings) }}
+{% endblock %}
+</div>
+
+{% macro render_handler_settings(handler_settings) %}
+  <details>
+      <summary>{{ 'Handler settings'|trans }}</summary>
+      {{ _self.render_json(handler_settings) }}
+  </details>
+{% endmacro %}
+
+{% macro render_json(value) %}
+<pre><code>{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
+{% endmacro %}

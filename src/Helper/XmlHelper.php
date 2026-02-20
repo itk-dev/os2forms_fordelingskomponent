@@ -5,6 +5,7 @@ namespace Drupal\os2forms_fordelingskomponent\Helper;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
@@ -57,9 +58,11 @@ class XmlHelper {
   /**
    * Render XML template.
    */
-  public function render(string $template, array $context): string {
+  public function render(string $template, array $context, bool $validateXml = TRUE): string {
     try {
-      $this->checkXml($template);
+      if ($validateXml) {
+        $this->checkXml($template);
+      }
 
       return $this->useTwig(
         fn () => $this->createTemplate($template)->render($context)
@@ -73,13 +76,11 @@ class XmlHelper {
   /**
    * Get render context.
    */
-  public function getRenderContext(array $handlerSettings, WebformSubmissionInterface $submission) {
+  public function getRenderContext(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission) {
     return [
-      'module' => [
-        'settings' => $this->moduleSettings->get(),
-      ],
       'handler' => ['settings' => $handlerSettings],
       'submission' => $submission,
+      'webform_submission' => $submission,
     ];
   }
 
@@ -172,6 +173,9 @@ class XmlHelper {
 
         throw new InvalidXmlTemplateException('Error loading XML:' . PHP_EOL . $message);
       }
+    }
+    catch (\Throwable $exception) {
+      throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
     } finally {
       libxml_use_internal_errors($useInternalErrors);
     }

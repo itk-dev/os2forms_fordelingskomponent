@@ -26,33 +26,64 @@
               </div>
           {% endfor %}
 
-          {% if distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Helper\\FordelingskomponentHelper::DISTRIBUTION_TYPE_JOURNALPOST') %}
+          {% set distribution_type = handler_settings.distributionObject.distributionType %}
+          {% if distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST') %}
               {{ distribution_type }}
               <pre><code>{{ distribution_object|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
-          {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Helper\\FordelingskomponentHelper::DISTRIBUTION_TYPE_DOKUMENT') %}
+          {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT') %}
               {{ distribution_type }}
               <pre><code>{{ distribution_object|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
-          {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Helper\\FordelingskomponentHelper::DISTRIBUTION_TYPE_FORMULAR') %}
-              {% set xml = distribution_object.meddelelse.formular.formularXml.any %}
-              {% set xml_template = handler_settings['xml_template']|default(null) %}
-              {% if xml_template %}
-                  <details>
-                      <summary>{{ 'XML template'|trans }}</summary>
+          {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR') %}
+              {% if distribution_object %}
+                  {% set xml = distribution_object.meddelelse.formular.formularXml.any %}
+                  {% set xml_template = handler_settings['xml_template']|default(null) %}
+                  {% if xml_template %}
+                      <details>
+                          <summary>{{ 'XML template'|trans }}</summary>
 
-                      <iframe src="data:text/xml,{{ xml_template|url_encode }}"></iframe>
+                          <iframe src="data:text/xml,{{ xml_template|url_encode }}"></iframe>
+                      </details>
+                  {% endif %}
+
+                  <details open>
+                      <summary>{{ 'XML'|trans }}</summary>
+                      <iframe src="data:text/xml,{{ xml|url_encode }}"></iframe>
                   </details>
-              {% endif %}
+              {% elseif xml %}
+                  {% if xml.template %}
+                      <details>
+                          <summary>{{ 'XML template'|trans }}</summary>
 
-              <details open>
-                  <summary>{{ 'XML'|trans }}</summary>
-              <iframe src="data:text/xml,{{ xml|url_encode }}"></iframe>
-              </details>
+                          <pre><code>{{ xml.template }}</code></pre>
+                      </details>
+                  {% endif %}
+
+                  <details open>
+                      <summary>{{ 'XML'|trans }}</summary>
+                      <pre><code>{{ xml.rendered }}</code></pre>
+                  </details>
+
+                  {% if xml.context %}
+                      <details>
+                          <summary>{{ 'XML context'|trans }}</summary>
+
+                          <pre><code>{{ _self.render_json(xml.context) }}</code></pre>
+                      </details>
+                  {% endif %}
+
+              {% endif %}
           {% else %}
               <div class="alert alert-danger" role="alert">
                   {{ 'Unknown distribution type: @distribution_type'|trans({'@distribution_type': distribution_type}) }}
               </div>
           {% endif %}
 
+
       </div>
   </body>
 </html>
+
+
+{% macro render_json(value) %}
+<pre><code>{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
+{% endmacro %}

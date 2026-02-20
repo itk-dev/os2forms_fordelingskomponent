@@ -6,39 +6,29 @@ namespace Drupal\os2forms_fordelingskomponent\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\DependencyInjection\AutowireTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\os2forms_fordelingskomponent\Settings;
+use Drupal\os2forms_fordelingskomponent\Settings\GeneralSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings\SftpSettings;
 
 /**
  * Configure Fordelingskomponent settings for this site.
  */
 final class SettingsForm extends ConfigFormBase {
   use StringTranslationTrait;
-
-  public const string CONFIG_NAME = 'os2forms_fordelingskomponent.settings';
-
-  public const string TEST_MODE = 'test_mode';
-
-  public const string SECTION_SF2900 = 'sf2900';
+  use AutowireTrait;
 
   public const string SENDER_ID = 'sender_id';
-  public const string ROUTING_MYNDIGHED = 'routing_myndighed';
   public const string REGISTRERING_IT_SYSTEM = 'registrering_it_system';
-  public const string CERTIFICATE = 'certificate';
-
-  public const string SECTION_SFTP = 'sftp';
-  public const string HOST = 'host';
-  public const string USERNAME = 'username';
-  public const string PRIVATE_KEY = 'private_key';
-
-  public const string SECTION_PROCESSING = 'processing';
-  public const string QUEUE = 'queue';
 
   /**
    * The queue storage.
@@ -54,21 +44,10 @@ final class SettingsForm extends ConfigFormBase {
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
     EntityTypeManagerInterface $entityTypeManager,
+    private readonly Settings $settings,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->queueStorage = $entityTypeManager->getStorage('advancedqueue_queue');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  #[\Override]
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('config.typed'),
-      $container->get('entity_type.manager'),
-    );
   }
 
   /**
@@ -82,7 +61,7 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames(): array {
-    return [self::CONFIG_NAME];
+    return [Settings::CONFIG_NAME];
   }
 
   /**
@@ -90,16 +69,17 @@ final class SettingsForm extends ConfigFormBase {
    */
   #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $config = $this->config(self::CONFIG_NAME);
+    $form[SenderSettings::NAME] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Sender'),
+      '#tree' => TRUE,
+    ] + $this->buildFormSender();
 
-    $form['test_mode'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Test mode'),
-      '#default_value' => $config->get(self::TEST_MODE),
-    ];
-
-    $this->buildFormSf2900($form, $form_state);
-    $this->buildFormProcessing($form, $form_state);
+    $form[GeneralSettings::NAME] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('General'),
+      '#tree' => TRUE,
+    ] + $this->buildFormGeneral();
 
     return parent::buildForm($form, $form_state);
   }
@@ -107,95 +87,82 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * Build form section "SF2900".
    */
-  private function buildFormSf2900(array &$form, FormStateInterface $formState): void {
-    $config = $this->config(self::CONFIG_NAME)->get(self::SECTION_SF2900) ?? [];
+  private function buildFormSender(): array {
+    $settings = $this->settings->getSenderSettings();
 
-    $form[self::SECTION_SF2900] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('SF2900'),
-      '#tree' => TRUE,
-    ];
-
-    $form[self::SECTION_SF2900][self::SENDER_ID] = [
+    $section[SenderSettings::SENDER_ID] = [
       '#type' => 'textfield',
       '#title' => $this->t('Sender ID'),
       '#required' => TRUE,
-      '#default_value' => $config[self::SENDER_ID] ?? NULL,
+      '#default_value' => $settings->senderId,
       '#description' => $this->t('Sender ID (CVR).'),
     ];
 
-    $form[self::SECTION_SF2900][self::ROUTING_MYNDIGHED] = [
+    $section[SenderSettings::ROUTING_MYNDIGHED] = [
       '#type' => 'textfield',
       '#title' => $this->t('Routing myndighed'),
       // '#required' => TRUE,
-      '#default_value' => $config[self::ROUTING_MYNDIGHED] ?? NULL,
+      '#default_value' => $settings->routingMyndighed,
       '#description' => $this->t('Default routing myndighed (CVR). May be overwritten by handler settings.'),
     ];
 
-    $form[self::SECTION_SF2900][self::REGISTRERING_IT_SYSTEM] = [
+    $section[SenderSettings::REGISTRERING_IT_SYSTEM] = [
       '#type' => 'textfield',
       '#title' => $this->t('Registrering it-system'),
-      // '#required' => TRUE,
-      '#default_value' => $config[self::REGISTRERING_IT_SYSTEM] ?? NULL,
-      '#description' => $this->t('@todo: Registrering it-system (UUID).'),
+      '#required' => TRUE,
+      '#default_value' => $settings->registreringItSystem,
     ];
 
-    $form[self::SECTION_SF2900]['certificate'] = [
+    $section[SenderSettings::CERTIFICATE] = [
       '#type' => 'key_select',
       '#key_filters' => [
         'type' => 'os2web_key_certificate',
       ],
       '#title' => $this->t('Certificate'),
       '#required' => TRUE,
-      '#default_value' => $config['certificate'] ?? NULL,
+      '#default_value' => $settings->certificate,
       '#description' => $this->t('Passwordless certificate.'),
     ];
 
-    $form[self::SECTION_SF2900][self::SECTION_SFTP] = [
+    $section[SftpSettings::NAME] = [
       '#type' => 'fieldset',
       '#title' => $this->t('SFTP'),
       '#tree' => TRUE,
     ];
 
-    $form[self::SECTION_SF2900][self::SECTION_SFTP][self::USERNAME] = [
+    $section[SftpSettings::NAME][SftpSettings::USERNAME] = [
       '#type' => 'textfield',
       '#title' => $this->t('Username'),
       '#required' => TRUE,
-      '#default_value' => $config[self::SECTION_SFTP][self::USERNAME] ?? NULL,
+      '#default_value' => $settings->sftp?->username,
       '#description' => $this->t('SFTP username.'),
     ];
 
-    $form[self::SECTION_SF2900][self::SECTION_SFTP][self::PRIVATE_KEY] = [
+    $section[SftpSettings::NAME][SftpSettings::PRIVATE_KEY] = [
       '#type' => 'key_select',
       '#title' => $this->t('Private key'),
       '#required' => TRUE,
-      '#default_value' => $config[self::SECTION_SFTP][self::PRIVATE_KEY] ?? NULL,
+      '#default_value' => $settings->sftp?->privateKey,
       '#description' => $this->t('SFTP private key.'),
     ];
 
+    return $section;
   }
 
   /**
-   * Build form section "Processing".
+   * Build form section "General".
    */
-  private function buildFormProcessing(array &$form, FormStateInterface $formState): void {
-    $config = $this->config(self::CONFIG_NAME)->get(self::SECTION_PROCESSING);
+  private function buildFormGeneral(): array {
+    $settings = $this->settings->getGeneralSettings();
 
-    $form[self::SECTION_PROCESSING] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Processing'),
-      '#tree' => TRUE,
-    ];
-
-    $defaultValue = $config[self::QUEUE] ?? NULL;
-    $description = empty($defaultValue)
+    $description = empty($settings->queue)
       ? $this->t('Optional queue for fordelingskomponent jobs. If no queue is specified, all fordelingskomponent jobs are run immediately.')
       : $this->t("Optional queue for fordelingskomponent jobs. If no queue is specified, all fordelingskomponent jobs are run immediately. <a href=':queue_url'>The queue</a> must be run via Drupal's cron or via <code>drush advancedqueue:queue:process @queue</code> (in a cron job).",
         [
-          '@queue' => $defaultValue,
-          ':queue_url' => '/admin/config/system/queues/jobs/' . urlencode((string) $defaultValue),
+          '@queue' => $settings->queue,
+          ':queue_url' => '/admin/config/system/queues/jobs/' . urlencode((string) $settings->queue),
         ]);
-    $form[self::SECTION_PROCESSING][self::QUEUE] = [
+    $section[GeneralSettings::QUEUE] = [
       '#type' => 'select',
       '#title' => $this->t('Queue'),
       '#options' => array_map(
@@ -203,9 +170,17 @@ final class SettingsForm extends ConfigFormBase {
         $this->queueStorage->loadMultiple()
       ),
       '#empty_option' => $this->t('No queue'),
-      '#default_value' => $defaultValue,
+      '#default_value' => $settings->queue,
       '#description' => $description,
     ];
+
+    $section[GeneralSettings::TEST_MODE] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Test mode'),
+      '#default_value' => $settings->testMode,
+    ];
+
+    return $section;
   }
 
   /**
@@ -213,19 +188,21 @@ final class SettingsForm extends ConfigFormBase {
    */
   #[\Override]
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    $value = $form_state->getValue(self::SECTION_SF2900)[self::SENDER_ID] ?? '';
+    $setError = static fn (string|array $path, TranslatableMarkup $message) =>   $form_state->setErrorByName(implode('][', (array) $path), $message);
+
+    $value = $form_state->getValue(SenderSettings::NAME)[SenderSettings::SENDER_ID] ?? '';
     if (!FordelingskomponentHelper::isValidCvr($value)) {
-      $form_state->setErrorByName('sf2900][sender_id', $this->t('The sender ID is not a valid CVR.'));
+      $setError([SenderSettings::NAME, SenderSettings::SENDER_ID], $this->t('The sender ID is not a valid CVR.'));
     }
 
-    $value = $form_state->getValue(self::SECTION_SF2900)[self::ROUTING_MYNDIGHED] ?? '';
+    $value = $form_state->getValue(SenderSettings::NAME)[SenderSettings::ROUTING_MYNDIGHED] ?? '';
     if (!empty($value) && !FordelingskomponentHelper::isValidCvr($value)) {
-      $form_state->setErrorByName('sf2900][routing_myndighed', $this->t('The routing myndighed is not a valid CVR.'));
+      $setError([SenderSettings::NAME, SenderSettings::ROUTING_MYNDIGHED], $this->t('The routing myndighed is not a valid CVR.'));
     }
 
-    $value = $form_state->getValue(self::SECTION_SF2900)[self::REGISTRERING_IT_SYSTEM] ?? '';
+    $value = $form_state->getValue(SenderSettings::NAME)[SenderSettings::REGISTRERING_IT_SYSTEM] ?? '';
     if (!empty($value) && !FordelingskomponentHelper::isValidUuid($value)) {
-      $form_state->setErrorByName('sf2900][registrering_it_system', $this->t('The registrering it system is not a valid UUID.'));
+      $setError([SenderSettings::NAME, SenderSettings::REGISTRERING_IT_SYSTEM], $this->t('The registrering it system is not a valid UUID.'));
     }
 
     parent::validateForm($form, $form_state);
@@ -236,11 +213,15 @@ final class SettingsForm extends ConfigFormBase {
    */
   #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->config(self::CONFIG_NAME)
-      ->set(self::TEST_MODE, $form_state->getValue(self::TEST_MODE))
-      ->set(self::SECTION_SF2900, $form_state->getValue(self::SECTION_SF2900))
-      ->set(self::SECTION_PROCESSING, $form_state->getValue(self::SECTION_PROCESSING))
-      ->save();
+    $config = $this->config(Settings::CONFIG_NAME);
+    foreach ([
+      SenderSettings::NAME,
+      GeneralSettings::NAME,
+    ] as $name) {
+      $config->set($name, $form_state->getValue($name));
+    }
+    $config->save();
+
     parent::submitForm($form, $form_state);
   }
 
