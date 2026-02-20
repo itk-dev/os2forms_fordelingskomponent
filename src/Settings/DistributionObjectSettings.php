@@ -5,7 +5,7 @@ namespace Drupal\os2forms_fordelingskomponent\Settings;
 use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 
 /**
- * General DistributionContext settings, i.e. the ones that do not depend o a specific distribution object.
+ * Distribution object settings.
  *
  * @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf2900/2.4/SF2900%20-%20Fordelingskomponent%20V2.4.pdf#page=34
  */

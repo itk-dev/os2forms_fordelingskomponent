@@ -2,8 +2,6 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformSubmissionInterface;
@@ -15,10 +13,6 @@ use Twig\TemplateWrapper;
  * XML helper.
  */
 class XmlHelper {
-  /**
-   * The module config.
-   */
-  private ImmutableConfig $moduleSettings;
 
   /**
    * Constructor.
@@ -26,9 +20,7 @@ class XmlHelper {
   public function __construct(
     #[Autowire(service: 'twig')]
     private readonly Environment $twig,
-    ConfigFactoryInterface $configFactory,
   ) {
-    $this->moduleSettings = $configFactory->get('os2forms_fordelingskomponent.settings');
   }
 
   /**

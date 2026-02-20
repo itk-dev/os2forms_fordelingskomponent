@@ -8,7 +8,7 @@ use Drupal\advancedqueue\JobResult;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use Drupal\Core\Render\ElementInfoManagerInterface;
+use Drupal\Core\Render\ElementInfoManager;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
@@ -56,7 +56,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     EntityTypeManagerInterface $entityTypeManager,
     private readonly Settings $settings,
     #[Autowire(service: 'plugin.manager.element_info')]
-    private readonly ElementInfoManagerInterface $elementInfoManager,
+    private readonly ElementInfoManager $elementInfoManager,
     private readonly FordelingskomponentHelper $helper,
     #[Autowire(service: 'webform.token_manager')]
     private readonly WebformTokenManagerInterface $webformTokenManager,
@@ -92,16 +92,8 @@ final class WebformHelperSF2900 implements LoggerInterface {
   /**
    * Afsend med Fordelingskomponenten.
    *
-   * @param \Drupal\webform\WebformSubmissionInterface $submission
-   *   The submission.
-   * @param array $handlerSettings
-   *   The Handler settings.
-   *
    * @return array
    *   [The response, The kombi post message].
-   *
-   * @phpstan-param array<string, mixed> $handlerSettings
-   * @phpstan-param array<string, mixed> $submissionData
    */
   public function afsend(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): array {
     $attachment = $this->getAttachment($submission, $handlerSettings);
@@ -119,8 +111,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Get main document.
    *
    * @see WebformAttachmentController::download()
-   *
-   * @phpstan-param array<string, mixed> $handlerSettings
    */
   protected function getAttachment(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): ?Attachment {
     if (!in_array($handlerSettings->distributionObject->distributionType, [
@@ -197,8 +187,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Create a job.
    *
    * @see self::processJob()
-   *
-   * @phpstan-param array<string, mixed> $handlerConfiguration
    */
   public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900 $handler): ?Job {
     $context = [

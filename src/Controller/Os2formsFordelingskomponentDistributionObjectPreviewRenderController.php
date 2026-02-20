@@ -7,8 +7,8 @@ namespace Drupal\os2forms_fordelingskomponent\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
-use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
 use Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks;
+use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\webform\WebformInterface;
@@ -25,7 +25,6 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewRenderController
     private readonly Settings $settings,
     private readonly WebformHelperSF2900 $helper,
     private readonly RendererInterface $renderer,
-    private readonly XmlHelper $xmlHelper,
   ) {
   }
 
@@ -52,7 +51,8 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewRenderController
     $distributionObject = NULL;
     $xml = [];
     try {
-      $distributionObject = $this->helper->buildDistributionObject($handlerSettings, $submission);
+      $attachment = new Attachment('preview', Attachment::MIME_TYPE_PDF, 'preview.pdf');
+      $distributionObject = $this->helper->buildDistributionObject($handlerSettings, $submission, $attachment);
     }
     catch (\Exception $exception) {
       $exceptions[] = $exception;

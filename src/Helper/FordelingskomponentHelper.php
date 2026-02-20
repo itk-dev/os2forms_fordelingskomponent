@@ -51,7 +51,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use WsdlToPhp\PackageBase\AbstractStructBase;
 
 /**
  * Fordelingskomponent helper.
@@ -60,16 +59,6 @@ use WsdlToPhp\PackageBase\AbstractStructBase;
  */
 final class FordelingskomponentHelper implements LoggerInterface {
   use LoggerTrait;
-
-  public const string ROUTING_MYNDIGHED = 'routing_myndighed';
-
-  public const string KLE_EMNE = 'kle_emne';
-
-  public const string HANDLING_FACET = 'handling_facet';
-  public const string TITEL = 'titel';
-  public const string BESKRIVELSE = 'beskrivelse';
-
-  public const string ATTACHMENT_ELEMENT = 'attachment_element';
 
   /**
    * Constructor.
@@ -133,11 +122,9 @@ final class FordelingskomponentHelper implements LoggerInterface {
       ),
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR => $this->buildDistributionFormularType(
         id: $id,
-        fraTidsPunkt:  $fraTidsPunkt,
-        brevDato:  $brevDato,
-        submission:  $submission,
-        handlerSettings:  $handlerSettings,
-        attachment:  $attachment,
+        submission: $submission,
+        handlerSettings: $handlerSettings,
+        attachment: $attachment,
       ),
       default => throw new Exception(sprintf('Invalid distribution type: %s', $type)),
     };
@@ -194,57 +181,57 @@ final class FordelingskomponentHelper implements LoggerInterface {
   ): DistributionDokumentType {
     return new DistributionDokumentType(
     iD: $id,
-    kLEEmneForslag: $handlerSettings->distributionContext->kleEmne,
-    handlingFacetForslag: $handlerSettings->distributionContext->handlingFacet,
-    registrering: new DokumentRegistreringType(
-      fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
-      livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
-      registreringItSystem: new UUID_URN($handlerSettings->sender->registreringItSystem),
-      relationListe: new RelationsListe(
-        variantListe: new VariantListeType([
-          new VariantType(
-          // If we don't clone the “virking", the XML serializer adds an
-          // ID and references which SF2900 does not handle.
-            virkning: $this->clone($virkning),
-            rolle: VariantRolleType::VALUE_VARIANT,
-            indeks: '1',
-            variantAttributter: new VariantAttributterType(
+      kLEEmneForslag: $handlerSettings->distributionContext->kleEmne,
+      registrering: new DokumentRegistreringType(
+        fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
+        livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
+        registreringItSystem: new UUID_URN($handlerSettings->sender->registreringItSystem),
+        relationListe: new RelationsListe(
+          variantListe: new VariantListeType([
+            new VariantType(
+            // If we don't clone the “virking", the XML serializer adds an
+            // ID and references which SF2900 does not handle.
+              virkning: $this->cloneVirkning($virkning),
+              rolle: VariantRolleType::VALUE_VARIANT,
+              indeks: '1',
+              variantAttributter: new VariantAttributterType(
+                // @todo What to use here?
+                variantType: Attachment::FORMAT_NAME_PDF,
+              ),
+              delAttributter: new DelAttributterType(
               // @todo What to use here?
-              variantType: Attachment::FORMAT_NAME_PDF,
+                delTekst: 'Hele dokumentet',
+              ),
             ),
-            delAttributter: new DelAttributterType(
+          ]),
+        ),
+        tilstandsListe: [
+          new TilstandListeType(
+            tilstand: [
+              new TilstandType(
+              // @todo Hvad er fremdrift?
+                fremdrift: FremdriftType::VALUE_ENDELIGT,
+                virkning: $this->cloneVirkning($virkning),
+              ),
+            ]
+          ),
+        ],
+        attributListe: new AttributterListeType([
+          new AttributterType(
+            brugervendtNoegleTekst: $handlerSettings->distributionContext->brugervendtNoegle,
+            titelTekst: $handlerSettings->distributionContext->titel,
+            beskrivelseTekst: $handlerSettings->distributionContext->beskrivelse,
             // @todo What to use here?
-              delTekst: 'Hele dokumentet',
-            ),
+            dokumenttype: DokumenttypeType::VALUE_ANDEN,
+            retning: RetningType::VALUE_UDGAAENDE,
+            brevdato: SF2900::formatDate($brevDato),
+            virkning: $this->cloneVirkning($virkning),
           ),
         ]),
+      // importTidspunkt: null,
+      // brugerRef: null,.
       ),
-      tilstandsListe: [
-        new TilstandListeType(
-          tilstand: [
-            new TilstandType(
-            // @todo Hvad er fremdrift?
-              fremdrift: FremdriftType::VALUE_ENDELIGT,
-              virkning: $this->clone($virkning),
-            ),
-          ]
-        ),
-      ],
-      attributListe: new AttributterListeType([
-        new AttributterType(
-          brugervendtNoegleTekst: $handlerSettings->distributionContext->brugervendtNoegle,
-          titelTekst: $handlerSettings->distributionContext->titel,
-          beskrivelseTekst: $handlerSettings->distributionContext->beskrivelse,
-          // @todo What to use here?
-          dokumenttype: DokumenttypeType::VALUE_ANDEN,
-          retning: RetningType::VALUE_UDGAAENDE,
-          brevdato: SF2900::formatDate($brevDato),
-          virkning: $this->clone($virkning),
-        ),
-      ]),
-    // importTidspunkt: null,
-    // brugerRef: null,.
-    )
+      handlingFacetForslag: $handlerSettings->distributionContext->handlingFacet
     );
   }
 
@@ -253,8 +240,6 @@ final class FordelingskomponentHelper implements LoggerInterface {
    */
   private function buildDistributionFormularType(
     string $id,
-    \DateTimeInterface $fraTidsPunkt,
-    \DateTimeInterface $brevDato,
     WebformSubmissionInterface $submission,
     HandlerSettings $handlerSettings,
     Attachment $attachment,
@@ -272,13 +257,20 @@ final class FordelingskomponentHelper implements LoggerInterface {
     $formatNavn = pathinfo($attachment->filename, PATHINFO_EXTENSION);
     $formularIndhold = base64_encode($attachment->contents);
 
+    // The XML will be embedded in an SOAP:Envelope element, so we have to
+    // make sure that the XML declaration is not included when embedding.
+    // Passing a DOMDocument to FormularXMLType takes care of this.
+    $dom = new \DOMDocument();
+    $dom->loadXML($xml);
+    $formularXML = new FormularXMLType($dom);
+
     $meddelelse = new MeddelelseType(
       formularType: $handlerSettings->distributionObject->formularType,
       formular: new FormularType(
         titelTekst: $titelTekst,
         formatNavn: $formatNavn,
         formularIndhold: $formularIndhold,
-        formularXML: new FormularXMLType($xml),
+        formularXML: $formularXML,
       ),
     );
 
@@ -439,16 +431,16 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   * Deep clone an object.
+   * Deep clone a virking.
    *
-   * @param \WsdlToPhp\PackageBase\AbstractStructBase<T> $object
+   * @param \ItkDev\Serviceplatformen\SF2900\StructType\VirkningType $virkning
    *   The object to clone.
    *
-   * @return \WsdlToPhp\PackageBase\AbstractStructBase<T>
+   * @return \ItkDev\Serviceplatformen\SF2900\StructType\VirkningType
    *   The cloned object.
    */
-  private function clone(AbstractStructBase $object): AbstractStructBase {
-    return unserialize(serialize($object));
+  private function cloneVirkning(VirkningType $virkning): VirkningType {
+    return unserialize(serialize($virkning));
   }
 
 }

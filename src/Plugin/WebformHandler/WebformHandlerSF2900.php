@@ -39,17 +39,17 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * The settings.
    */
-  private readonly Settings $settingsService;
+  private Settings $settingsService;
 
   /**
    * The webform helper.
    */
-  private readonly WebformHelperSF2900 $helper;
+  private WebformHelperSF2900 $helper;
 
   /**
    * The XML helper.
    */
-  private readonly XmlHelper $xmlHelper;
+  private XmlHelper $xmlHelper;
 
   /**
    * {@inheritdoc}
@@ -256,7 +256,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
     $type = $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::DISTRIBUTION_TYPE] ?? '';
     if (DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR === $type) {
-      $template = (string) $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XML_TEMPLATE] ?? '';
+      $template = (string) ($form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XML_TEMPLATE] ?? NULL);
       try {
         $this->xmlHelper->validateXml($template);
         $this->xmlHelper->validateTemplate($template);
@@ -266,7 +266,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
           $this->t('Invalid XML template: %message.', ['%message' => $e->getMessage()]));
       }
 
-      $url = (string) $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XSD_URL] ?? '';
+      $url = (string) ($form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::XSD_URL] ?? NULL);
       if ($url) {
         $contents = @file_get_contents($url);
         if (FALSE === $contents) {

@@ -5,6 +5,8 @@ namespace Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings\SftpSettings;
 
 /**
+ * Sender settings.
+ *
  * @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf2900/2.4/SF2900%20-%20Fordelingskomponent%20V2.4.pdf
  */
 final class SenderSettings extends AbstractSettings {
