@@ -85,7 +85,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   }
 
   /**
-   *
+   * Build distribution context form section.
    */
   private function buildConfigurationFormDistributionContext(): array {
     $settings = $this->settingsService->getDistributionContextSettings((array) ($this->getSettings()[DistributionContextSettings::NAME] ?? NULL));
@@ -140,7 +140,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   }
 
   /**
-   *
+   * Build distribution object form section.
    */
   private function buildConfigurationFormDistributionObject(): array {
     $settings = $this->settingsService->getDistributionObjectSettings((array) ($this->getSettings()[DistributionObjectSettings::NAME] ?? NULL));

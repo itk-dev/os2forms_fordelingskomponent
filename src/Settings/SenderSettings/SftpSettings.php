@@ -5,7 +5,7 @@ namespace Drupal\os2forms_fordelingskomponent\Settings\SenderSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\AbstractSettings;
 
 /**
- *
+ * SFTP settings.
  */
 final class SftpSettings extends AbstractSettings {
   const string NAME = 'sftp';

@@ -133,7 +133,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   *
+   * Build distribution object for "Journalnotat".
    */
   private function buildDistributionJournalPostType(
     string $id,
@@ -169,7 +169,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
   }
 
   /**
-   *
+   * Build distribution object for "Dokument".
    */
   private function buildDistributionDokumentType(
     string $id,

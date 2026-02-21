@@ -12,6 +12,7 @@
   <exclude-pattern>rector.php</exclude-pattern>
 
   <arg value="p"/>
+  <arg value="s"/>
 
   <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,txt,yml"/>
 
@@ -25,5 +26,8 @@
     <exclude name="Drupal.NamingConventions.ValidEnumCase.NoUpperAcronyms" />
     <exclude name="Drupal.NamingConventions.ValidEnumCase.NoUnderscores" />
   </rule>
-   <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
+  <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
+  <rule ref="Drupal.Commenting.VariableComment.Missing">
+      <exclude-pattern>src/Settings/</exclude-pattern>
+  </rule>
 </ruleset>

@@ -67,7 +67,7 @@ abstract class AbstractSettings implements \JsonSerializable {
   }
 
   /**
-   *
+   * Apply values to settings.
    */
   public function apply(array $values, bool $throwExceptionOnMissingProperty = FALSE): static {
     foreach (static::$listProperties as $property => $class) {
@@ -109,7 +109,7 @@ abstract class AbstractSettings implements \JsonSerializable {
   }
 
   /**
-   *
+   * Convert settings to array.
    */
   public function toArray(): array {
     return $this->values;

@@ -70,7 +70,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
   }
 
   /**
-   *
+   * Build distribution object.
    */
   public function buildDistributionObject(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, ?Attachment $attachment): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
     $handlerSettings = $this->replaceTokens($handlerSettings, $submission);
@@ -83,7 +83,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
   }
 
   /**
-   *
+   * Render XML.
    */
   public function renderXml(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, bool $validateXml = TRUE): XmlRenderResult {
     return $this->helper->renderXml($handlerSettings, $submission, validateXml: $validateXml);

@@ -12,7 +12,7 @@ use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 
 /**
- *
+ * Settings for module and handler.
  */
 class Settings {
   const string CONFIG_NAME = 'os2forms_fordelingskomponent.settings';
@@ -29,14 +29,14 @@ class Settings {
   }
 
   /**
-   *
+   * Get general settings.
    */
   public function getGeneralSettings(): GeneralSettings {
     return new GeneralSettings($this->getValue(GeneralSettings::NAME));
   }
 
   /**
-   *
+   * Get sender settings.
    */
   public function getSenderSettings(array $values = []): SenderSettings {
     return (new SenderSettings($this->getValue(SenderSettings::NAME)))
@@ -44,7 +44,7 @@ class Settings {
   }
 
   /**
-   *
+   * Get distribution context settings.
    */
   public function getDistributionContextSettings(array $values = []): DistributionContextSettings {
     return (new DistributionContextSettings($this->getValue(DistributionContextSettings::NAME)))
@@ -52,7 +52,7 @@ class Settings {
   }
 
   /**
-   *
+   * Get distribution object settings.
    */
   public function getDistributionObjectSettings(array $values = []): DistributionObjectSettings {
     return (new DistributionObjectSettings($this->getValue(DistributionObjectSettings::NAME)))

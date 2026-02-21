@@ -1,22 +1,22 @@
-{% extends "@os2forms_fordelingskomponent/base.html.twig" %}
+{% extends '@os2forms_fordelingskomponent/base.html.twig' %}
 
 {#
-  /**
-  * @file
-  * Template for Fordelingskomponent payload preview.
-  *
-  * Available variables:
-  * - preview_urls: The preview URLs
-  *   - prev: Previous submission preview URL (if any)
-  *   - self: The current preview URL (if any)
-  *   - next: Next submission preview URL (if any)
-  * - webform: The webform
-  * - handler: The handler ID
+/**
+ * @file
+ * Template for Fordelingskomponent payload preview.
+ *
+ * Available variables:
+ * - preview_urls: The preview URLs
+ *   - prev: Previous submission preview URL (if any)
+ *   - self: The current preview URL (if any)
+ *   - next: Next submission preview URL (if any)
+ * - webform: The webform
+ * - handler: The handler ID
  * - submission: The submission ID
-  * - return_url: The return URL (to list of webform handlers)
-  * - render_url: The render URL to render the actual preview
-  */
-  #}
+ * - return_url: The return URL (to list of webform handlers)
+ * - render_url: The render URL to render the actual preview
+ */
+#}
 {% block content %}
     <details>
         <summary>{{ 'XML Template'|t }}</summary>
