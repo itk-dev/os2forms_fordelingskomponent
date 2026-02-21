@@ -20,7 +20,7 @@ class Settings {
   /**
    * The config.
    */
-  private ImmutableConfig $config;
+  private readonly ImmutableConfig $config;
 
   public function __construct(
     ConfigFactoryInterface $configFactory,

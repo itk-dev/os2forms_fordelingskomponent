@@ -54,6 +54,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->settingsService = $container->get(Settings::class);
@@ -66,6 +67,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form[DistributionContextSettings::NAME] = [
       '#type' => 'fieldset',
@@ -327,6 +329,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function getSummary() {
     $settings = $this->settingsService->getHandlerSettings($this);
 

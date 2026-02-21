@@ -6,9 +6,9 @@ namespace Drupal\os2forms_fordelingskomponent\Hook;
  * Theme hook implementations.
  */
 final class ThemeHooks {
-  const ROUTING_INFO = 'os2forms_fordelingskomponent_routing_info';
-  const DISTRIBUTION_OBJECT_PREVIEW = 'os2forms_fordelingskomponent_distribution_object_preview';
-  const DISTRIBUTION_OBJECT_PREVIEW_RENDER = 'os2forms_fordelingskomponent_distribution_object_preview_render';
+  const string ROUTING_INFO = 'os2forms_fordelingskomponent_routing_info';
+  const string DISTRIBUTION_OBJECT_PREVIEW = 'os2forms_fordelingskomponent_distribution_object_preview';
+  const string DISTRIBUTION_OBJECT_PREVIEW_RENDER = 'os2forms_fordelingskomponent_distribution_object_preview_render';
 
   /**
    * Implements hook_theme().

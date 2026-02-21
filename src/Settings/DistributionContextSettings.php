@@ -26,7 +26,7 @@ final class DistributionContextSettings extends AbstractSettings {
   public ?string $brugervendtNoegle = NULL;
 
   // @todo Use this?
-  public const ROUTING_MODTAGER_AKTOER = 'routing_modtager_aktoer';
+  public const string ROUTING_MODTAGER_AKTOER = 'routing_modtager_aktoer';
   public ?string $routingModtagerAktoer = NULL;
 
   public const string TITEL = 'titel';

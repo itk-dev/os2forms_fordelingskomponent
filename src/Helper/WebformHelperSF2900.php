@@ -130,7 +130,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $instance = $this->elementInfoManager->createInstance($type);
 
     if (!$instance instanceof WebformAttachmentBase) {
-      throw new InvalidAttachmentElementException(sprintf('Attachment element must be an instance of %s. Found %s.', WebformAttachmentBase::class, get_class($instance)));
+      throw new InvalidAttachmentElementException(sprintf('Attachment element must be an instance of %s. Found %s.', WebformAttachmentBase::class, $instance::class));
     }
 
     $fileName = $instance::getFileName($element, $submission);
@@ -217,6 +217,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     catch (\Exception $exception) {
       $this->error('Error creating job for afsend.', $context + [
         'operation' => 'Fordelingskomponent afsend failed',
+        'exception' => $exception,
       ]);
       return NULL;
     }

@@ -13,7 +13,6 @@ use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -24,7 +23,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
   /**
    * The webform submission storage.
    */
-  private WebformSubmissionStorageInterface $submissionStorage;
+  private readonly WebformSubmissionStorageInterface $submissionStorage;
 
   public function __construct(
     private readonly Settings $settings,
@@ -36,7 +35,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
   /**
    * Builds the response.
    */
-  public function __invoke(Request $request, WebformInterface $webform, string $webform_handler): array|Response {
+  public function __invoke(Request $request, WebformInterface $webform, string $webform_handler): array {
     try {
       $handler = $webform->getHandler($webform_handler);
     }
@@ -93,7 +92,6 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
       '#render_url' => $renderUrl,
       '#preview_urls' => $previewUrls,
     ];
-
   }
 
 }

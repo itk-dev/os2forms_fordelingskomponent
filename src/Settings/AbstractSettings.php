@@ -135,7 +135,7 @@ abstract class AbstractSettings implements \JsonSerializable {
    * @see https://stackoverflow.com/a/40514305/2502647
    */
   public static function camel2kebab(string $value): string {
-    return strtolower(preg_replace('/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/', '_', $value));
+    return strtolower((string) preg_replace('/(?<=\d)(?=[A-Za-z])|(?<=[A-Za-z])(?=\d)|(?<=[a-z])(?=[A-Z])/', '_', $value));
   }
 
 }
