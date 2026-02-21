@@ -31,6 +31,11 @@
       [disabled] {
           opacity: 50%;
       }
+
+      iframe {
+        width: 100%;
+        height: 20rem;
+      }
     }
   </style>
 {% endblock %}
@@ -38,14 +43,14 @@
 {% block navigation %}
   <div class="navigation">
     <div class="paging">
-        {% if preview_urls is defined %}
-            {% if preview_urls.prev %}
-                <a href="{{ preview_urls.prev }}">{{ 'Previous submission'|t }}</a>
+        {% if links is defined %}
+            {% if links.prev %}
+                <a href="{{ links.prev }}">{{ 'Previous submission'|t }}</a>
             {% else %}
                 <span disabled>{{ 'Previous submission'|t }}</span>
             {% endif %}
-            {% if preview_urls.next %}
-                <a href="{{ preview_urls.next }}">{{ 'Next submission'|t }}</a>
+            {% if links.next %}
+                <a href="{{ links.next }}">{{ 'Next submission'|t }}</a>
             {% else %}
                 <span disabled>{{ 'Next submission'|t }}</span>
             {% endif %}
@@ -74,6 +79,29 @@
   </details>
 {% endmacro %}
 
-{% macro render_json(value) %}
-<pre><code>{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
+{% macro render_json(value, label) %}
+    <fieldset>
+        <legend>{{ label }}</legend>
+
+        {% set data_url = 'data:application/json,' ~ (value|json_encode|url_encode) %}
+        <iframe src="{{ data_url }}"></iframe>
+        <a target="_blank" href="{{ data_url }}">{{ 'Open data in new tab'|trans }}</a>
+
+        <pre><code>{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
+    </fieldset>
+{% endmacro %}
+
+{% macro render_xml(value, label) %}
+    <fieldset>
+        <legend>{{ label }}</legend>
+
+        {% set data_url = 'data:text/xml,' ~ (value|url_encode) %}
+        <iframe src="{{ data_url }}"></iframe>
+        <a target="_blank" href="{{ data_url }}">{{ 'Open data in new tab'|trans }}</a>
+
+        <details>
+            <summary>{{ 'Raw content'|trans }}</summary>
+            <pre><code>{{ value }}</code></pre>
+        </details>
+    </fieldset>
 {% endmacro %}

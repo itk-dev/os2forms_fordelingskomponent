@@ -19,28 +19,17 @@ os2forms_fordelingskomponent.routing_info:
     _permission: "administer site configuration"
 
 os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
-  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview"
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview/{webform_submission}"
   defaults:
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentDistributionObjectPreviewController'
     _title: "Fordelingskomponent fordelingsobjekt preview"
+    webform_submission: null
   options:
     parameters:
       webform:
         type: "entity:webform"
-  requirements:
-    # @todo Harden this permission to allow only access when user has access to webform.
-    _permission: "view any webform submission"
-
-os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview_render:
-  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview/render/{submission}"
-  defaults:
-    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentDistributionObjectPreviewRenderController'
-    _title: "Fordelingskomponent fordelingsobjekt preview"
-  options:
-    parameters:
-      webform:
-        type: "entity:webform"
-      submission:
+      webform_submission:
         type: "entity:webform_submission"
   requirements:
+    # @todo Harden this permission to allow only access when user has access to webform.
     _permission: "view any webform submission"

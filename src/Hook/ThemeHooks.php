@@ -29,10 +29,11 @@ final class ThemeHooks {
       self::DISTRIBUTION_OBJECT_PREVIEW => [
         'variables' => [
           'webform' => NULL,
+          'submission' => NULL,
           'handler' => NULL,
           'handler_settings' => NULL,
-          'render_url' => NULL,
-          'preview_urls' => [
+          'preview' => NULL,
+          'links' => [
             'prev' => NULL,
             'self' => NULL,
             'next' => NULL,

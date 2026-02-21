@@ -18,12 +18,63 @@
  */
 #}
 {% block content %}
-    <details>
-        <summary>{{ 'XML Template'|t }}</summary>
-        <pre><code>{{ handler_settings.distributionObject.xmlTemplate }}</code></pre>
-    </details>
+    {% for exception in preview.exceptions %}
+        <div class="alert alert-danger" role="alert">
+            {{ exception.message }}
+        </div>
+    {% endfor %}
 
-    {% if render_url %}
-        <iframe class="preview" src="{{ render_url }}"></iframe>
+    {% for warning in preview.warnings %}
+        <div class="alert alert-warning" role="alert">
+            {{ warning.message }}
+        </div>
+    {% endfor %}
+
+    {% set distribution_type = handler_settings.distributionObject.distributionType %}
+    {% set distribution_object = preview.distribution_object|default(null) %}
+    {% if distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST') %}
+        {{ distribution_type }}
+        {{ _self.render_json(distribution_object) }}
+    {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT') %}
+        {{ distribution_type }}
+        {{ _self.render_json(distribution_object) }}
+    {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR') %}
+        {{ distribution_type }}
+        {% if distribution_object %}
+            <details>
+                <summary>{{ 'Distribution object'|trans }}</summary>
+                {{ _self.render_json(distribution_object) }}
+            </details>
+        {% endif %}
+
+        {% set xml = distribution_object.meddelelse.formular.formularXml.any|default(preview.xml.rendered) %}
+        {% if xml %}
+            <details open>
+                <summary>{{ 'XML'|trans }}</summary>
+
+                {{ _self.render_xml(xml) }}
+            </details>
+        {% endif %}
+
+        {% set xml_template = handler_settings.distributionObject.xmlTemplate|default(null) %}
+        {% if xml_template %}
+            <details>
+                <summary>{{ 'XML template'|trans }}</summary>
+
+                {{ _self.render_xml(xml_template) }}
+            </details>
+        {% endif %}
+
+        {% if preview.xml.context %}
+            <details>
+                <summary>{{ 'XML render context'|trans }}</summary>
+
+                {{ _self.render_json(preview.xml.context) }}
+            </details>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            {{ 'Unknown distribution type: @distribution_type'|trans({'@distribution_type': distribution_type}) }}
+        </div>
     {% endif %}
 {% endblock %}
