@@ -132,6 +132,24 @@ tasks:
       # Cf. .github/workflows/yaml.yaml
       - docker compose run --rm prettier '**/*.{yml,yaml}' --check
 
+  code-analysis:phpstan:
+    desc: Run static code analysis
+    cmds:
+      - ./scripts/code-analysis
+
+  code-analysis:rector:
+    desc: Run static code analysis
+    cmds:
+      - ./scripts/rector
+
+  code-analysis:build-image:
+    desc: Build Drupal image used for static code analysis
+    prompt: Really?
+    cmds:
+      - docker image rm drupal-module-drupal --force
+      - docker builder prune --force
+      - BUILDKIT_PROGRESS=plain docker compose --project-directory scripts build
+
   test:
     cmds:
       - docker compose run --env PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST --env PHP_IDE_CONFIG --rm phpfpm vendor/bin/phpunit {{.CLI_ARGS}}

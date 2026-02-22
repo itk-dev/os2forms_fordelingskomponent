@@ -76,7 +76,7 @@ trap teardown EXIT
 setup() {
   # compose down --remove-orphans
   compose pull --ignore-buildable
-  compose up --detach --remove-orphans --wait # --build
+  compose up --detach --remove-orphans --wait
 
   # Finally, install our module.
   drush --yes pm:install "$module_name"

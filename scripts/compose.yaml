@@ -6,12 +6,12 @@ services:
     build:
       context: ../
       dockerfile_inline: |
-        FROM drupal:${DRUPAL_VERSION:-10}-apache
+        FROM drupal:${DRUPAL_VERSION:-10}-php${PHP_VERSION:-8.3}-apache
 
         COPY ./composer.json web/modules/${MODULE_NAME?}/
 
         # https://github.com/docker-library/docs/blob/master/php/README.md#how-to-install-more-php-extensions
-        RUN apt update && apt --yes install git libxml2-dev libxslt1-dev \
+        RUN apt-get update && apt-get --yes install git libxml2-dev libxslt1-dev \
           && docker-php-ext-configure soap \
           && docker-php-ext-install soap \
           && docker-php-ext-configure xsl \
@@ -34,7 +34,8 @@ services:
           && composer --no-plugins config extra.merge-plugin.merge-extra --json true \
           && composer --no-plugins config extra.merge-plugin.merge-extra-deep --json true \
           && composer --no-plugins config extra.merge-plugin.include "web/modules/${MODULE_NAME?}/composer.json" \
-          && composer require mglaman/composer-drupal-lenient wikimedia/composer-merge-plugin --with-all-dependencies
+          && composer require mglaman/composer-drupal-lenient wikimedia/composer-merge-plugin --with-all-dependencies \
+          && composer update --with-all-dependencies
 
         # Patch to make COMPOSER_IGNORE_PLATFORM_REQS=1 have effect
         # https://github.com/wikimedia/composer-merge-plugin/pull/253
@@ -46,7 +47,7 @@ services:
 
         # Install a minimal Drupal site.
         # https://www.drush.org/13.x/commands/site_install/
-        RUN drush --yes site:install --db-url=sqlite://sites/default/files/.ht.sqlite?module=sqlite minimal -vvv
+        RUN vendor/bin/drush --yes site:install --db-url=sqlite://sites/default/files/.ht.sqlite?module=sqlite minimal -vvv
 
     ports:
       - 80
