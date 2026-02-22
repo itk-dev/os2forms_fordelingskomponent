@@ -2,7 +2,52 @@
 
 services:
   drupal:
-    image: drupal:${DRUPAL_VERSION:-10}-apache
+    # image: drupal:${DRUPAL_VERSION:-10}-apache
+    build:
+      context: ../
+      dockerfile_inline: |
+        FROM drupal:${DRUPAL_VERSION:-10}-apache
+
+        COPY ./composer.json web/modules/${MODULE_NAME?}/
+
+        # https://github.com/docker-library/docs/blob/master/php/README.md#how-to-install-more-php-extensions
+        RUN apt update && apt --yes install git libxml2-dev libxslt1-dev \
+          && docker-php-ext-configure soap \
+          && docker-php-ext-install soap \
+          && docker-php-ext-configure xsl \
+          && docker-php-ext-install xsl
+
+        # --------------------------------------------------------------------------------------------------------------------
+        # We need to install dev requirements from our module, so we use
+        # wikimedia/composer-merge-plugin to merge our module composer.json into
+        # Drupal's.
+        #
+        # wikimedia/composer-merge-plugin is dead and has some issues
+        # https://github.com/wikimedia/composer-merge-plugin/issues/159 »
+        # https://github.com/wikimedia/composer-merge-plugin/pull/253
+        RUN composer --no-plugins config allow-plugins true \
+          && composer --no-plugins config minimum-stability dev \
+          # Use --json to actually set a boolean value (rather that a string value, e.g. "true")
+          && composer --no-plugins config extra.drupal-lenient.allow-all --json true \
+
+          # Configure wikimedia/composer-merge-plugin
+          && composer --no-plugins config extra.merge-plugin.merge-extra --json true \
+          && composer --no-plugins config extra.merge-plugin.merge-extra-deep --json true \
+          && composer --no-plugins config extra.merge-plugin.include "web/modules/${MODULE_NAME?}/composer.json" \
+          && composer require mglaman/composer-drupal-lenient wikimedia/composer-merge-plugin --with-all-dependencies
+
+        # Patch to make COMPOSER_IGNORE_PLATFORM_REQS=1 have effect
+        # https://github.com/wikimedia/composer-merge-plugin/pull/253
+        # RUN cd vendor/wikimedia/composer-merge-plugin/ && curl https://patch-diff.githubusercontent.com/raw/wikimedia/composer-merge-plugin/pull/253.diff | patch --strip=1
+
+        # Reset Drupal installation
+        RUN find . -name .ht.sqlite -delete \
+          && find web/sites/default -name -delete
+
+        # Install a minimal Drupal site.
+        # https://www.drush.org/13.x/commands/site_install/
+        RUN drush --yes site:install --db-url=sqlite://sites/default/files/.ht.sqlite?module=sqlite minimal -vvv
+
     ports:
       - 80
     volumes:
@@ -13,10 +58,10 @@ services:
       # volume (which is what we're creating here) will be initialized with the
       # existing content of the image at the same location
       - /var/www/html/sites
-      # Mount our code into the web/modules/contrib folder
-      - ../:/opt/drupal/web/modules/contrib/$MODULE_NAME
+      # Mount our code into the web/modules folder
+      - ../:/opt/drupal/web/sites/default/modules/$MODULE_NAME
     environment:
       # Let the module path, i.e. the mounted path, be known in the container
-      MODULE_PATH: web/modules/contrib/$MODULE_NAME
+      MODULE_PATH: web/sites/default/modules/$MODULE_NAME
       # https://getcomposer.org/doc/03-cli.md#composer-ignore-platform-req-or-composer-ignore-platform-reqs
       COMPOSER_IGNORE_PLATFORM_REQS: 1
