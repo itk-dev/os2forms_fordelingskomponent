@@ -40,7 +40,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
   /**
    * Builds the response.
    */
-  public function __invoke(Request $request, WebformInterface $webform, string $webform_handler, ?WebformSubmissionInterface $webform_submission): array {
+  public function __invoke(Request $request, WebformInterface $webform, string $webform_handler, WebformSubmissionInterface $webform_submission): array {
     try {
       $handler = $webform->getHandler($webform_handler);
     }
@@ -55,27 +55,19 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
     $handlerSettings = $this->settings->getHandlerSettings($handler);
 
     // Get previous, self and next submission IDs.
-    $submissionIds = array_keys($this->submissionStorage->getQuery()
-      ->accessCheck()
-      ->condition('webform_id', $webform->id())
-      ->sort('created', 'DESC')
-      ->execute());
-    $currentSubmissionId = $webform_submission?->id();
+    $submissionIds = array_values($this->helper->loadSubmissionIds($webform));
+    $currentSubmissionId = $webform_submission->id();
     $index = array_search($currentSubmissionId, $submissionIds);
     if (FALSE === $index) {
-      $currentSubmissionId = reset($submissionIds) ?: NULL;
-      $index = array_search($currentSubmissionId, $submissionIds);
-    }
-    if ($currentSubmissionId) {
-      $webform_submission = $this->submissionStorage->load($currentSubmissionId);
+      throw new NotFoundHttpException();
     }
 
     $routeName = $request->attributes->get('_route');
     $links = array_map(
-      static fn($submission) => Url::fromRoute($routeName, [
+      static fn($submissionId) => Url::fromRoute($routeName, [
         'webform' => $webform->id(),
         'webform_handler' => $handler->getHandlerId(),
-        'webform_submission' => $submission,
+        'webform_submission' => $submissionId,
       ]),
       array_filter([
         'prev' => $submissionIds[$index + 1] ?? NULL,

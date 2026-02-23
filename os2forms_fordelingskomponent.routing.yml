@@ -16,14 +16,13 @@ os2forms_fordelingskomponent.routing_info:
       webform:
         type: "entity:webform"
   requirements:
-    _entity_access: 'webform.update'
+    _entity_access: "webform.update"
 
 os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
   path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview/{webform_submission}"
   defaults:
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentDistributionObjectPreviewController'
     _title: "Fordelingskomponent fordelingsobjekt preview"
-    webform_submission: null
   options:
     parameters:
       webform:
@@ -31,4 +30,4 @@ os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
       webform_submission:
         type: "entity:webform_submission"
   requirements:
-    _entity_access: 'webform.update'
+    _entity_access: "webform_submission.view"

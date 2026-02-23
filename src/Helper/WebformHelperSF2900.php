@@ -18,6 +18,7 @@ use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF29
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
+use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Drupal\webform\WebformTokenManagerInterface;
@@ -149,6 +150,29 @@ final class WebformHelperSF2900 implements LoggerInterface {
    */
   public function loadSubmission(int $id): ?WebformSubmissionInterface {
     return $this->webformSubmissionStorage->load($id);
+  }
+
+  /**
+   * Load submission IDs for a webform.
+   */
+  public function loadSubmissionIds(WebformInterface $webform): array {
+    return $this->webformSubmissionStorage->getQuery()
+      ->accessCheck()
+      ->condition('webform_id', $webform->id())
+      ->sort('created', 'DESC')
+      ->sort('sid', 'DESC')
+      ->execute();
+  }
+
+  /**
+   * Load latest submission on a webform.
+   */
+  public function loadLatestSubmission(WebformInterface $webform): ?WebformSubmissionInterface {
+    $submissionIds = $this->loadSubmissionIds($webform);
+
+    $id = reset($submissionIds);
+
+    return $id ? $this->loadSubmission($id) : NULL;
   }
 
   /**

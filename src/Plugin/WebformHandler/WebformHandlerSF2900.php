@@ -347,13 +347,16 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
     $items = [];
 
-    $items[] = Link::createFromRoute(
-      $this->t('Preview distribution object'),
-      'os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview', [
-        'webform' => $this->getWebform()->id(),
-        'webform_handler' => $this->getHandlerId(),
-      ]
-    );
+    if ($submission = $this->helper->loadLatestSubmission($this->getWebform())) {
+      $items[] = Link::createFromRoute(
+        $this->t('Preview distribution object'),
+        'os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview', [
+          'webform' => $this->getWebform()->id(),
+          'webform_handler' => $this->getHandlerId(),
+          'webform_submission' => $submission->id(),
+        ]
+      );
+    }
 
     if ($settings->distributionContext->kleEmne) {
       $items[] = Link::createFromRoute(
