@@ -16,7 +16,7 @@ os2forms_fordelingskomponent.routing_info:
       webform:
         type: "entity:webform"
   requirements:
-    _permission: "administer site configuration"
+    _entity_access: 'webform.update'
 
 os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
   path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview/{webform_submission}"
@@ -31,5 +31,4 @@ os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
       webform_submission:
         type: "entity:webform_submission"
   requirements:
-    # @todo Harden this permission to allow only access when user has access to webform.
-    _permission: "view any webform submission"
+    _entity_access: 'webform.update'
