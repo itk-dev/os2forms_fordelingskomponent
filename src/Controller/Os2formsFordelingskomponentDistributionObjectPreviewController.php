@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
@@ -22,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Returns responses for Fordelingskomponent routes.
  */
-final class Os2formsFordelingskomponentDistributionObjectPreviewController extends ControllerBase {
+final class Os2formsFordelingskomponentDistributionObjectPreviewController extends AbstractController {
 
   /**
    * The webform submission storage.
@@ -41,17 +40,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
    * Builds the response.
    */
   public function __invoke(Request $request, WebformInterface $webform, string $webform_handler, WebformSubmissionInterface $webform_submission): array {
-    try {
-      $handler = $webform->getHandler($webform_handler);
-    }
-    catch (\Exception) {
-      $handler = NULL;
-    }
-
-    if (!$handler instanceof WebformHandlerSF2900) {
-      throw new NotFoundHttpException();
-    }
-
+    $handler = $this->getHandler($webform, $webform_handler);
     $handlerSettings = $this->settings->getHandlerSettings($handler);
 
     // Get previous, self and next submission IDs.

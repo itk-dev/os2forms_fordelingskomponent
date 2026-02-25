@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\os2forms_fordelingskomponent\Model;
+namespace Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent;
 
 use ItkDev\Serviceplatformen\SF2900\StructType\FordelingsobjektAfsendRequestType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FordelingsobjektAfsendResponseType;
@@ -14,6 +14,7 @@ final class AnvenderForsendelse {
    * Constructor.
    */
   public function __construct(
+    public readonly string $webformId,
     public readonly string $webformHandlerId,
     public readonly int $webformSubmissionId,
     public readonly string $anvenderTransaktionsId,

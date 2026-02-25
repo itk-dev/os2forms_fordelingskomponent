@@ -7,11 +7,11 @@ use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\Exception;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
-use Drupal\os2forms_fordelingskomponent\Model\AnvenderForsendelse;
-use Drupal\os2forms_fordelingskomponent\Model\AnvenderForsendelseRepository;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse;
 use Drupal\os2forms_fordelingskomponent\Model\TransactionContext;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
+use Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
@@ -484,6 +484,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       $context = $this->getTransactionContext($anvenderTransaktionsId);
       $this->anvenderForsendelseRepository->save(
         new AnvenderForsendelse(
+          webformId: $context->submission->getWebform()->id(),
           webformHandlerId:  $context->handlerSettings->handlerId,
           webformSubmissionId: $context->submission->id(),
           anvenderTransaktionsId: $anvenderTransaktionsId,

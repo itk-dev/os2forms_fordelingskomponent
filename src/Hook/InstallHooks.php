@@ -6,9 +6,9 @@ namespace Drupal\os2forms_fordelingskomponent\Hook;
  * Install hook implementations.
  */
 final class InstallHooks {
-  const TABLE_ANVENDER_FORSENDELSE = 'os2forms_fordelingskomponent_anvender_forsendelse';
-  const TABLE_ANVENDER_KVITTERING = 'os2forms_fordelingskomponent_anvender_kvittering';
-  const TABLE_MODTAGER_FORSENDELSE = 'os2forms_fordelingskomponent_modtager_forsendelse';
+  const string TABLE_ANVENDER_FORSENDELSE = 'os2forms_fordelingskomponent_anvender_forsendelse';
+  const string TABLE_ANVENDER_KVITTERING = 'os2forms_fordelingskomponent_anvender_kvittering';
+  const string TABLE_MODTAGER_FORSENDELSE = 'os2forms_fordelingskomponent_modtager_forsendelse';
 
   /**
    * Implements hook_schema().
@@ -85,6 +85,11 @@ final class InstallHooks {
     $schema[self::TABLE_ANVENDER_FORSENDELSE] = $createTable(
       description: 'Stores data on forsendelser.',
       fields: [
+        'webform_id' => [
+          'description' => 'Webform ID.',
+          'type' => 'varchar',
+          'length' => '256',
+        ],
         'webform_handler_id' => [
           'description' => 'Webform handler ID.',
           'type' => 'varchar',
@@ -112,7 +117,7 @@ final class InstallHooks {
         ],
       ],
       indexes: [
-        'webform_submission' => ['webform_handler_id', 'webform_submission_id'],
+        'webform_submission' => ['webform_id', 'webform_handler_id', 'webform_submission_id'],
       ]
     );
 

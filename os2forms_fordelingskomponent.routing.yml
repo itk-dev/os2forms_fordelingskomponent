@@ -31,3 +31,27 @@ os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
         type: "entity:webform_submission"
   requirements:
     _entity_access: "webform_submission.view"
+
+os2forms_fordelingskomponent.distribution_object.index:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/{webform_handler}/fordelingsobject"
+  defaults:
+    _title: "Fordelingskomponent fordelingsobject index"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentFordelingsobjectController::index'
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+  requirements:
+    _entity_access: "webform.update"
+
+os2forms_fordelingskomponent.distribution_object.show:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/{webform_handler}/fordelingsobject/{anvender_transaktions_id}"
+  defaults:
+    _title: "Fordelingskomponent fordelingsobject show"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentFordelingsobjectController::show'
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+  requirements:
+    _entity_access: "webform.update"

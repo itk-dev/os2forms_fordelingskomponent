@@ -15,6 +15,7 @@ use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
 use Drupal\os2forms_fordelingskomponent\Plugin\AdvancedQueue\JobType\FordelingskomponentSF2900;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
+use Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
@@ -59,6 +60,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     #[Autowire(service: 'plugin.manager.element_info')]
     private readonly ElementInfoManager $elementInfoManager,
     private readonly FordelingskomponentHelper $helper,
+    private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
     #[Autowire(service: 'webform.token_manager')]
     private readonly WebformTokenManagerInterface $webformTokenManager,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
@@ -293,8 +295,14 @@ final class WebformHelperSF2900 implements LoggerInterface {
 
   /**
    * Delete messages.
+   *
+   * @param \Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900 $handler
+   *   The handler.
+   * @param \Drupal\webform\WebformSubmissionInterface[] $webform_submissions
+   *   The webform submissions.
    */
-  public function deleteMessages(array $array) {
+  public function deleteMessages(WebformHandlerSF2900 $handler, array $webform_submissions) {
+    $this->anvenderForsendelseRepository->deleteBySubmissions($webform_submissions);
     // @todo Clean up
   }
 

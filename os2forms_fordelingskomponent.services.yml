@@ -14,7 +14,7 @@ services:
 
   Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
     tags:
-      - { name: 'event_subscriber' }
+      - { name: "event_subscriber" }
 
   Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900:
 
@@ -24,4 +24,4 @@ services:
 
   Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks:
 
-  Drupal\os2forms_fordelingskomponent\Model\AnvenderForsendelseRepository:
+  Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository:
