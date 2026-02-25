@@ -7,7 +7,10 @@ use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\Exception;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
+use Drupal\os2forms_fordelingskomponent\Model\AnvenderForsendelse;
+use Drupal\os2forms_fordelingskomponent\Model\AnvenderForsendelseRepository;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\TransactionContext;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
@@ -16,6 +19,7 @@ use Drupal\os2web_audit\Service\Logger as AuditLogger;
 use Drupal\os2web_key\KeyHelper;
 use Drupal\webform\WebformSubmissionInterface;
 use ItkDev\Serviceplatformen\Service\SF1601\Serializer;
+use ItkDev\Serviceplatformen\Service\SF2900\Event\AfterServiceCallEvent;
 use ItkDev\Serviceplatformen\Service\SF2900\SF2900;
 use ItkDev\Serviceplatformen\SF2900\EnumType\AktoerTypeType;
 use ItkDev\Serviceplatformen\SF2900\EnumType\DokumenttypeType;
@@ -32,6 +36,8 @@ use ItkDev\Serviceplatformen\SF2900\StructType\DistributionFormularType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DistributionJournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DokumentRegistreringType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FordelingsmodtagerListResponseType;
+use ItkDev\Serviceplatformen\SF2900\StructType\FordelingsobjektAfsendRequestType;
+use ItkDev\Serviceplatformen\SF2900\StructType\FordelingsobjektAfsendResponseType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FormularType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FormularXMLType;
 use ItkDev\Serviceplatformen\SF2900\StructType\JournalNotatEgenskaberType;
@@ -50,6 +56,7 @@ use ItkDev\Serviceplatformen\SF2900\StructType\VirkningType;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -57,7 +64,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @template T
  */
-final class FordelingskomponentHelper implements LoggerInterface {
+final class FordelingskomponentHelper implements LoggerInterface, EventSubscriberInterface {
   use LoggerTrait;
 
   /**
@@ -70,6 +77,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
     #[Autowire(service: 'key.repository')]
     private readonly KeyRepositoryInterface $keyRepository,
     private readonly KeyHelper $keyHelper,
+    private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
@@ -86,7 +94,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
     return $this->sf2900()->getModtagerList(
       routingMyndighed: (string) $handlerSettings->sender->routingMyndighed,
       routingKLEEmne: (string) $handlerSettings->distributionContext->kleEmne,
-      routingHandlingFacet:  $handlerSettings->distributionContext->handlingFacet,
+      routingHandlingFacet: $handlerSettings->distributionContext->handlingFacet,
     );
   }
 
@@ -108,17 +116,17 @@ final class FordelingskomponentHelper implements LoggerInterface {
     $distributionObject = match ($type) {
       DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST => $this->buildDistributionJournalPostType(
         id: $id,
-        fraTidsPunkt:  $fraTidsPunkt,
-        virkning:  $virkning,
-        handlerSettings:  $handlerSettings,
+        fraTidsPunkt: $fraTidsPunkt,
+        virkning: $virkning,
+        handlerSettings: $handlerSettings,
       ),
       DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT => $this->buildDistributionDokumentType(
         id: $id,
-        fraTidsPunkt:  $fraTidsPunkt,
-        brevDato:  $brevDato,
-        virkning:  $virkning,
-        submission:  $submission,
-        handlerSettings:  $handlerSettings,
+        fraTidsPunkt: $fraTidsPunkt,
+        brevDato: $brevDato,
+        virkning: $virkning,
+        submission: $submission,
+        handlerSettings: $handlerSettings,
       ),
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR => $this->buildDistributionFormularType(
         id: $id,
@@ -180,7 +188,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
     HandlerSettings $handlerSettings,
   ): DistributionDokumentType {
     return new DistributionDokumentType(
-    iD: $id,
+      iD: $id,
       kLEEmneForslag: $handlerSettings->distributionContext->kleEmne,
       registrering: new DokumentRegistreringType(
         fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
@@ -195,7 +203,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
               rolle: VariantRolleType::VALUE_VARIANT,
               indeks: '1',
               variantAttributter: new VariantAttributterType(
-                // @todo What to use here?
+              // @todo What to use here?
                 variantType: Attachment::FORMAT_NAME_PDF,
               ),
               delAttributter: new DelAttributterType(
@@ -285,7 +293,11 @@ final class FordelingskomponentHelper implements LoggerInterface {
   /**
    * Render XML.
    */
-  public function renderXml(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, bool $validateXml = TRUE): XmlRenderResult {
+  public function renderXml(
+    HandlerSettings $handlerSettings,
+    WebformSubmissionInterface $submission,
+    bool $validateXml = TRUE,
+  ): XmlRenderResult {
     $template = $handlerSettings->distributionObject->xmlTemplate;
     if (empty(trim((string) $template))) {
       throw new RuntimeException('Missing XML template');
@@ -295,7 +307,7 @@ final class FordelingskomponentHelper implements LoggerInterface {
 
     return new XmlRenderResult(
       rendered: $this->xmlHelper->render($template, $context, validateXml: $validateXml),
-      template:  $template,
+      template: $template,
       context: $context,
     );
   }
@@ -326,6 +338,12 @@ final class FordelingskomponentHelper implements LoggerInterface {
     }
 
     $transactionId = Serializer::createUuid();
+
+    $this->setTransactionContext($transactionId, new TransactionContext(
+      transactionId: $transactionId,
+      handlerSettings: $handlerSettings,
+      submission: $submission,
+    ));
 
     $response = $sf2900->afsend(
       transactionId: $transactionId,
@@ -441,6 +459,66 @@ final class FordelingskomponentHelper implements LoggerInterface {
    */
   private function cloneVirkning(VirkningType $virkning): VirkningType {
     return unserialize(serialize($virkning));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getSubscribedEvents(): array {
+    return [
+      // BeforeServiceCallEvent::class => 'beforeServiceCall',.
+      AfterServiceCallEvent::class => 'afterServiceCall',
+    ];
+  }
+
+  /**
+   * AfterServiceCallEvent event handler.
+   */
+  public function afterServiceCall(AfterServiceCallEvent $event): void {
+    $request = $event->getRequest();
+    $response = $event->getResponse();
+
+    if ($request instanceof FordelingsobjektAfsendRequestType) {
+      assert($response instanceof FordelingsobjektAfsendResponseType);
+      $anvenderTransaktionsId = $request->getAnmodning()->getDistributionContext()->getAnvenderTransaktionsID();
+      $context = $this->getTransactionContext($anvenderTransaktionsId);
+      $this->anvenderForsendelseRepository->save(
+        new AnvenderForsendelse(
+          webformHandlerId:  $context->handlerSettings->handlerId,
+          webformSubmissionId: $context->submission->id(),
+          anvenderTransaktionsId: $anvenderTransaktionsId,
+          request:  $request,
+          distributionTransaktionsId: $response->getDistributionContext()->getDistributionTransktionsID(),
+          response: $response
+        )
+      );
+    }
+  }
+
+  /**
+   * The transaction contexts.
+   *
+   * @var array<string, TransactionContext>
+   */
+  private array $transactionContexts = [];
+
+  /**
+   * Set transaction context.
+   */
+  private function setTransactionContext(
+    string $transactionId,
+    TransactionContext $transactionContext,
+  ) {
+    $this->transactionContexts[$transactionId] = $transactionContext;
+  }
+
+  /**
+   * Get transaction context.
+   */
+  private function getTransactionContext(
+    string $transactionId,
+  ): TransactionContext {
+    return $this->transactionContexts[$transactionId];
   }
 
 }

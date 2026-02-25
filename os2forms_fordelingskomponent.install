@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install file for os2forms_fordelingskomponent.
+ */
+
+use Drupal\os2forms_fordelingskomponent\Hook\InstallHooks;
+
+/**
+ * Implements hook_schema().
+ */
+function os2forms_fordelingskomponent_schema(): array {
+  return \Drupal::service(InstallHooks::class)->schema();
+}

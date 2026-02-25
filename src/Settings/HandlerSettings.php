@@ -12,6 +12,9 @@ final class HandlerSettings extends AbstractSettings {
     self::DISTRIBUTION_OBJECT => DistributionObjectSettings::class,
   ];
 
+  const string HANDLER_ID = 'handler_id';
+  public string $handlerId;
+
   const string SENDER = 'sender';
   public ?SenderSettings $sender = NULL;
 

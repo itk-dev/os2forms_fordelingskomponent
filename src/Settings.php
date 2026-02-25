@@ -67,6 +67,7 @@ class Settings {
   public function getHandlerSettings(WebformHandlerSF2900 $handler): HandlerSettings {
     $handlerSettings = $handler->getSettings();
     $settings = new HandlerSettings([
+      HandlerSettings::HANDLER_ID => $handler->gethandlerId(),
       HandlerSettings::SENDER => $this->getSenderSettings($handlerSettings[SenderSettings::NAME] ?? []),
       HandlerSettings::DISTRIBUTION_CONTEXT => $this->getDistributionContextSettings($handlerSettings[DistributionContextSettings::NAME] ?? []),
       HandlerSettings::DISTRIBUTION_OBJECT => $this->getDistributionObjectSettings($handlerSettings[DistributionObjectSettings::NAME] ?? []),
