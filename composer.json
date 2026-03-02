@@ -11,6 +11,7 @@
     ],
     "require": {
         "ext-dom": "*",
+        "ext-xsl": "*",
         "drupal/system_stream_wrapper": "^2.1",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten as 1.7.9999",

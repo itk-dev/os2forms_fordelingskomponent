@@ -13,6 +13,7 @@ use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionContextSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
 use Drupal\webform\Plugin\WebformHandlerBase;
+use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -62,6 +63,13 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $instance->xmlHelper = $container->get(XmlHelper::class);
 
     return $instance;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOffCanvasWidth(): string {
+    return WebformDialogHelper::DIALOG_NONE;
   }
 
   /**
@@ -375,14 +383,6 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
         ]
       );
     }
-
-    $items[] = Link::createFromRoute(
-      $this->t('Edit handler'),
-      'entity.webform.handler.edit_form', [
-        'webform' => $this->getWebform()->id(),
-        'webform_handler' => $this->getHandlerId(),
-      ]
-    );
 
     $build['links'] = [
       '#theme' => 'item_list',
