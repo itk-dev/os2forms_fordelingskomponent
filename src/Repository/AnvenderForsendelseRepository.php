@@ -81,6 +81,7 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
    *   The submissions.
    */
   public function deleteBySubmissions(array $submissions): int {
+    // @todo Delete kvitteringer.
     if (empty($submissions)) {
       return 0;
     }
@@ -98,6 +99,8 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
         'exception' => $exception,
       ]);
     }
+
+    return 0;
   }
 
   /**

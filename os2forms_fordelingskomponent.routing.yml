@@ -57,12 +57,12 @@ os2forms_fordelingskomponent.distribution_object.show:
     _entity_access: "webform.update"
 
 os2forms_fordelingskomponent.sf2900_2_4_FordelingskvitteringModtag:
-  path: '/os2forms-fordelingskomponent/sf2900/2.4/FordelingskvitteringModtag'
+  path: "/os2forms-fordelingskomponent/sf2900/2.4/FordelingskvitteringModtag"
   defaults:
-    _title: 'SF2900 2.4 FordelingskvitteringModtag'
+    _title: "SF2900 2.4 FordelingskvitteringModtag"
     _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Fordelingskomponent\FordelingskvitteringModtagController'
   methods: [HEAD, POST]
   requirements:
-    _permission: 'access content'
+    _permission: "access content"
   options:
-    no_cache: 'TRUE'
+    no_cache: "TRUE"

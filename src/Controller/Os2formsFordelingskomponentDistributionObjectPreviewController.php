@@ -23,17 +23,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 final class Os2formsFordelingskomponentDistributionObjectPreviewController extends AbstractController {
 
-  /**
-   * The webform submission storage.
-   */
-  private readonly WebformSubmissionStorageInterface $submissionStorage;
-
   public function __construct(
     private readonly Settings $settings,
     private readonly WebformHelperSF2900 $helper,
-    EntityTypeManagerInterface $entityTypeManager,
   ) {
-    $this->submissionStorage = $entityTypeManager->getStorage('webform_submission');
   }
 
   /**
@@ -71,7 +64,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
       '#submission' => $webform_submission,
       '#handler' => $handler,
       '#handler_settings' => $handlerSettings,
-      '#preview' => $webform_submission ? $this->renderPreview($handler, $handlerSettings, $webform_submission) : NULL,
+      '#preview' => $this->renderPreview($handler, $handlerSettings, $webform_submission),
       '#links' => $links,
     ];
   }
