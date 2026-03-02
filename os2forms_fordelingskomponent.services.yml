@@ -25,3 +25,5 @@ services:
   Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks:
 
   Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository:
+
+  Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository:

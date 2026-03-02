@@ -88,3 +88,31 @@ docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm rm composer.
 # Now we can install what we actually need.
 docker compose run --rm phpfpm composer install
 ```
+
+### Kvittering
+
+[Kom godt i gang - Fordelingskomponenten, side
+27](https://digitaliseringskataloget.dk/files/integration-files/150620210923/Kom%20godt%20i%20gang%20-%20Fordelingskomponenten.pdf#page=27)
+
+``` shell name=test-anvender-FordelingskvitteringModtag substitutions='«base url»: http://selvbetjening.local.itkdev.dk'
+# curl --verbose --insecure --location «base url»/os2forms-fordelingskomponent/sf2900/2.4/FordelingskvitteringModtag --head
+
+curl --verbose --insecure --location «base url»/os2forms-fordelingskomponent/sf2900/2.4/FordelingskvitteringModtag --header 'content-type: application/soap+xml' --data @- <<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <FordelingskvitteringModtagAnvenderRequest xmlns="http://serviceplatformen.dk/xml/wsdl/soap11/DistributionService/2/types" xmlns:ns2="http://serviceplatformen.dk/xml/schemas/CallContext/1/" xmlns:ns3="http://serviceplatformen.dk/xml/schemas/AuthorityContext/1/">
+      <Forretningskvittering>
+        <ForretningsValideringsKode>ACCEPTERET</ForretningsValideringsKode>
+        <Kvitteringstype>Forretning</Kvitteringstype>
+      </Forretningskvittering>
+      <DistributionContext>
+        <AnvenderTransaktionsID>752bc93a-37cb-46db-9fb1-d5f4f7e3964e</AnvenderTransaktionsID>
+        <DistributionTransktionsID>d8101c99-0262-4a97-ac75-5685a6c6494a</DistributionTransktionsID>
+        <!-- ... -->
+      </DistributionContext>
+    </FordelingskvitteringModtagAnvenderRequest>
+  </soap:Body>
+</soap:Envelope>
+XML
+```
