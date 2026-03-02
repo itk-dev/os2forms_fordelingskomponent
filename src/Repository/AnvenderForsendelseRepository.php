@@ -2,26 +2,17 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Repository;
 
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\os2forms_fordelingskomponent\Hook\InstallHooks;
 use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Repository for AnvenderForsendelse.
  */
-final class AnvenderForsendelseRepository {
-
-  public function __construct(
-    private readonly Connection $database,
-    #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
-    private readonly LoggerChannelInterface $logger,
-  ) {
-  }
+final class AnvenderForsendelseRepository extends AbstractRepository {
+  private const string TABLE = InstallHooks::TABLE_ANVENDER_FORSENDELSE;
 
   /**
    * Load forsendelser.
@@ -34,7 +25,7 @@ final class AnvenderForsendelseRepository {
    */
   private function loadBy(array $conditions = []): array {
     $query = $this->database
-      ->select(InstallHooks::TABLE_ANVENDER_FORSENDELSE, 't')
+      ->select(self::TABLE, 't')
       ->fields('t');
 
     foreach ($conditions as $condition) {
@@ -96,7 +87,7 @@ final class AnvenderForsendelseRepository {
 
     try {
       $ids = array_map(static fn(WebformSubmissionInterface $submission) => $submission->id(), $submissions);
-      return $this->database->delete(InstallHooks::TABLE_ANVENDER_FORSENDELSE)
+      return $this->database->delete(self::TABLE)
         ->condition('webform_submission_id', $ids, 'IN')
         ->execute();
     }
@@ -112,10 +103,14 @@ final class AnvenderForsendelseRepository {
   /**
    * Load forsendelse by transaktions-id.
    */
-  public function loadByAnvenderTransaktionsId(string $anvenderTransaktionsId): ?AnvenderForsendelse {
-    $result = $this->loadBy([
+  public function loadByAnvenderTransaktionsId(string $anvenderTransaktionsId, ?string $distributionTransaktionsId = NULL): ?AnvenderForsendelse {
+    $criteria = [
       ['anvender_transaktions_id', $anvenderTransaktionsId],
-    ]);
+    ];
+    if (NULL !== $distributionTransaktionsId) {
+      $criteria[] = ['distribution_transaktions_id', $distributionTransaktionsId];
+    }
+    $result = $this->loadBy($criteria);
 
     if (1 !== count($result)) {
       return NULL;
@@ -129,7 +124,7 @@ final class AnvenderForsendelseRepository {
    */
   public function save(AnvenderForsendelse $forsendelse): bool {
     try {
-      $now = \Drupal::time()->getCurrentTime();
+      $now = $this->time->getRequestTime();
       $forsendelse->createdAt ??= $now;
       $forsendelse->updatedAt = $now;
 
@@ -147,13 +142,13 @@ final class AnvenderForsendelseRepository {
       ];
       if (NULL === $this->loadByAnvenderTransaktionsId($forsendelse->anvenderTransaktionsId)) {
         $this->database
-          ->insert(InstallHooks::TABLE_ANVENDER_FORSENDELSE)
+          ->insert(self::TABLE)
           ->fields($fields)
           ->execute();
       }
       else {
         $this->database
-          ->update(InstallHooks::TABLE_ANVENDER_FORSENDELSE)
+          ->update(self::TABLE)
           ->condition('anvender_transaktions_id', $forsendelse->anvenderTransaktionsId)
           ->fields($fields)
           ->execute();
