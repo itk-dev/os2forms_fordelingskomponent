@@ -377,7 +377,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
       $items[] = Link::createFromRoute(
         $this->t('Distribution objects'),
-        'os2forms_fordelingskomponent.distribution_object.list', [
+        'os2forms_fordelingskomponent.distribution_object.index', [
           'webform' => $this->getWebform()->id(),
           'webform_handler' => $this->getHandlerId(),
         ]
