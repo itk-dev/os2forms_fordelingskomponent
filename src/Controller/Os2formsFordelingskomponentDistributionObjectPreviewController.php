@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent\Controller;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks;
@@ -14,7 +13,6 @@ use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
-use Drupal\webform\WebformSubmissionStorageInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
