@@ -46,6 +46,15 @@ third_party_settings:
       attachment:
         encrypt: true
         encrypt_profile: webform
+      dokumenter_overslag:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_faktura:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_bilag:
+        encrypt: true
+        encrypt_profile: webform
   os2forms:
     os2forms_email_handler:
       enabled: 0
@@ -124,7 +133,7 @@ elements: |-
     '#title': Sagstype
     almindeligt_helbredstillaeg:
       '#type': select
-      '#title': Almindeligt helbredstillaeg
+      '#title': 'Almindeligt helbredstillaeg'
       '#options':
         Medicin: Medicin
         Tandbehandling: Tandbehandling
@@ -134,7 +143,7 @@ elements: |-
         Psykologhjaelp: Psykologhjaelp
         Hoereappartbehandling: Hoereapparatbehandling
   afsend_content_pdf:
-    '#type': 'entity_print_attachment:pdf'
+    '#type': 'webform_entity_print_attachment:pdf'
     '#title': 'Fordelingskomponent (PDF) hest'
     '#display_on': view
     '#filename': hat-og-briller.pdf
@@ -146,6 +155,18 @@ elements: |-
     '#excluded_elements': {  }
     '#exclude_empty': 0
     '#exclude_empty_checkbox': 0
+  dokumenter_overslag:
+    '#type': webform_document_file
+    '#title': Overslag
+    '#multiple': 3
+  dokumenter_faktura:
+    '#type': webform_document_file
+    '#title': Faktura
+    '#multiple': 3
+  dokumenter_bilag:
+    '#type': webform_document_file
+    '#title': Bilag
+    '#multiple': 3
 css: ""
 javascript: ""
 settings:
@@ -350,7 +371,47 @@ handlers:
         journalpost_message: ""
         attachment_element: attachment
         formular_type: test
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed.value|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>
+                  {% for file in files.dokumenter_overslag|default([]) %}
+                  <Dokumenter>
+                    <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                    <Dokumenttype>Overslag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_faktura|default([]) %}
+                  <Dokumenter>
+                    <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                    <Dokumenttype>Faktura</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_bilag|default([]) %}
+                  <Dokumenter>
+                    <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                    <Dokumenttype>Bilag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+              </Header>
+              <AnsoegerOplysninger>
+                  <Ansoeger>
+                      <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+                      <Efternavn>{{ submission.data.efternavn }}</Efternavn>
+                      <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+                  </Ansoeger>
+              </AnsoegerOplysninger>
+              <Sagstype>
+                  <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
+              </Sagstype>
+              <Underskriftsoplysninger>
+                  <Underskrift>Underskrift0</Underskrift>
+                  <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
+              </Underskriftsoplysninger>
+          </Anmodning>
         xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
   fordelingskomponent_sf2900_malformed_xml:
     id: os2forms_fordelingskomponent_sf2900

@@ -2,12 +2,16 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\file\FileStorageInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\Exception;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\DistributionFormular;
+use Drupal\os2forms_fordelingskomponent\Model\DistributionObjectFiles;
 use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse;
 use Drupal\os2forms_fordelingskomponent\Model\TransactionContext;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
@@ -68,6 +72,11 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   use LoggerTrait;
 
   /**
+   * The file storage.
+   */
+  private FileStorageInterface $fileStorage;
+
+  /**
    * Constructor.
    */
   public function __construct(
@@ -78,6 +87,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     private readonly KeyRepositoryInterface $keyRepository,
     private readonly KeyHelper $keyHelper,
     private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
+    EntityTypeManagerInterface $entityTypeManager,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
@@ -85,6 +95,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     #[Autowire(service: 'os2web_audit.logger')]
     private readonly AuditLogger $auditLogger,
   ) {
+    $this->fileStorage = $entityTypeManager->getStorage('file');
   }
 
   /**
@@ -251,8 +262,9 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     WebformSubmissionInterface $submission,
     HandlerSettings $handlerSettings,
     Attachment $attachment,
-  ): DistributionFormularType {
-    $xml = $this->renderXml($handlerSettings, $submission)->rendered;
+  ): DistributionFormular {
+    $files = $this->buildFiles($handlerSettings, $submission);
+    $xml = $this->renderXml($handlerSettings, $submission, $files)->rendered;
     $xsdUrl = $handlerSettings->distributionObject->xsdUrl;
 
     $this->xmlHelper->validateXml($xml);
@@ -282,12 +294,13 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       ),
     );
 
-    return new DistributionFormularType(
+    return (new DistributionFormular(
       iD: $id,
       kLEEmneForslag: $handlerSettings->distributionContext->kleEmne,
       meddelelse: $meddelelse,
       handlingFacetForslag: $handlerSettings->distributionContext->handlingFacet,
-    );
+    ))
+      ->setFiles($files);
   }
 
   /**
@@ -296,6 +309,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   public function renderXml(
     HandlerSettings $handlerSettings,
     WebformSubmissionInterface $submission,
+    ?DistributionObjectFiles $files,
     bool $validateXml = TRUE,
   ): XmlRenderResult {
     $template = $handlerSettings->distributionObject->xmlTemplate;
@@ -303,13 +317,51 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       throw new RuntimeException('Missing XML template');
     }
 
-    $context = $this->xmlHelper->getRenderContext($handlerSettings, $submission);
+    $context = $this->xmlHelper->getRenderContext($handlerSettings, $submission, $files);
 
     return new XmlRenderResult(
       rendered: $this->xmlHelper->render($template, $context, validateXml: $validateXml),
       template: $template,
       context: $context,
     );
+  }
+
+  private const FILE_ELEMENT_TYPES = [
+    'managed_file',
+    'webform_document_file',
+    'webform_image_file',
+  ];
+
+  /**
+   * Build files for a districution object.
+   */
+  public function buildFiles(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): DistributionObjectFiles {
+    $files = new DistributionObjectFiles();
+    $elements = $submission->getWebform()->getElementsDecodedAndFlattened();
+    $fileElements = array_filter($elements,
+      static fn(array $element) => in_array($element['#type'] ?? NULL, self::FILE_ELEMENT_TYPES));
+    foreach ($fileElements as $type => $_) {
+      $values = $submission->getData()[$type] ?? NULL;
+      if ($values) {
+        foreach ($values as $index => $id) {
+          /** @var \Drupal\file\Entity\FileInterface $file */
+          $file = $this->fileStorage->load($id);
+          $sftpFilename = implode('_', [
+            'os2forms_fordelingskomponent',
+            $handlerSettings->handlerId,
+            $submission->uuid(),
+            $file->getFilename(),
+          ]);
+
+          $files->addFile($type,
+            sftpFilename: $sftpFilename,
+            file: $file
+          );
+        }
+      }
+    }
+
+    return $files;
   }
 
   /**
@@ -335,6 +387,18 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       }
       $sftp = $sf2900->sftp();
       $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename);
+    }
+    // Upload files if any.
+    elseif ($dokument instanceof DistributionFormular) {
+      $files = $dokument->getFiles();
+      $sftp = $sf2900->sftp();
+      foreach ($files as $items) {
+        foreach ($items as $item) {
+          /** @var \Drupal\file\Entity\File $file */
+          $file = $item['file'];
+          $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
+        }
+      }
     }
 
     $transactionId = Serializer::createUuid();
