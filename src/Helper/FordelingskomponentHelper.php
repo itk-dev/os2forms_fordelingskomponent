@@ -4,6 +4,7 @@ namespace Drupal\os2forms_fordelingskomponent\Helper;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\file\Entity\File;
 use Drupal\file\FileStorageInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\Exception;
@@ -11,7 +12,6 @@ use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementExcept
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Model\DistributionFormular;
-use Drupal\os2forms_fordelingskomponent\Model\DistributionObjectFiles;
 use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse;
 use Drupal\os2forms_fordelingskomponent\Model\TransactionContext;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
@@ -263,7 +263,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     HandlerSettings $handlerSettings,
     Attachment $attachment,
   ): DistributionFormular {
-    $files = $this->buildFiles($handlerSettings, $submission);
+    $files = $this->buildFileGroups($handlerSettings, $submission);
     $xml = $this->renderXml($handlerSettings, $submission, $files)->rendered;
     $xsdUrl = $handlerSettings->distributionObject->xsdUrl;
 
@@ -300,7 +300,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       meddelelse: $meddelelse,
       handlingFacetForslag: $handlerSettings->distributionContext->handlingFacet,
     ))
-      ->setFiles($files);
+      ->setFileGroups($files);
   }
 
   /**
@@ -309,7 +309,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   public function renderXml(
     HandlerSettings $handlerSettings,
     WebformSubmissionInterface $submission,
-    ?DistributionObjectFiles $files,
+    ?array $files,
     bool $validateXml = TRUE,
   ): XmlRenderResult {
     $template = $handlerSettings->distributionObject->xmlTemplate;
@@ -333,35 +333,44 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   ];
 
   /**
-   * Build files for a districution object.
+   * Build files for a distribution object.
+   *
+   * @return \Drupal\file\Entity\FileGroups
+   *   The file groups.
+   *
+   * @phpstan-import-type FileGroups from DistributionFormular
    */
-  public function buildFiles(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): DistributionObjectFiles {
-    $files = new DistributionObjectFiles();
+  public function buildFileGroups(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): array {
+    $groups = [];
     $elements = $submission->getWebform()->getElementsDecodedAndFlattened();
     $fileElements = array_filter($elements,
       static fn(array $element) => in_array($element['#type'] ?? NULL, self::FILE_ELEMENT_TYPES));
     foreach ($fileElements as $type => $_) {
       $values = $submission->getData()[$type] ?? NULL;
       if ($values) {
-        foreach ($values as $index => $id) {
-          /** @var \Drupal\file\Entity\FileInterface $file */
-          $file = $this->fileStorage->load($id);
-          $sftpFilename = implode('_', [
-            'os2forms_fordelingskomponent',
-            $handlerSettings->handlerId,
-            $submission->uuid(),
-            $file->getFilename(),
-          ]);
-
-          $files->addFile($type,
-            sftpFilename: $sftpFilename,
-            file: $file
-          );
+        /** @var \Drupal\file\FileInterface[] $files */
+        $files = $this->fileStorage->loadMultiple($values);
+        foreach ($files as $file) {
+          $groups[$type][] = [
+            'sftp_filename' => $this->getSftpFilename($handlerSettings, $submission, $file->getFilename()),
+            'file' => $file,
+          ];
         }
       }
     }
 
-    return $files;
+    return $groups;
+  }
+
+  /**
+   * Get SFTP filename.
+   */
+  private function getSftpFilename(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, string $filename): string {
+    return implode('_', [
+      uniqid('os2forms_fordelingskomponent_'),
+      md5($handlerSettings->handlerId . '||' . $submission->uuid()),
+      $filename,
+    ]);
   }
 
   /**
@@ -378,30 +387,33 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     ?Attachment $attachment,
     HandlerSettings $handlerSettings,
   ) {
-
     $sf2900 = $this->sf2900();
+    $transactionId = Serializer::createUuid();
+
     $dokumentFilNavn = NULL;
     if ($dokument instanceof DistributionDokumentType) {
       if (NULL === $attachment) {
         throw new InvalidAttachmentElementException(sprintf('Missing attachment for %s', $dokument::class));
       }
       $sftp = $sf2900->sftp();
-      $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename);
+      $sftpFilename = $this->getSftpFilename($handlerSettings, $submission, $attachment->filename);
+      $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename, $sftpFilename);
+      // @todo Create trigger object.
     }
     // Upload files if any.
     elseif ($dokument instanceof DistributionFormular) {
-      $files = $dokument->getFiles();
+      $files = $dokument->getFileGroups();
       $sftp = $sf2900->sftp();
       foreach ($files as $items) {
         foreach ($items as $item) {
           /** @var \Drupal\file\Entity\File $file */
           $file = $item['file'];
           $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
+          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId);
+          $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
         }
       }
     }
-
-    $transactionId = Serializer::createUuid();
 
     $this->setTransactionContext($transactionId, new TransactionContext(
       transactionId: $transactionId,
@@ -584,6 +596,75 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     string $transactionId,
   ): TransactionContext {
     return $this->transactionContexts[$transactionId];
+  }
+
+  // @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=16
+  private const string TRIGGER_FILE_TEMPLATE = <<<'XML'
+<?xml version="1.0"?>
+<ns2:Trigger xmlns:ns2="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
+  <FileDescriptor>
+    <FileName/>
+    <SizeInBytes/>
+    <Sender/>
+    <SendersFileId/>
+    <Recipients>ROUTING_V1_0_0</Recipients>
+  </FileDescriptor>
+  <FileContentDescriptor>
+    <SFTPDynamicRoutingInfo>
+      <InfRef/>
+      <SenderIt-system/>
+      <SenderAuthority/>
+      <TransactionId/>
+      <SenderTimestamp/>
+      <RecipientIt-system/>
+      <RecipientAuthority/>
+    </SFTPDynamicRoutingInfo>
+  </FileContentDescriptor>
+</ns2:Trigger>
+XML;
+
+  /**
+   * Build trigger file.
+   *
+   * @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf
+   */
+  private function buildTriggerFile(File $file, string $sftpFilename, HandlerSettings $handlerSettings, string $transactionId): string {
+    $dom = new \DOMDocument();
+    $dom->loadXML(self::TRIGGER_FILE_TEMPLATE);
+    $xpath = new \DOMXPath($dom);
+    $xpath->registerNamespace('ns2', 'http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types');
+    $setValue = function (string $expression, mixed $value) use ($xpath) {
+      $nodes = $xpath->query($expression);
+      if (!$nodes || 1 !== $nodes->count()) {
+        throw new \RuntimeException(sprintf('No unique node found for expression %s', $expression));
+      }
+      /** @var \DOMElement $node */
+      $node = $nodes->item(0);
+      $node->nodeValue = $value;
+    };
+
+    $setValue('//FileDescriptor/FileName', $sftpFilename);
+    $setValue('//FileDescriptor/SizeInBytes', $file->getSize());
+    $setValue('//FileDescriptor/Sender', $handlerSettings->sender->sftp->username);
+    $setValue('//FileDescriptor/SendersFileId', $file->uuid());
+
+    $infRef = $handlerSettings->distributionObject->filspecifikation;
+    $senderItSystem = $handlerSettings->sender->registreringItSystem;
+    $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
+    $timestamp = SF2900::formatDateTime(new \DateTimeImmutable());
+    // @todo Get this from a recipient lookup.
+    $recipientItSystem = 'cfcf2769-9a1f-4d3b-b6d2-ddfb3a2f9dd6';
+    $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->recipientAuthority;
+
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/InfRef', $infRef);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderIt-system', $senderItSystem);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderAuthority', $senderAuthority);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/TransactionId', $transactionId);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderTimestamp', $timestamp);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system', $recipientItSystem);
+    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);
+
+    return $dom->saveXML();
   }
 
 }

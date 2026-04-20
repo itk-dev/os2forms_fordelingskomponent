@@ -9,7 +9,7 @@
    | SF2900 Certificate      | Certificate    | File     |
    | SF2900 SFTP private key | Authentication | File     |
 
-   Note: The "SFTP private key" key must be passwordless.
+   Note: The "SFTP private key" key must be passwordless[^1].
 
    You can use `ssh-keygen` to remove the password from a certificate:
 
@@ -19,6 +19,8 @@
    ```
 
 2. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
+
+[^1] It takes a very long time to read a key with a password (reference?)
 
 ## Console commands
 

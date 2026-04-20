@@ -3,7 +3,6 @@
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
-use Drupal\os2forms_fordelingskomponent\Model\DistributionObjectFiles;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -69,7 +68,7 @@ class XmlHelper {
   /**
    * Get render context.
    */
-  public function getRenderContext(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, DistributionObjectFiles $files) {
+  public function getRenderContext(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, array $files) {
     return [
       'handler' => ['settings' => $handlerSettings],
       'submission' => $submission,

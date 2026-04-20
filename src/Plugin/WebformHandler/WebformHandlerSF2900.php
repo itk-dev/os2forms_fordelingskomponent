@@ -221,6 +221,24 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 
+    $section[DistributionObjectSettings::FILSPECIFIKATION] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Filspecifikation (InfRef)'),
+      '#default_value' => $settings->filspecifikation,
+    ];
+    $setStates($section[DistributionObjectSettings::FILSPECIFIKATION], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
+    ], require: FALSE);
+
+    $section[DistributionObjectSettings::RECIPIENT_AUTHORITY] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Recipient authority'),
+      '#default_value' => $settings->recipientAuthority,
+    ];
+    $setStates($section[DistributionObjectSettings::RECIPIENT_AUTHORITY], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
+    ], require: FALSE);
+
     $section[DistributionObjectSettings::XML_TEMPLATE] = [
       '#type' => 'textarea',
       '#title' => $this->t('XML template'),

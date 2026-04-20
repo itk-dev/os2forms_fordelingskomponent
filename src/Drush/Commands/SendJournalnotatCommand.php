@@ -7,6 +7,7 @@ namespace Drupal\os2forms_fordelingskomponent\Drush\Commands;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 // phpcs:disable Drupal.Commenting.ClassComment.Missing
 #[AsCommand(
@@ -27,6 +28,10 @@ final class SendJournalnotatCommand extends AbstractCommand {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    $io = new SymfonyStyle($input, $output);
+
+    $io->warning('This command is a no-op');
+
     return self::SUCCESS;
   }
 

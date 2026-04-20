@@ -89,7 +89,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Render XML.
    */
   public function renderXml(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, bool $validateXml = TRUE): XmlRenderResult {
-    $files = $this->helper->buildFiles($handlerSettings, $submission);
+    $files = $this->helper->buildFileGroups($handlerSettings, $submission);
 
     return $this->helper->renderXml($handlerSettings, $submission, files: $files, validateXml: $validateXml);
   }

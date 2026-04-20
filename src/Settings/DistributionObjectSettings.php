@@ -28,6 +28,12 @@ final class DistributionObjectSettings extends AbstractSettings {
   public const string FORMULAR_TYPE = 'formular_type';
   public ?string $formularType = '';
 
+  public const string FILSPECIFIKATION = 'filspecifikation';
+  public ?string $filspecifikation = '';
+
+  public const string RECIPIENT_AUTHORITY = 'recipient_authority';
+  public ?string $recipientAuthority = '';
+
   public const string XML_TEMPLATE = 'xml_template';
   public ?string $xmlTemplate = NULL;
 
