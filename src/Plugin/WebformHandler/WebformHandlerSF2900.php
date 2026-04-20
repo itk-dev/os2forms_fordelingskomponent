@@ -12,6 +12,7 @@ use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionContextSettings;
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings\FilesSettings as DistributionObjectFilesSettings;
 use Drupal\webform\Plugin\WebformHandlerBase;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\WebformSubmissionInterface;
@@ -221,21 +222,26 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 
-    $section[DistributionObjectSettings::FILSPECIFIKATION] = [
+    $section[DistributionObjectSettings::FILES] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Files'),
+    ];
+
+    $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::FILSPECIFIKATION] = [
       '#type' => 'textfield',
       '#title' => $this->t('Filspecifikation (InfRef)'),
-      '#default_value' => $settings->filspecifikation,
+      '#default_value' => $settings->files->filspecifikation,
     ];
-    $setStates($section[DistributionObjectSettings::FILSPECIFIKATION], [
+    $setStates($section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::FILSPECIFIKATION], [
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 
-    $section[DistributionObjectSettings::RECIPIENT_AUTHORITY] = [
+    $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY] = [
       '#type' => 'textfield',
       '#title' => $this->t('Recipient authority'),
-      '#default_value' => $settings->recipientAuthority,
+      '#default_value' => $settings->files->recipientAuthority,
     ];
-    $setStates($section[DistributionObjectSettings::RECIPIENT_AUTHORITY], [
+    $setStates($section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY], [
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 

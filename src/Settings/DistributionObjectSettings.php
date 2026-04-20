@@ -2,6 +2,8 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Settings;
 
+use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings\FilesSettings;
+use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings\SftpSettings;
 use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 
 /**
@@ -11,6 +13,10 @@ use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
  */
 final class DistributionObjectSettings extends AbstractSettings {
   const string NAME = 'distribution_object';
+
+  protected static array $settingsProperties = [
+    self::FILES => FilesSettings::class,
+  ];
 
   public const string DISTRIBUTION_TYPE = 'distribution_type';
   public ?string $distributionType = NULL;
@@ -28,16 +34,19 @@ final class DistributionObjectSettings extends AbstractSettings {
   public const string FORMULAR_TYPE = 'formular_type';
   public ?string $formularType = '';
 
-  public const string FILSPECIFIKATION = 'filspecifikation';
-  public ?string $filspecifikation = '';
-
-  public const string RECIPIENT_AUTHORITY = 'recipient_authority';
-  public ?string $recipientAuthority = '';
-
   public const string XML_TEMPLATE = 'xml_template';
   public ?string $xmlTemplate = NULL;
 
   public const string XSD_URL = 'xsd_url';
   public ?string $xsdUrl = NULL;
+
+  const string FILES = 'files';
+  public ?FilesSettings $files = NULL;
+
+  public function __construct(array $values, bool $throwExceptionOnMissingProperty = FALSE) {
+    $this->files = new FilesSettings([]);
+    parent::__construct($values, $throwExceptionOnMissingProperty);
+  }
+
 
 }
