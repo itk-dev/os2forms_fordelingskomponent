@@ -100,17 +100,38 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $settings = $this->settingsService->getDistributionContextSettings((array) ($this->getSettings()[DistributionContextSettings::NAME] ?? NULL));
     $globalSettings = $this->settingsService->getDistributionContextSettings();
 
+    $section[DistributionContextSettings::RECIPIENT_IT_SYSTEM] = [
+      '#title' => $this->t('Recipient IT system'),
+      '#type' => 'textfield',
+      '#attributes' => [
+        'pattern' => DistributionContextSettings::RECIPIENT_IT_SYSTEM_PATTERN,
+      ],
+      '#default_value' => $settings->recipientItSystem,
+      '#description' => $this->t('Uuid of recipient IT system. If set, any routing rules (using %kle_emne and %handling_facet) will be ignored.', [
+        '%kle_emne' => $this->t('KLE-emne'),
+        '%handling_facet' => $this->t('Handling facet'),
+      ]),
+    ];
+
     $section[DistributionContextSettings::KLE_EMNE] = [
       '#title' => $this->t('KLE-emne'),
       '#type' => 'textfield',
       '#default_value' => $settings->kleEmne,
-    // @todo Show default global value for all fields.
+      // @todo Show default global value for all fields.
       '#placeholder' => $globalSettings->kleEmne,
       '#required' => TRUE,
       '#attributes' => [
         'pattern' => DistributionContextSettings::KLE_EMNE_PATTERN,
       ],
       '#description' => $this->t('KLE-emne (format: dd.dd.dd)'),
+//      '#states' => [
+//        'visible' => [
+//          ':input[name="settings[' . DistributionContextSettings::NAME . '][' . DistributionContextSettings::RECIPIENT_IT_SYSTEM . ']"]' => ['value' => ''],
+//        ],
+//        'required' => [
+//          ':input[name="settings[' . DistributionContextSettings::NAME . '][' . DistributionContextSettings::RECIPIENT_IT_SYSTEM . ']"]' => ['value' => ''],
+//        ],
+//      ],
     ];
 
     $section[DistributionContextSettings::HANDLING_FACET] = [
@@ -121,6 +142,11 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
         'pattern' => DistributionContextSettings::HANDLING_FACET_PATTERN,
       ],
       '#description' => $this->t('handlingfacet (format: [A-Å]dd)'),
+//      '#states' => [
+//        'visible' => [
+//          ':input[name="settings[' . DistributionContextSettings::NAME . '][' . DistributionContextSettings::RECIPIENT_IT_SYSTEM . ']"]' => ['value' => ''],
+//        ],
+//      ],
     ];
 
     $section[DistributionContextSettings::BRUGERVENDT_NOEGLE] = [
@@ -269,24 +295,35 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $setError = static fn (string|array $path, TranslatableMarkup $message) =>   $form_state->setErrorByName(implode('][', (array) $path), $message);
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state)
+  {
+    $setError = static fn(string|array $path, TranslatableMarkup $message) => $form_state->setErrorByName(implode('][',
+      (array)$path), $message);
+
+    $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::RECIPIENT_IT_SYSTEM] ?? '';
+    if ($value && !preg_match('/' . DistributionContextSettings::RECIPIENT_IT_SYSTEM_PATTERN . '/', $value)) {
+      $setError(
+        [DistributionContextSettings::NAME, DistributionContextSettings::RECIPIENT_IT_SYSTEM],
+        $this->t('Invalid recipient IT system: %value.', ['%value' => $value])
+      );
+    }
 
     $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::KLE_EMNE] ?? '';
     if (!preg_match('/' . DistributionContextSettings::KLE_EMNE_PATTERN . '/', $value)) {
       $setError(
         [DistributionContextSettings::NAME, DistributionContextSettings::KLE_EMNE],
-        $this->t('Invalid KLE-emne: %value.', ['%value' => $value])
-      );
-    }
+          $this->t('Invalid KLE-emne: %value.', ['%value' => $value])
+        );
+      }
 
-    $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::HANDLING_FACET] ?? '';
-    if (!empty($value) && !preg_match('/' . DistributionContextSettings::HANDLING_FACET_PATTERN . '/', (string) $value)) {
-      $setError(
-        [DistributionContextSettings::NAME, DistributionContextSettings::HANDLING_FACET],
-        $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $value])
-      );
-    }
+      $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::HANDLING_FACET] ?? '';
+      if (!empty($value) && !preg_match('/' . DistributionContextSettings::HANDLING_FACET_PATTERN . '/',
+          (string)$value)) {
+        $setError(
+          [DistributionContextSettings::NAME, DistributionContextSettings::HANDLING_FACET],
+          $this->t('Invalid Handling-facet: %handling_facet.', ['%handling_facet' => $value])
+        );
+      }
 
     $type = $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectSettings::DISTRIBUTION_TYPE] ?? '';
     if (DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR === $type) {
@@ -379,7 +416,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
     $items = [];
 
-    if ($settings->distributionContext->kleEmne) {
+    if (true || $settings->distributionContext->kleEmne) {
       $items[] = Link::createFromRoute(
         $this->t('Show routing info'),
         'os2forms_fordelingskomponent.routing_info', [

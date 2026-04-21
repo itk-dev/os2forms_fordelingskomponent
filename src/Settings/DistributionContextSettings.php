@@ -14,6 +14,10 @@ final class DistributionContextSettings extends AbstractSettings {
     self::HANDLING_FACET => TRUE,
   ];
 
+  public const string RECIPIENT_IT_SYSTEM_PATTERN = '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+  public const string RECIPIENT_IT_SYSTEM = 'recipient_it_system';
+  public ?string $recipientItSystem = NULL;
+
   public const string KLE_EMNE_PATTERN = '^[0-9]{2}\.[0-9]{2}\.[0-9]{2}$';
   public const string KLE_EMNE = 'kle_emne';
   public ?string $kleEmne = NULL;

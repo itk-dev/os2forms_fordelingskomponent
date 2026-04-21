@@ -49,7 +49,9 @@ use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRegistreringType;
 use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRelationsListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\MeddelelseType;
+use ItkDev\Serviceplatformen\SF2900\StructType\ModtagerMedEndpointType;
 use ItkDev\Serviceplatformen\SF2900\StructType\RelationsListe;
+use ItkDev\Serviceplatformen\SF2900\StructType\TilgaengeligeModtagereType;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandType;
 use ItkDev\Serviceplatformen\SF2900\StructType\UUID_URN;
@@ -642,26 +644,39 @@ XML;
       $node = $nodes->item(0);
       $node->nodeValue = $value;
     };
+    $removeElement = function (string $expression) use ($xpath) {
+      $nodes = $xpath->query($expression);
+      if (!$nodes || 1 !== $nodes->count()) {
+        throw new \RuntimeException(sprintf('No unique node found for expression %s', $expression));
+      }
+      /** @var \DOMElement $node */
+      $node = $nodes->item(0);
+      $node->parentNode->removeChild($node);
+    };
 
     $setValue('//FileDescriptor/FileName', $sftpFilename);
     $setValue('//FileDescriptor/SizeInBytes', $file->getSize());
     $setValue('//FileDescriptor/Sender', $handlerSettings->sender->sftp->username);
     $setValue('//FileDescriptor/SendersFileId', $file->uuid());
 
-    $infRef = $handlerSettings->distributionObject->filspecifikation;
+    $infRef = $handlerSettings->distributionObject->files->filspecifikation;
     $senderItSystem = $handlerSettings->sender->registreringItSystem;
     $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
     $timestamp = SF2900::formatDateTime(new \DateTimeImmutable());
     // @todo Get this from a recipient lookup.
-    $recipientItSystem = 'cfcf2769-9a1f-4d3b-b6d2-ddfb3a2f9dd6';
-    $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->recipientAuthority;
+    $recipientItSystem = trim((string) $handlerSettings->distributionContext->recipientItSystem);
+    $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->files->recipientAuthority;
 
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/InfRef', $infRef);
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderIt-system', $senderItSystem);
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderAuthority', $senderAuthority);
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/TransactionId', $transactionId);
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderTimestamp', $timestamp);
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system', $recipientItSystem);
+    if (empty($recipientItSystem)) {
+      $removeElement('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system');
+    } else {
+      $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system', $recipientItSystem);
+    }
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);
 
     return $dom->saveXML();
