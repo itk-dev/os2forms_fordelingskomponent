@@ -3,7 +3,6 @@
 namespace Drupal\os2forms_fordelingskomponent\Settings;
 
 use Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSettings\FilesSettings;
-use Drupal\os2forms_fordelingskomponent\Settings\SenderSettings\SftpSettings;
 use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 
 /**
@@ -47,6 +46,5 @@ final class DistributionObjectSettings extends AbstractSettings {
     $this->files = new FilesSettings([]);
     parent::__construct($values, $throwExceptionOnMissingProperty);
   }
-
 
 }

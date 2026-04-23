@@ -4,13 +4,20 @@ namespace Drupal\os2forms_fordelingskomponent\Settings\DistributionObjectSetting
 
 use Drupal\os2forms_fordelingskomponent\Settings\AbstractSettings;
 
-class FilesSettings extends AbstractSettings
-{
+/**
+ * Files settings.
+ */
+class FilesSettings extends AbstractSettings {
   const string NAME = 'files';
 
   public const string FILSPECIFIKATION = 'filspecifikation';
   public ?string $filspecifikation = '';
 
+  public const string RECIPIENT_IT_SYSTEM_PATTERN = self::UUID_PATTERN;
+  public const string RECIPIENT_IT_SYSTEM = 'recipient_it_system';
+  public ?string $recipientItSystem = NULL;
+
+  public const string RECIPIENT_AUTHORITY_PATTERN = self::CVR_PATTERN;
   public const string RECIPIENT_AUTHORITY = 'recipient_authority';
   public ?string $recipientAuthority = '';
 

@@ -49,9 +49,7 @@ use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRegistreringType;
 use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostRelationsListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\JournalPostType;
 use ItkDev\Serviceplatformen\SF2900\StructType\MeddelelseType;
-use ItkDev\Serviceplatformen\SF2900\StructType\ModtagerMedEndpointType;
 use ItkDev\Serviceplatformen\SF2900\StructType\RelationsListe;
-use ItkDev\Serviceplatformen\SF2900\StructType\TilgaengeligeModtagereType;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandListeType;
 use ItkDev\Serviceplatformen\SF2900\StructType\TilstandType;
 use ItkDev\Serviceplatformen\SF2900\StructType\UUID_URN;
@@ -663,8 +661,9 @@ XML;
     $senderItSystem = $handlerSettings->sender->registreringItSystem;
     $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
     $timestamp = SF2900::formatDateTime(new \DateTimeImmutable());
-    // @todo Get this from a recipient lookup.
-    $recipientItSystem = trim((string) $handlerSettings->distributionContext->recipientItSystem);
+
+    // @todo Get this from a recipient lookup if not set.
+    $recipientItSystem = trim((string) $handlerSettings->distributionObject->files->recipientItSystem);
     $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->files->recipientAuthority;
 
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/InfRef', $infRef);
@@ -674,7 +673,8 @@ XML;
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderTimestamp', $timestamp);
     if (empty($recipientItSystem)) {
       $removeElement('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system');
-    } else {
+    }
+    else {
       $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system', $recipientItSystem);
     }
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);

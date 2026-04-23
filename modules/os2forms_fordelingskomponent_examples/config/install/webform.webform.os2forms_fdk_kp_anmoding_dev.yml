@@ -1,0 +1,442 @@
+langcode: da
+status: open
+dependencies:
+  module:
+    - os2forms
+    - os2forms_fordelingskomponent
+    - webform_encrypt
+    - webform_entity_print
+    - webform_revisions
+  enforced:
+    module:
+      - os2forms_fordelingskomponent_examples
+third_party_settings:
+  webform_encrypt:
+    element:
+      ansoeger_oplysninger:
+        encrypt: true
+        encrypt_profile: webform
+      ansoeger:
+        encrypt: true
+        encrypt_profile: webform
+      fornavn:
+        encrypt: true
+        encrypt_profile: webform
+      mellemnavn:
+        encrypt: true
+        encrypt_profile: webform
+      efternavn:
+        encrypt: true
+        encrypt_profile: webform
+      personnummer:
+        encrypt: true
+        encrypt_profile: webform
+      telefonnummer:
+        encrypt: true
+        encrypt_profile: webform
+      sagstype:
+        encrypt: true
+        encrypt_profile: webform
+      almindeligt_helbredstillaeg:
+        encrypt: true
+        encrypt_profile: webform
+      afsend_content_pdf:
+        encrypt: true
+        encrypt_profile: webform
+      attachment:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_bilag:
+        encrypt: true
+        encrypt_profile: webform
+  os2forms:
+    os2forms_email_handler:
+      enabled: 0
+      email_recipients: ""
+    os2forms_nemid:
+      session_type: ""
+      webform_type: ""
+      nemlogin_auto_redirect: 0
+      os2forms_nemlogin_openid_connect:
+        authentication_settings:
+          user_claim: ""
+          element_key: ""
+          error_message: ""
+    os2forms_nemid_address_protection:
+      nemlogin_hide_form: os2forms_nemlogin_address_protection_default_behaviour
+      nemlogin_hide_message: ""
+    os2forms_rest_api:
+      allowed_users: null
+    os2forms_sync:
+      publish: 0
+    os2forms_webform_submission_log:
+      emails: ""
+  webform_entity_print:
+    template:
+      header: ""
+      footer: ""
+      css: ""
+      os2form_header: ""
+      os2form_colophon: ""
+      os2form_footer: ""
+    export_types:
+      pdf:
+        enabled: true
+        link_text: ""
+        link_attributes: {}
+      word_docx:
+        enabled: false
+        link_text: ""
+        link_attributes: {}
+weight: 0
+open: null
+close: null
+uid: 1
+template: false
+archive: false
+id: os2forms_fdk_kp_anmoding_dev
+title: "OS2Forms Fordelingskomponent: Anmodning (KP) – dev"
+description: ""
+categories:
+  - Example
+  - Fordelingskomponent
+elements: |-
+  ansoeger_oplysninger:
+    '#type': fieldset
+    '#title': AnsoegerOplysninger
+    ansoeger:
+      '#type': fieldset
+      '#title': Ansøger
+      fornavn:
+        '#type': textfield
+        '#title': Fornavn
+      mellemnavn:
+        '#type': textfield
+        '#title': Mellemnavn
+      efternavn:
+        '#type': textfield
+        '#title': Efternavn
+      personnummer:
+        '#type': textfield
+        '#title': Personnummer
+      telefonnummer:
+        '#type': textfield
+        '#title': Telefonnummer
+  sagstype:
+    '#type': fieldset
+    '#title': Sagstype
+    almindeligt_helbredstillaeg:
+      '#type': select
+      '#title': 'Almindeligt helbredstillaeg'
+      '#options':
+        Medicin: Medicin
+        Tandbehandling: Tandbehandling
+        Fodbehandling: Fodbehandling
+        Fysioterapi: Fysioterapi
+        Kiropraktik: Kiropraktik
+        Psykologhjaelp: Psykologhjaelp
+        Hoereappartbehandling: Hoereapparatbehandling
+  afsend_content_pdf:
+    '#type': 'webform_entity_print_attachment:pdf'
+    '#title': 'Fordelingskomponent (PDF) hest'
+    '#display_on': view
+    '#filename': hat-og-briller.pdf
+  attachment:
+    '#type': os2forms_attachment
+    '#title': attachment
+    '#export_type': pdf
+    '#digital_signature': 0
+    '#excluded_elements': {  }
+    '#exclude_empty': 0
+    '#exclude_empty_checkbox': 0
+  dokumenter_bilag:
+    '#type': webform_document_file
+    '#title': Bilag
+    '#multiple': 3
+css: ""
+javascript: ""
+settings:
+  ajax: false
+  ajax_scroll_top: form
+  ajax_progress_type: ""
+  ajax_effect: ""
+  ajax_speed: null
+  page: true
+  page_submit_path: ""
+  page_confirm_path: ""
+  page_theme_name: ""
+  form_title: both
+  form_submit_once: false
+  form_open_message: ""
+  form_close_message: ""
+  form_exception_message: ""
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ""
+  form_disable_remote_addr: false
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ""
+  form_unsaved: false
+  form_disable_back: false
+  form_submit_back: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
+  form_autofocus: false
+  form_details_toggle: false
+  form_reset: false
+  form_access_denied: default
+  form_access_denied_title: ""
+  form_access_denied_message: ""
+  form_access_denied_attributes: {}
+  form_file_limit: ""
+  form_attributes: {}
+  form_method: ""
+  form_action: ""
+  share: false
+  share_node: false
+  share_theme_name: ""
+  share_title: true
+  share_page_body_attributes: {}
+  submission_label: ""
+  submission_exception_message: ""
+  submission_locked_message: ""
+  submission_log: false
+  submission_excluded_elements: {}
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
+  submission_views: {}
+  submission_views_replace: {}
+  submission_user_columns: {}
+  submission_user_duplicate: false
+  submission_access_denied: default
+  submission_access_denied_title: ""
+  submission_access_denied_message: ""
+  submission_access_denied_attributes: {}
+  previous_submission_message: ""
+  previous_submissions_message: ""
+  autofill: false
+  autofill_message: ""
+  autofill_excluded_elements: {}
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: false
+  wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_start_label: ""
+  wizard_preview_link: false
+  wizard_confirmation: true
+  wizard_confirmation_label: ""
+  wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
+  wizard_track: ""
+  wizard_prev_button_label: ""
+  wizard_next_button_label: ""
+  wizard_toggle: false
+  wizard_toggle_show_label: ""
+  wizard_toggle_hide_label: ""
+  wizard_page_type: container
+  wizard_page_title_tag: h2
+  preview: 0
+  preview_label: ""
+  preview_title: ""
+  preview_message: ""
+  preview_attributes: {}
+  preview_excluded_elements: {}
+  preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
+  draft: none
+  draft_multiple: false
+  draft_auto_save: false
+  draft_saved_message: ""
+  draft_loaded_message: ""
+  draft_pending_single_message: ""
+  draft_pending_multiple_message: ""
+  confirmation_type: message
+  confirmation_url: ""
+  confirmation_title: ""
+  confirmation_message: ""
+  confirmation_attributes: {}
+  confirmation_back: true
+  confirmation_back_label: ""
+  confirmation_back_attributes: {}
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
+  confirmation_update: false
+  limit_total: null
+  limit_total_interval: null
+  limit_total_message: ""
+  limit_total_unique: false
+  limit_user: null
+  limit_user_interval: null
+  limit_user_message: ""
+  limit_user_unique: false
+  entity_limit_total: null
+  entity_limit_total_interval: null
+  entity_limit_user: null
+  entity_limit_user_interval: null
+  purge: all
+  purge_days: 30
+  results_disabled: false
+  results_disabled_ignore: false
+  results_customize: false
+  token_view: false
+  token_update: false
+  token_delete: false
+  serial_disabled: false
+access:
+  create:
+    roles:
+      - anonymous
+      - authenticated
+    users: {}
+    permissions: {}
+  view_any:
+    roles: {}
+    users: {}
+    permissions: {}
+  update_any:
+    roles: {}
+    users: {}
+    permissions: {}
+  delete_any:
+    roles: {}
+    users: {}
+    permissions: {}
+  purge_any:
+    roles: {}
+    users: {}
+    permissions: {}
+  view_own:
+    roles: {}
+    users: {}
+    permissions: {}
+  update_own:
+    roles: {}
+    users: {}
+    permissions: {}
+  delete_own:
+    roles: {}
+    users: {}
+    permissions: {}
+  administer:
+    roles: {}
+    users: {}
+    permissions: {}
+  test:
+    roles: {}
+    users: {}
+    permissions: {}
+  configuration:
+    roles: {}
+    users: {}
+    permissions: {}
+handlers:
+  fordelingskomponent_sf2900:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900
+    label: Fordelingskomponent
+    notes: ""
+    status: true
+    conditions: {}
+    weight: -50
+    settings:
+      distribution_context:
+        routing_modtager_aktoer: ""
+        kle_emne: 32.03.13
+        handling_facet: ""
+        brugervendt_noegle: "Brugervendt nøgle"
+        titel: Titel
+        beskrivelse: Beskrivelse
+      distribution_object:
+        distribution_type: FORMULAR
+        journalpost_message: ""
+        attachment_element: attachment
+        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
+        files:
+          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
+          recipient_it_system: 6b6afca0-e4fb-4c04-b2d4-bce99dedbcad
+          recipient_authority: "55133018"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n        {% for file in files.dokumenter_overslag|default([]) %}\r\n        <Dokumenter>\r\n          <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n          <Dokumenttype>Overslag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_faktura|default([]) %}\r\n        <Dokumenter>\r\n          <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n          <Dokumenttype>Faktura</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_bilag|default([]) %}\r\n        <Dokumenter>\r\n          <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n          <Dokumenttype>Bilag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
+  fordelingskomponent_sf2900_malformed_xml:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900_malformed_xml
+    label: "Fordelingskomponent (malformed XML)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: -49
+    settings:
+      distribution_context:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        brugervendt_noegle: "Brugervendt nøgle"
+        titel: Titel
+        beskrivelse: Beskrivelse
+      distribution_object:
+        distribution_type: FORMULAR
+        journalpost_message: ""
+        attachment_element: ""
+        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
+        files:
+          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
+          recipient_authority: "55133018"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
+  fordelingskomponent_sf2900_invalid_twig:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900_invalid_twig
+    label: "Fordelingskomponent (invalid Twig)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: -48
+    settings:
+      distribution_context:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        brugervendt_noegle: "Brugervendt nøgle"
+        titel: Titel
+        beskrivelse: Beskrivelse
+      distribution_object:
+        distribution_type: FORMULAR
+        journalpost_message: ""
+        attachment_element: ""
+        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
+        files:
+          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
+          recipient_authority: "55133018"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
+  fordelingskomponent_sf2900_invalid_xml:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900_invalid_xml
+    label: "Fordelingskomponent (invalid XML)"
+    notes: ""
+    status: false
+    conditions: {}
+    weight: -47
+    settings:
+      distribution_context:
+        kle_emne: 01.01.01
+        handling_facet: ""
+        brugervendt_noegle: "Brugervendt nøgle"
+        titel: Titel
+        beskrivelse: Beskrivelse
+      distribution_object:
+        distribution_type: FORMULAR
+        journalpost_message: ""
+        attachment_element: ""
+        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
+        files:
+          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
+          recipient_authority: "55133018"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
+variants: {}
