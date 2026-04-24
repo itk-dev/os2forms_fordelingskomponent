@@ -264,7 +264,12 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     Attachment $attachment,
   ): DistributionFormular {
     $files = $this->buildFileGroups($handlerSettings, $submission);
-    $xml = $this->renderXml($handlerSettings, $submission, $files)->rendered;
+    $renderResult = $this->renderXml($handlerSettings, $submission, $files);
+    if ($renderResult->exception) {
+      throw $renderResult->exception;
+    }
+
+    $xml = (string) $renderResult->rendered;
     $xsdUrl = $handlerSettings->distributionObject->xsdUrl;
 
     $this->xmlHelper->validateXml($xml);
@@ -319,10 +324,20 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
 
     $context = $this->xmlHelper->getRenderContext($handlerSettings, $submission, $files);
 
+    $rendered = NULL;
+    $exception = NULL;
+    try {
+      $rendered = $this->xmlHelper->render($template, $context, validateXml: $validateXml);
+    }
+    catch (\Exception $e) {
+      $exception = $e;
+    }
+
     return new XmlRenderResult(
-      rendered: $this->xmlHelper->render($template, $context, validateXml: $validateXml),
       template: $template,
       context: $context,
+      rendered: $rendered,
+      exception: $exception,
     );
   }
 
@@ -349,7 +364,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       $values = $submission->getData()[$type] ?? NULL;
       if ($values) {
         /** @var \Drupal\file\FileInterface[] $files */
-        $files = $this->fileStorage->loadMultiple($values);
+        $files = $this->fileStorage->loadMultiple((array) $values);
         foreach ($files as $file) {
           $groups[$type][] = [
             'sftp_filename' => $this->getSftpFilename($handlerSettings, $submission, $file->getFilename()),

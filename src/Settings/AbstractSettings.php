@@ -114,8 +114,18 @@ abstract class AbstractSettings implements \JsonSerializable {
   /**
    * Convert settings to array.
    */
-  public function toArray(): array {
-    return $this->values;
+  public function toArray(bool $recursive = true): array {
+    $values = $this->values;
+
+    if ($recursive) {
+      foreach ($values as &$value) {
+        if ($value instanceof self) {
+          $value = $value->toArray($recursive);
+        }
+      }
+    }
+
+    return $values;
   }
 
   /**

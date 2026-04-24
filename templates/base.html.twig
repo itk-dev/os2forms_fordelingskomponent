@@ -83,9 +83,11 @@
     <fieldset>
         <legend>{{ label }}</legend>
 
+        {#
         {% set data_url = 'data:application/json,' ~ (value|json_encode|url_encode) %}
         <iframe src="{{ data_url }}"></iframe>
         <a target="_blank" href="{{ data_url }}">{{ 'Open data in new tab'|trans }}</a>
+        #}
 
         <pre><code>{{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}</code></pre>
     </fieldset>
@@ -95,13 +97,12 @@
     <fieldset>
         <legend>{{ label }}</legend>
 
+        {#
         {% set data_url = 'data:text/xml,' ~ (value|url_encode) %}
         <iframe src="{{ data_url }}"></iframe>
         <a target="_blank" href="{{ data_url }}">{{ 'Open data in new tab'|trans }}</a>
+        #}
 
-        <details>
-            <summary>{{ 'Raw content'|trans }}</summary>
-            <pre><code>{{ value }}</code></pre>
-        </details>
+        <pre><code>{{ value }}</code></pre>
     </fieldset>
 {% endmacro %}

@@ -95,7 +95,7 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
       'exceptions' => $exceptions,
       'warnings' => $warnings,
       'distribution_object' => $distributionObject,
-      'xml' => $xml,
+      'xml' => $xml->withContextAsArray(),
     ];
   }
 
