@@ -625,7 +625,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   // @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=16
   // @todo Generate classes from resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd.
   private const string TRIGGER_FILE_TEMPLATE = <<<'XML'
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ns2:Trigger xmlns:ns2="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
   <FileDescriptor>
     <FileName/>
