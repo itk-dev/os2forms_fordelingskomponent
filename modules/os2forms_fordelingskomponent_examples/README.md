@@ -18,7 +18,7 @@ to create a new example webform it must be have an ID like `os2forms_fdk_my_exam
 Run
 
 ``` shell
-drush os2forms_fordelingskomponent_examples:export-examples
+drush os2forms-fordelingskomponent:examples:export
 ```
 
 to export all example webforms.
@@ -30,7 +30,13 @@ drush pm:uninstall os2forms_fordelingskomponent_examples
 drush pm:install os2forms_fordelingskomponent_examples
 ```
 
-Alternatively, import a single webform, e.g.
+Alternatively, import all examples:
+
+``` shell
+drush config:import --partial --source module://os2forms_fordelingskomponent_examples/config/install
+```
+
+Or a single webform, e.g.
 
 ``` shell
 drush config:set --input-format=yaml webform.webform.os2forms_fdk_kp_anmoding '?' - < config/install/webform.webform.os2forms_fdk_kp_anmoding.yml

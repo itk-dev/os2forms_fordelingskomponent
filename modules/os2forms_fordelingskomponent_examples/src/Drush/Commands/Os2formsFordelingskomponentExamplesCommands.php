@@ -45,7 +45,7 @@ final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
   /**
    * Command description here.
    */
-  #[CLI\Command(name: 'os2forms_fordelingskomponent_examples:export-examples')]
+  #[CLI\Command(name: 'os2forms-fordelingskomponent:examples:export')]
   public function commandName() {
     $io = $this->io();
 
@@ -79,7 +79,7 @@ final class Os2formsFordelingskomponentExamplesCommands extends DrushCommands {
         $io->writeln(dt('Clearing key %key', ['%key' => $key]));
         $config->clear($key);
       }
-      // @todo (Hon) Can we use the config manager (or factory) to do this?
+      // @todo (How) Can we use the config manager (or factory) to do this?
       file_put_contents($targetName, Yaml::encode($config->get()));
       $io->success(dt('Config written to %file', ['%file' => $targetName]));
     }
