@@ -252,6 +252,14 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
 
+    $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM_LOOK_UP] = [
+      '#title' => $this->t('Look up %recipient_it_system based on distribution object routing', [
+        '%recipient_it_system' => $this->t('Recipient IT system'),
+      ]),
+      '#type' => 'checkbox',
+      '#default_value' => $settings->files->recipientItSystemLookUp,
+    ];
+
     $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM] = [
       '#title' => $this->t('Recipient IT system'),
       '#type' => 'textfield',
@@ -260,6 +268,11 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       ],
       '#default_value' => $settings->files->recipientItSystem,
       '#description' => $this->t('Recipient IT system (UUID). Leave empty for implicit file routing.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[' . DistributionObjectSettings::NAME . '][' . DistributionObjectSettings::FILES . '][' . DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM_LOOK_UP . ']"]' => ['checked' => FALSE],
+        ],
+      ],
     ];
 
     $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY] = [
@@ -268,8 +281,8 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       '#attributes' => [
         'pattern' => DistributionObjectFilesSettings::RECIPIENT_AUTHORITY_PATTERN,
       ],
-
       '#default_value' => $settings->files->recipientAuthority,
+      '#description' => $this->t('CVR for recipient'),
     ];
     $setStates($section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY], [
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,

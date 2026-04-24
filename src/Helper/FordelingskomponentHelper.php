@@ -419,12 +419,21 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     elseif ($dokument instanceof DistributionFormular) {
       $files = $dokument->getFileGroups();
       $sftp = $sf2900->sftp();
+      $recipientItSystem = NULL;
+      if ($handlerSettings->distributionObject->files->recipientItSystemLookUp) {
+        $routingInfo = $this->getRoutingInfo($handlerSettings);
+        $system = $routingInfo->getSystemer()->getSystem();
+        if (1 !== count($system)) {
+          throw new \RuntimeException('Cannot find single recipient system');
+        }
+        $recipientItSystem = $system[0]->getSystemUUID();
+      }
       foreach ($files as $items) {
         foreach ($items as $item) {
           /** @var \Drupal\file\Entity\File $file */
           $file = $item['file'];
           $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
-          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId);
+          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId, recipientItSystem: $recipientItSystem);
           $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
         }
       }
@@ -614,6 +623,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   }
 
   // @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=16
+  // @todo Generate classes from resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd.
   private const string TRIGGER_FILE_TEMPLATE = <<<'XML'
 <?xml version="1.0"?>
 <ns2:Trigger xmlns:ns2="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
@@ -643,7 +653,7 @@ XML;
    *
    * @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf
    */
-  private function buildTriggerFile(File $file, string $sftpFilename, HandlerSettings $handlerSettings, string $transactionId): string {
+  private function buildTriggerFile(File $file, string $sftpFilename, HandlerSettings $handlerSettings, string $transactionId, ?string $recipientItSystem = NULL): string {
     $dom = new \DOMDocument();
     $dom->loadXML(self::TRIGGER_FILE_TEMPLATE);
     $xpath = new \DOMXPath($dom);
@@ -677,8 +687,7 @@ XML;
     $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
     $timestamp = SF2900::formatDateTime(new \DateTimeImmutable());
 
-    // @todo Get this from a recipient lookup if not set.
-    $recipientItSystem = trim((string) $handlerSettings->distributionObject->files->recipientItSystem);
+    $recipientItSystem = trim((string) ($recipientItSystem ?? $handlerSettings->distributionObject->files->recipientItSystem));
     $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->files->recipientAuthority;
 
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/InfRef', $infRef);
@@ -694,7 +703,10 @@ XML;
     }
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);
 
-    return $dom->saveXML();
+    $xml = $dom->saveXML();
+    $this->xmlHelper->validateXml($xml, 'module://os2forms_fordelingskomponent/resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd');
+
+    return $xml;
   }
 
 }

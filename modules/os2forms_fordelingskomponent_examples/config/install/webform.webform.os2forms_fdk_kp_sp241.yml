@@ -3,7 +3,7 @@ status: open
 dependencies:
   module:
     - os2forms
-    - os2forms_permissions_by_term
+    - os2forms_fordelingskomponent
     - webform_encrypt
     - webform_entity_print
     - webform_revisions
@@ -88,6 +88,18 @@ third_party_settings:
       fuldmagt_fuldmagthaverspersonnummer:
         encrypt: true
         encrypt_profile: webform
+      dokumenter_overslag:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_faktura:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_bilag:
+        encrypt: true
+        encrypt_profile: webform
+      kvittering:
+        encrypt: true
+        encrypt_profile: webform
 weight: 0
 open: null
 close: null
@@ -95,11 +107,12 @@ uid: 1
 template: false
 archive: false
 id: os2forms_fdk_kp_sp241
-title: 'Ansøgning om helbredstillæg (SP241)'
+title: "SP241 (eksempel): Ansøgning om helbredstillæg"
 description: ""
 categories:
   - KP
   - SP
+  - Eksempel
 elements: |-
   ansoeger_fornavn:
     '#type': textfield
@@ -116,6 +129,7 @@ elements: |-
     '#type': textfield
     '#title': Personnummer
     '#required': true
+    '#pattern': '\d{10}'
   ansoeger_telefonnummer:
     '#type': textfield
     '#title': Telefonnummer
@@ -133,9 +147,9 @@ elements: |-
       GRUPPE_E: 'Gruppe E'
       GRUPPE_N: 'Gruppe N'
       GRUPPE_S: 'Gruppe S'
-      GRUPPE_BASIS: 'Basis'
+      GRUPPE_BASIS: Basis
     '#states':
-      visible:
+      _visible:
         ':input[name="sygeforsikring"]':
           checked: true
       required:
@@ -159,7 +173,7 @@ elements: |-
     '#type': textfield
     '#title': Navn
     '#states':
-      visible:
+      _visible:
         ':input[name="fuldmagt"]':
           checked: true
       required:
@@ -168,13 +182,31 @@ elements: |-
   fuldmagt_fuldmagthaverspersonnummer:
     '#type': textfield
     '#title': Personnummer
+    '#pattern': '\d{10}'
     '#states':
-      visible:
+      _visible:
         ':input[name="fuldmagt"]':
           checked: true
       required:
         ':input[name="fuldmagt"]':
           checked: true
+  dokumenter_overslag:
+    '#type': webform_document_file
+    '#title': Overslag
+  dokumenter_faktura:
+    '#type': webform_document_file
+    '#title': Faktura
+  dokumenter_bilag:
+    '#type': webform_document_file
+    '#title': Bilag
+  kvittering:
+    '#type': os2forms_attachment
+    '#title': kvittering
+    '#export_type': pdf
+    '#digital_signature': 0
+    '#excluded_elements': {  }
+    '#exclude_empty': 0
+    '#exclude_empty_checkbox': 0
 css: ""
 javascript: ""
 settings:
@@ -358,5 +390,33 @@ access:
     roles: {}
     users: {}
     permissions: {}
-handlers: {}
+handlers:
+  fordelingskomponent_sf2900:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900
+    label: "Fordelingskomponent (sf2900)"
+    notes: ""
+    status: true
+    conditions: {}
+    weight: 0
+    settings:
+      distribution_context:
+        routing_modtager_aktoer: ""
+        kle_emne: 32.03.12
+        handling_facet: G01
+        brugervendt_noegle: "@todo Skal skjules for “formular“"
+        titel: "@todo Titel SP241"
+        beskrivelse: "@todo Beskrivelse\r\n\r\nSe https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=14 for at finde formulartype mm.\r\n\r\n”KP – Ekstern Test” er et Netcompany system og har CVR-nr 14814833."
+      distribution_object:
+        distribution_type: FORMULAR
+        journalpost_message: ""
+        attachment_element: kvittering
+        formular_type: HelbredstillægAnsøgningFormular_1
+        files:
+          filspecifikation: HelbredstillægAnsøgningBilag_1
+          recipient_it_system_look_up: 1
+          recipient_it_system: ""
+          recipient_authority: "14814833"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<SP241 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>\r\n        <ModtagetDato>2026-04-24</ModtagetDato>\r\n        <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>\r\n        {% for file in files.dokumenter_overslag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Overslag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_faktura|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Faktura</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_bilag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Bilag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.ansoeger_fornavn }}</Fornavn>\r\n            {% if submission.data.ansoeger_mellemnavn|default(false) %}\r\n            <Mellemnavn>{{ submission.data.ansoeger_mellemnavn }}</Mellemnavn>\r\n            {% endif %}\r\n            <Efternavn>{{ submission.data.ansoeger_efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Erklaering>Accepteret</Erklaering>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>2026-04-26</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</SP241>\r\n"
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP241.xsd"
 variants: {}
