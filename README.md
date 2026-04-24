@@ -18,7 +18,8 @@
    ssh-keygen -p -N "" -f cert/sf2900-sftp-nopass
    ```
 
-2. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
+2. Create a queue (on `/admin/config/system/queues`) for Fordelingskomponent handler jobs.
+3. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
 
 [^1] It takes a very long time to read a key with a password (reference?)
 
@@ -118,3 +119,12 @@ curl --verbose --insecure --location «base url»/os2forms-fordelingskomponent/s
 </soap:Envelope>
 XML
 ```
+
+## References
+
+* [Fælleskommunal Filudveksling](https://digitaliseringskataloget.dk/l%C3%B8sninger/filudveksling)
+  * [Vejledning til Serviceplatformens SFTP-service](https://docs.kombit.dk/latest/d312b273)
+
+## KP-formularer
+
+* <https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=14>
