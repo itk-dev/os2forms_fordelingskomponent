@@ -441,7 +441,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
     $items = [];
 
-    if (TRUE || $settings->distributionContext->kleEmne) {
+    if ($settings->distributionContext->kleEmne) {
       $items[] = Link::createFromRoute(
         $this->t('Show routing info'),
         'os2forms_fordelingskomponent.routing_info', [

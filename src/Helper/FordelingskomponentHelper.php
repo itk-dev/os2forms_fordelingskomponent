@@ -350,10 +350,8 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   /**
    * Build files for a distribution object.
    *
-   * @return \Drupal\file\Entity\FileGroups
+   * @return array<string, array<int, array{sftp_filename: string, file: \Drupal\file\FileInterface}>>
    *   The file groups.
-   *
-   * @phpstan-import-type FileGroups from DistributionFormular
    */
   public function buildFileGroups(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): array {
     $groups = [];

@@ -87,7 +87,7 @@ setup() {
 
   composer --no-plugins config extra.drupal-lenient.allow-all --json true
   # composer --no-plugins config extra.drupal-lenient.allowed-list --json '[                "drupal/coc_forms_auto_export",                "drupal/webform_node_element"            ]'
-  composer require mglaman/composer-drupal-lenient --with-all-dependencies
+  composer require mglaman/composer-drupal-lenient:^1.0 --with-all-dependencies
 
   # --------------------------------------------------------------------------------------------------------------------
   # We need to install dev requirements from our module, so we use

@@ -57,7 +57,7 @@
         {% endif %}
     </div>
     <div class="edit-handler">
-        <a href="{{ path('entity.webform.handler.edit_form', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Edit handler %handler'|trans({'%handler': handler.label}) }}</a>
+        <a href="{{ path('entity.webform.handler.edit_form', {webform: webform.id, webform_handler: handler.handlerId, destination: path('<current>')}) }}">{{ 'Edit handler %handler'|trans({'%handler': handler.label}) }}</a>
     </div>
     <div class="return">
         <a href="{{ path('entity.webform.handlers', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Back to webform handlers'|trans({'%handler': handler.label}) }}</a>
