@@ -2,6 +2,7 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
+use ItkDev\Serviceplatformen\Service\SF2900\SF2900\SftpHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\file\Entity\File;
@@ -395,6 +396,80 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
    *
    * @phpstan-return array<int, mixed>
    */
+  public function uploadFiles(
+    DistributionFormularType|DistributionDokumentType|DistributionJournalPostType $distributionObject,
+    HandlerSettings $handlerSettings,
+  ): array {
+    $sf2900 = $this->sf2900();
+    $transactionId = Serializer::createUuid();
+
+    $triggerObjects = [];
+    if ($distributionObject instanceof DistributionFormular) {
+      $files = $distributionObject->getFileGroups();
+      $sftp = $sf2900->sftp();
+      $recipientItSystem = NULL;
+      if ($handlerSettings->distributionObject->files->recipientItSystemLookUp) {
+        $routingInfo = $this->getRoutingInfo($handlerSettings);
+        $system = $routingInfo->getSystemer()->getSystem();
+        if (1 !== count($system)) {
+          throw new \RuntimeException('Cannot find single recipient system');
+        }
+        $recipientItSystem = $system[0]->getSystemUUID();
+      }
+      foreach ($files as $items) {
+        foreach ($items as $item) {
+          /** @var \Drupal\file\Entity\File $file */
+          $file = $item['file'];
+          $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
+          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId,
+            recipientItSystem: $recipientItSystem);
+          $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
+          $triggerObjects[] = $triggerObject;
+        }
+      }
+    }
+
+    return $triggerObjects;
+  }
+
+  /**
+   * Check if files are delivered.
+   */
+  public function checkFilesDelivered(
+    array $triggerObjects,
+  ): bool {
+    foreach ($triggerObjects as $triggerObject) {
+      try {
+        $sxe = new \SimpleXMLElement($triggerObject);
+        $filename = (string) $sxe->xpath('//FileDescriptor/FileName')[0];
+        if (empty($filename)) {
+          throw new \RuntimeException('Cannot get file name');
+        }
+
+        $receipt = $this->sf2900()->sftp()->getContents($filename . '.sftpreceipt', SftpHelper::INCOMING_FOLDER);
+        $receiptXse = new \SimpleXMLElement($receipt);
+        $message = (string) $receiptXse->xpath('//Receipt/Message')[0];
+        if ('SUCCESS' !== $message) {
+          throw new \RuntimeException(sprintf('Message for %s: %s', $filename, $message));
+        }
+      }
+      catch (\Exception $exception) {
+        $this->logger->error($exception->getMessage());
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Send dokument.
+   *
+   * @return array
+   *   [The response, The kombi post message].
+   *
+   * @phpstan-return array<int, mixed>
+   */
   public function sendDokument(
     WebformSubmissionInterface $submission,
     DistributionFormularType|DistributionDokumentType|DistributionJournalPostType $dokument,
@@ -412,30 +487,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       $sftp = $sf2900->sftp();
       $sftpFilename = $this->getSftpFilename($handlerSettings, $submission, $attachment->filename);
       $dokumentFilNavn = $sftp->putContents($attachment->contents, $attachment->filename, $sftpFilename);
-      // @todo Create trigger object.
-    }
-    // Upload files if any.
-    elseif ($dokument instanceof DistributionFormular) {
-      $files = $dokument->getFileGroups();
-      $sftp = $sf2900->sftp();
-      $recipientItSystem = NULL;
-      if ($handlerSettings->distributionObject->files->recipientItSystemLookUp) {
-        $routingInfo = $this->getRoutingInfo($handlerSettings);
-        $system = $routingInfo->getSystemer()->getSystem();
-        if (1 !== count($system)) {
-          throw new \RuntimeException('Cannot find single recipient system');
-        }
-        $recipientItSystem = $system[0]->getSystemUUID();
-      }
-      foreach ($files as $items) {
-        foreach ($items as $item) {
-          /** @var \Drupal\file\Entity\File $file */
-          $file = $item['file'];
-          $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
-          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId, recipientItSystem: $recipientItSystem);
-          $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
-        }
-      }
+      // @todo Create trigger object?
     }
 
     $this->setTransactionContext($transactionId, new TransactionContext(

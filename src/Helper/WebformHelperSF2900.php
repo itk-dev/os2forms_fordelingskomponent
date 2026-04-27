@@ -9,10 +9,12 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManager;
+use Drupal\Core\State\StateInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\DistributionFormular;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
 use Drupal\os2forms_fordelingskomponent\Plugin\AdvancedQueue\JobType\FordelingskomponentSF2900;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
@@ -64,6 +66,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
     #[Autowire(service: 'webform.token_manager')]
     private readonly WebformTokenManagerInterface $webformTokenManager,
+    private readonly StateInterface $state,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
@@ -93,24 +96,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $files = $this->helper->buildFileGroups($handlerSettings, $submission);
 
     return $this->helper->renderXml($handlerSettings, $submission, files: $files, validateXml: $validateXml);
-  }
-
-  /**
-   * Afsend med Fordelingskomponenten.
-   *
-   * @return array
-   *   [The response, The kombi post message].
-   */
-  public function afsend(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): array {
-    $attachment = $this->getAttachment($submission, $handlerSettings);
-    $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
-
-    return $this->helper->sendDokument(
-      $submission,
-      $distributionObject,
-      $attachment,
-      $handlerSettings,
-    );
   }
 
   /**
@@ -221,17 +206,21 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @see self::processJob()
    */
-  public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900 $handler): ?Job {
+  public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900|HandlerSettings $handlerSettings, ?array $payload = []): ?Job {
     $context = [
       'handler_id' => WebformHandlerSF2900::ID,
       'webform_submission' => $webformSubmission,
     ];
 
     try {
-      $job = Job::create(FordelingskomponentSF2900::class, [
+      if ($handlerSettings instanceof WebformHandlerSF2900) {
+        $handlerSettings = $this->settings->getHandlerSettings($handlerSettings);
+      }
+
+      $job = Job::create(FordelingskomponentSF2900::class, $payload + [
         'formId' => $webformSubmission->getWebform()->id(),
         'submissionId' => $webformSubmission->id(),
-        'handlerSettings' => $this->settings->getHandlerSettings($handler)->toArray(),
+        'handlerSettings' => $handlerSettings->toArray(),
       ]);
       $queue = $this->loadQueue();
       $queue->enqueueJob($job);
@@ -258,7 +247,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
    */
   public function processJob(Job $job): JobResult {
     $payload = $job->getPayload();
-
     $context = [
       'handler_id' => WebformHandlerSF2900::ID,
       'operation' => 'fordelingskomponent afsend',
@@ -279,9 +267,50 @@ final class WebformHelperSF2900 implements LoggerInterface {
 
       $context['webform_submission'] = $submission;
       $handlerSettings = new HandlerSettings($payload['handlerSettings']);
-      $this->afsend($submission, $handlerSettings);
 
-      $this->notice('Fordelingskomponent afsendt', $context);
+      $attachment = $this->getAttachment($submission, $handlerSettings);
+      $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
+
+      $sftpRoutingRequired = $distributionObject instanceof DistributionFormular
+        && !empty($distributionObject->getFileGroups());
+
+      if (!$sftpRoutingRequired) {
+        // No SFTP files uplead and awaiting delivery needed.
+        $this->helper->sendDokument($submission, $distributionObject, $attachment, $handlerSettings);
+        $this->notice('Fordelingskomponent afsendt', $context);
+      }
+      else {
+        // Start a sequence of jobs:
+        //
+        // 1. Upload files and trigger files. When done, create a job to
+        // 2. Check that all files have been delivered. Finally
+        // 3. Send distribution object.
+        $state = $this->getJobState($job);
+        switch ($state) {
+          case self::STATE_UPLOAD_FILES:
+            $files = $this->helper->uploadFiles($distributionObject, $handlerSettings);
+            $this->notice('Fordelingskomponent files uploaded', $context);
+            $this->createJob($submission, $handlerSettings, [self::PAYLOAD_CHECK_FILES => $files]);
+            break;
+
+          case self::STATE_CHECK_FILES:
+            $files = $payload[self::PAYLOAD_CHECK_FILES];
+            if (!$this->helper->checkFilesDelivered($files)) {
+              return JobResult::failure(sprintf('Files not yet delivered'));
+            }
+            else {
+              $this->notice('Fordelingskomponent files delivered', $context);
+              $this->createJob($submission, $handlerSettings, [self::PAYLOAD_FILES_DELIVERED => TRUE]);
+            }
+            break;
+
+          case self::STATE_SEND_DISTRIBUTION_OBJECT:
+            $this->helper->sendDokument($submission, $distributionObject, $attachment, $handlerSettings);
+            $this->notice('Fordelingskomponent afsendt', $context);
+            break;
+        }
+      }
+
       return JobResult::success();
     }
     catch (\Exception $e) {
@@ -319,6 +348,33 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $handlerSettings->distributionObject->journalpostMessage = $this->webformTokenManager->replace((string) $handlerSettings->distributionObject->journalpostMessage, $submission);
 
     return $handlerSettings;
+  }
+
+  private const string STATE_UPLOAD_FILES = 'upload_files';
+
+  private const string PAYLOAD_CHECK_FILES = 'check_files';
+  private const string STATE_CHECK_FILES = 'check_files';
+
+  private const string PAYLOAD_FILES_DELIVERED = 'files_delivered';
+  private const string STATE_SEND_DISTRIBUTION_OBJECT = 'send_distribution_object';
+
+  /**
+   * Get state for a job.
+   *
+   * This is only used when we must upload files and hence the first state (and
+   * the default) is "upload files".
+   */
+  private function getJobState(Job $job): string {
+    $payload = $job->getPayload();
+
+    if (isset($payload[self::PAYLOAD_FILES_DELIVERED])) {
+      return self::STATE_SEND_DISTRIBUTION_OBJECT;
+    }
+    if (isset($payload[self::PAYLOAD_CHECK_FILES])) {
+      return self::STATE_CHECK_FILES;
+    }
+
+    return self::STATE_UPLOAD_FILES;
   }
 
 }

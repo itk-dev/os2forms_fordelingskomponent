@@ -12,10 +12,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Fordelingskomponent.
  *
+ * In addition to sending distribution objects, this job is used to upload
+ * files and check that they've been delivired. We may have to wait quite
+ * some time before the files have been delivered and therefore we set
+ * "max_retries" higher the we usually do.
+ *
  * @AdvancedQueueJobType(
  *   id = "Drupal\os2forms_fordelingskomponent\Plugin\AdvancedQueue\JobType\FordelingskomponentSF2900",
  *   label = @Translation("Fordelingskomponent (sf2900)"),
- *   max_retries = 5,
+ *   max_retries = 20,
  *   retry_delay = 60,
  * )
  */
