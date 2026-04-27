@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
 use Drupal\os2forms_fordelingskomponent\Settings;
@@ -357,7 +357,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
         $this->xmlHelper->validateXml($template);
         $this->xmlHelper->validateTemplate($template);
       }
-      catch (InvalidXmlTemplateException $e) {
+      catch (InvalidXmlException $e) {
         $form_state->setErrorByName(self::SECTION_SF2900 . '][' . DistributionObjectSettings::XML_TEMPLATE,
           $this->t('Invalid XML template: %message.', ['%message' => $e->getMessage()]));
       }

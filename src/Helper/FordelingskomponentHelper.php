@@ -9,6 +9,7 @@ use Drupal\file\FileStorageInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\Exception;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
+use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Model\DistributionFormular;
@@ -702,7 +703,17 @@ XML;
     $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);
 
     $xml = $dom->saveXML();
-    $this->xmlHelper->validateXml($xml, 'module://os2forms_fordelingskomponent/resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd');
+
+    try {
+      $this->xmlHelper->validateXml($xml, 'module://os2forms_fordelingskomponent/resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd');
+    }
+    catch (InvalidXmlException $e) {
+      $this->logger->error('Invalid XML in trigger file: %message.', [
+        '%message' => $e->getMessage(),
+        'exception' => $e,
+      ]);
+      throw new RuntimeException('Invalid XML in trigger file: %message.', ['%message' => $e->getMessage()]);
+    }
 
     return $xml;
   }

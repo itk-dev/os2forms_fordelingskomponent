@@ -2,7 +2,7 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
-use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,7 +61,7 @@ class XmlHelper {
       );
     }
     catch (\Throwable $exception) {
-      throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
+      throw new InvalidXmlException($exception->getMessage(), $exception->getCode(), $exception);
     }
   }
 
@@ -84,14 +84,14 @@ class XmlHelper {
       $this->createTemplate($template);
     }
     catch (\Throwable $exception) {
-      throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
+      throw new InvalidXmlException($exception->getMessage(), $exception->getCode(), $exception);
     }
   }
 
   /**
    * Check that XML is valid. Optionally validate using an XSD.
    *
-   * @throws \Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException
+   * @throws \Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException
    *   An exception.
    */
   public function validateXml(string $xml, ?string $xsdUrl = NULL, bool $loadXsdContent = FALSE): void {
@@ -107,7 +107,7 @@ class XmlHelper {
     if ($loadXsdContent) {
       $content = file_get_contents($xsdUrl);
       if (FALSE === $content) {
-        throw new InvalidXmlTemplateException(sprintf('Error loading XSD: %s', $xsdUrl));
+        throw new InvalidXmlException(sprintf('Error loading XSD: %s', $xsdUrl));
       }
     }
 
@@ -138,7 +138,7 @@ class XmlHelper {
 
         libxml_clear_errors();
 
-        throw new InvalidXmlTemplateException('Error validating XML:' . PHP_EOL . $message);
+        throw new InvalidXmlException('Error validating XML:' . PHP_EOL . $message);
       }
 
     } finally {
@@ -163,11 +163,11 @@ class XmlHelper {
 
         libxml_clear_errors();
 
-        throw new InvalidXmlTemplateException('Error loading XML:' . PHP_EOL . $message);
+        throw new InvalidXmlException('Error loading XML:' . PHP_EOL . $message);
       }
     }
     catch (\Throwable $exception) {
-      throw new InvalidXmlTemplateException($exception->getMessage(), $exception->getCode(), $exception);
+      throw new InvalidXmlException($exception->getMessage(), $exception->getCode(), $exception);
     } finally {
       libxml_use_internal_errors($useInternalErrors);
     }

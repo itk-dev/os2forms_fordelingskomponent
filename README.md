@@ -128,3 +128,10 @@ XML
 ## KP-formularer
 
 * <https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=14>
+
+## Debugging
+
+``` php
+# settings.local.php
+$settings['os2forms_fordelingskomponent']['log_level'] = \Drupal\Core\Logger\RfcLogLevel::DEBUG;
+```

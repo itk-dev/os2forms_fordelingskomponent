@@ -2,7 +2,7 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Test\Unit\Helper;
 
-use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 
 /**
  * Xml helper test data provider.
@@ -17,7 +17,7 @@ final class XmlHelperTestDataProvider {
     yield [
       'This is not an XML document',
     [],
-      new InvalidXmlTemplateException(),
+      new InvalidXmlException(),
     ];
 
     yield [
@@ -28,7 +28,7 @@ final class XmlHelperTestDataProvider {
 </Anmodning>
 XML,
       [],
-      new InvalidXmlTemplateException(),
+      new InvalidXmlException(),
     ];
 
     yield [
@@ -190,7 +190,7 @@ XML,
     {{ name }
 </Anmodning>
 XML,
-      new InvalidXmlTemplateException(),
+      new InvalidXmlException(),
     ];
 
     yield [
@@ -201,7 +201,7 @@ XML,
        {{ name }}
 </Anmodning>
 XML,
-      new InvalidXmlTemplateException(),
+      new InvalidXmlException(),
     ];
 
   }
@@ -259,7 +259,7 @@ XML,
 </Anmodning>
 XML,
       self::RESOURCE_PATH . '/xsd/Anmodning.xsd',
-      new InvalidXmlTemplateException(),
+      new InvalidXmlException(),
     ];
   }
 

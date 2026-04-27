@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManager;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
+use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
 use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
@@ -182,11 +183,15 @@ final class WebformHelperSF2900 implements LoggerInterface {
   /**
    * Load queue.
    */
-  private function loadQueue(): ?QueueInterface {
-    $id = $this->settings->getGeneralSettings()->queue;
+  private function loadQueue(): QueueInterface {
+    $id = $this->settings->getGeneralSettings()->queue ?? NULL;
 
     /** @var ?\Drupal\advancedqueue\Entity\QueueInterface $queue */
-    $queue = $this->queueStorage->load($id ?? NULL);
+    $queue = $this->queueStorage->load($id);
+
+    if (NULL === $queue) {
+      throw new RuntimeException('Cannot load queue %queue_id', ['%queue_id' => $id]);
+    }
 
     return $queue;
   }
@@ -229,16 +234,11 @@ final class WebformHelperSF2900 implements LoggerInterface {
         'handlerSettings' => $this->settings->getHandlerSettings($handler)->toArray(),
       ]);
       $queue = $this->loadQueue();
-      if (NULL !== $queue) {
-        $queue->enqueueJob($job);
-        $context['@queue'] = $queue->id();
-        $this->notice('Job for afsend added to the queue @queue.', $context + [
-          'operation' => 'Fordelingskomponent afsend queued',
-        ]);
-      }
-      else {
-        $this->processJob($job);
-      }
+      $queue->enqueueJob($job);
+      $context['@queue'] = $queue->id();
+      $this->notice('Job for afsend added to the queue @queue.', $context + [
+        'operation' => 'Fordelingskomponent afsend queued',
+      ]);
 
       return $job;
     }
@@ -282,7 +282,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
       $this->afsend($submission, $handlerSettings);
 
       $this->notice('Fordelingskomponent afsendt', $context);
-
       return JobResult::success();
     }
     catch (\Exception $e) {

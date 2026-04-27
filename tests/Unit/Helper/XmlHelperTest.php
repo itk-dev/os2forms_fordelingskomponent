@@ -2,7 +2,7 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Test\Unit\Helper;
 
-use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlTemplateException;
+use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
 use Drupal\os2forms_fordelingskomponent\Test\Unit\AbstractTestCase;
 use Twig\Environment;
@@ -49,9 +49,9 @@ class XmlHelperTest extends AbstractTestCase {
   public function testRender(
     string $template,
     array $context,
-    string|InvalidXmlTemplateException $expected,
+    string|InvalidXmlException $expected,
   ) {
-    if ($expected instanceof InvalidXmlTemplateException) {
+    if ($expected instanceof InvalidXmlException) {
       $this->expectException($expected::class);
     }
 
@@ -65,9 +65,9 @@ class XmlHelperTest extends AbstractTestCase {
    */
   public function testValidateTemplate(
     string $template,
-    ?InvalidXmlTemplateException $expected = NULL,
+    ?InvalidXmlException $expected = NULL,
   ) {
-    if ($expected instanceof InvalidXmlTemplateException) {
+    if ($expected instanceof InvalidXmlException) {
       $this->expectException($expected::class);
     }
 
@@ -82,9 +82,9 @@ class XmlHelperTest extends AbstractTestCase {
   public function testValidateXml(
     string $template,
     string $xsdUrl,
-    ?InvalidXmlTemplateException $expected = NULL,
+    ?InvalidXmlException $expected = NULL,
   ) {
-    if ($expected instanceof InvalidXmlTemplateException) {
+    if ($expected instanceof InvalidXmlException) {
       $this->expectException($expected::class);
     }
 
