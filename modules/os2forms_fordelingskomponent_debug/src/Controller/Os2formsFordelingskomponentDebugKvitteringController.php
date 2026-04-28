@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository;
-use Drupal\os2forms_fordelingskomponent_debug\Hook\ThemeHooks;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Returns responses for os2forms_fordelingskomponent_debug routes.
  */
-final class Os2formsFordelingskomponentDebugKvitteringController extends ControllerBase {
+final class Os2formsFordelingskomponentDebugKvitteringController extends AbstractController {
 
   public function __construct(
     private readonly AnvenderKvitteringRepository $repository,
@@ -24,11 +23,38 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Control
    * Builds the response.
    */
   public function __invoke(WebformInterface $webform, WebformSubmissionInterface $webform_submission, string $anvender_transaktions_id): array {
-    $items = $this->repository->loadByAnvenderTransaktionsId($anvender_transaktions_id);
+    $item = $this->repository->loadByAnvenderTransaktionsId($anvender_transaktions_id);
+
+    if (NULL === $item) {
+      throw new NotFoundHttpException();
+    }
 
     return [
-      '#theme' => ThemeHooks::KVITTERINGER,
-      '#items' => $items,
+      [
+        '#type' => 'item',
+        '#title' => $this->t('anvenderTransaktionsId'),
+        '#markup' => $item->anvenderTransaktionsId,
+      ],
+      [
+        '#type' => 'item',
+        '#title' => $this->t('distributionTransaktionsId'),
+        '#markup' => $item->distributionTransaktionsId,
+      ],
+      [
+        '#type' => 'item',
+        '#title' => $this->t('Created at'),
+        '#markup' => $this->formatDatetime($item->createdAt),
+      ],
+      [
+        '#type' => 'item',
+        '#title' => $this->t('Updated at'),
+        '#markup' => $this->formatDatetime($item->updatedAt),
+      ],
+      [
+        '#type' => 'item',
+        '#title' => $this->t('Request'),
+        '#markup' => $this->renderYaml($item->request),
+      ],
     ];
   }
 

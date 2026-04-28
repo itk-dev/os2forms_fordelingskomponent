@@ -4,7 +4,7 @@ os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp:
   defaults: &defaults
     _title: "Fordelingskomponent SFTP"
     _controller: '\Drupal\os2forms_fordelingskomponent_debug\Controller\Os2formsFordelingskomponentDebugSftpController'
-    dir: /
+    dir: ~
   methods: &methods
     - GET
   requirements: &requirements

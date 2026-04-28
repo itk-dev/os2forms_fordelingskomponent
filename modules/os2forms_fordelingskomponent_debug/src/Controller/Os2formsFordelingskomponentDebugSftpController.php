@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
-use Drupal\os2forms_fordelingskomponent_debug\Hook\ThemeHooks;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
@@ -14,7 +13,7 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 /**
  * Returns responses for os2forms_fordelingskomponent_debug routes.
  */
-final class Os2formsFordelingskomponentDebugSftpController extends ControllerBase {
+final class Os2formsFordelingskomponentDebugSftpController extends AbstractController {
 
   public function __construct(
     private readonly FordelingskomponentHelper $helper,
@@ -26,17 +25,15 @@ final class Os2formsFordelingskomponentDebugSftpController extends ControllerBas
   /**
    * Builds the response.
    */
-  public function __invoke(string $dir = '/', ?string $filename = NULL): array|Response {
-    $path = $this->normalizePath(implode('/', array_filter([$dir, $filename])));
-
+  public function __invoke(?string $dir, ?string $filename = NULL): array|Response {
     $sftp = $this->helper->sf2900()->sftp();
 
-    if (preg_match('/\.[^.]+$/', $path)) {
+    if (NULL !== $filename && preg_match('/\.[^.]+$/', $filename)) {
       $content = $sftp->getContents($filename, $dir);
 
-      $contentType = match(pathinfo($path, PATHINFO_EXTENSION)) {
+      $contentType = match(pathinfo($filename, PATHINFO_EXTENSION)) {
         'sftpreceipt', 'trigger' => $this->mimeTypeGuesser->guessMimeType('name.xml'),
-        default => $this->mimeTypeGuesser->guessMimeType($path)
+        default => $this->mimeTypeGuesser->guessMimeType($filename)
       };
 
       return new Response($content, Response::HTTP_OK, [
@@ -44,26 +41,45 @@ final class Os2formsFordelingskomponentDebugSftpController extends ControllerBas
       ]);
     }
     else {
-      $files = $sftp->getFiles($path);
+      $files = $sftp->getFiles($dir ?? '.', recursive: TRUE, raw: TRUE);
 
       // Filter out . and ..
-      $files = array_filter($files, static fn (string $name) => !preg_match('/^\.+$/', $name));
+      $files = array_filter($files, static fn (string $name) => !preg_match('/^\.+$/', $name), ARRAY_FILTER_USE_KEY);
 
-      $files = array_map(fn (string $name) => $this->normalizePath($path . '/' . $name), $files);
+      $header = [
+        'filepath' => $this->t('Path'),
+        'atime' => $this->t('Last accessed at'),
+        'mtime' => $this->t('Last modified at'),
+      ];
+      $rows = [];
+      foreach ($files as $stat) {
+        $rows[] = [
+          'filepath' => [
+            'data' => [
+              '#title' => '/' . ($dir ? $dir . '/' : '') . $stat->filename,
+              '#type' => 'link',
+              '#url' => $dir
+                ? Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp_filename', [
+                  'dir' => $dir,
+                  'filename' => $stat->filename,
+                ])
+                : Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp', [
+                  'dir' => $stat->filename,
+                ]),
+            ],
+          ],
+          'atime' => $this->formatDatetime($stat->atime ?? NULL),
+          'mtime' => $this->formatDatetime($stat->mtime ?? NULL),
+        ];
+      }
 
       return [
-        '#theme' => ThemeHooks::SFTP_FILES,
-        '#files' => $files,
-        '#parent_dir' => dirname($path),
+        '#type' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+        '#empty' => $this->t('No entries available.'),
       ];
     }
-  }
-
-  /**
-   * Normalize file path.
-   */
-  private function normalizePath(string $path): string {
-    return '/' . trim(preg_replace('@/+@', '/', $path), '/');
   }
 
 }
