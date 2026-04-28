@@ -1,0 +1,27 @@
+{# @var Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse[] items #}
+<table>
+    <thead>
+    <tr>
+        <th>anvenderTransaktionsId</th>
+        <th>distributionTransaktionsId</th>
+        <th>kvittering</th>
+        <th>webform handlers</th>
+        <th>createdAt</th>
+        <th>updatedAt</th>
+        <th>deliveredAt</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.anvenderTransaktionsId }}</td>
+                <td>{{ item.distributionTransaktionsId }}</td>
+                <td><a href="{{ path('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering', {webform: item.webformId, webform_submission: item.webformSubmissionId, anvender_transaktions_id: item.anvenderTransaktionsId}) }}">kvittering</a></td>
+                <td><a href="{{ path('entity.webform.handlers', {webform: item.webformId}) }}">webform handlers</a></td>
+                <td>{{ item.createdAt|date('Y-m-d H:i:s') }}</td>
+                <td>{{ item.updatedAt|date('Y-m-d H:i:s') }}</td>
+                <td>{{ item.deliveredAt ? item.deliveredAt|date('Y-m-d H:i:s') : '–' }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

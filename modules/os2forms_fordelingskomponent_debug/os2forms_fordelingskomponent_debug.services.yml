@@ -1,0 +1,5 @@
+services:
+  _defaults:
+    autowire: true
+
+  Drupal\os2forms_fordelingskomponent_debug\Hook\ThemeHooks:

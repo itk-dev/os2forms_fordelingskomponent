@@ -1,0 +1,6 @@
+{# @var Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse[] items #}
+<ol>
+{% for item in items %}
+    <li>{{ item.anvenderTransaktionsId }} {{ dump(item) }}</li>
+{% endfor %}
+</ol>

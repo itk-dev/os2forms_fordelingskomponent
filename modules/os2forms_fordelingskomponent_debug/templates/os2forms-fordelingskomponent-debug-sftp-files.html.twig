@@ -1,0 +1,11 @@
+{% if parent_dir %}
+    <a href="{{ path('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp') }}">{{ parent_dir }}</a>
+{% endif %}
+
+<ol>
+{% for file in files %}
+    {# We just append the file path to the URL path. This is a hack! #}
+    {% set url = path('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp') ~ file %}
+    <li><a href="{{ url }}">{{ file }}</a></li>
+{% endfor %}
+</ol>
