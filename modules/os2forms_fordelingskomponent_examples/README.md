@@ -42,3 +42,8 @@ Or a single webform, e.g.
 drush config:set --input-format=yaml webform.webform.os2forms_fdk_kp_anmoding '?' - < config/install/webform.webform.os2forms_fdk_kp_anmoding.yml
 # drush config:get webform.webform.os2forms_fdk_kp_anmoding
 ```
+
+## Testing
+
+Fill out an example webform with test data and pre-populate some fields:
+`/webform/os2forms_fdk_kp_sp241/test?ansoeger_personnummer=1234567890&ansoeger_telefonnummer=12345678&fuldmagt_fuldmagthaverspersonnummer=0987654321`
