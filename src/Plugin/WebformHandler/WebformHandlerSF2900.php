@@ -239,6 +239,9 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Files'),
     ];
+    $setStates($section[DistributionObjectSettings::FILES], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
+    ]);
 
     $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::FILSPECIFIKATION] = [
       '#type' => 'textfield',

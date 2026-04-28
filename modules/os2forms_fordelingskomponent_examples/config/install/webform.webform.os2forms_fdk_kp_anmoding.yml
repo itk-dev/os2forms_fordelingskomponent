@@ -411,7 +411,7 @@ handlers:
                   <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
               </Sagstype>
               <Underskriftsoplysninger>
-                  <Underskrift>Underskrift0</Underskrift>
+                  <Underskrift>{{ submission.data.ansoeger_fornavn }}{% if submission.data.ansoeger_mellemnavn|default(false) %} {{ submission.data.ansoeger_mellemnavn }}{% endif %} {{ submission.data.ansoeger_efternavn }}</Underskrift>
                   <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
               </Underskriftsoplysninger>
           </Anmodning>
