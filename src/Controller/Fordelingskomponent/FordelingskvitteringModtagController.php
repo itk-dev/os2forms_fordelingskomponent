@@ -23,9 +23,7 @@ final class FordelingskvitteringModtagController extends AbstractSoapController 
   protected string $wsdl = 'file://' . __DIR__ . '/../../../resources/sf2900/SF2900_EP_MS1-2/DistributionServiceAnvenderV2.wsdl';
 
   public function __construct(
-    private readonly AnvenderForsendelseRepository $forsendelseRepository,
     private readonly AnvenderKvitteringRepository $kvitteringRepository,
-    private readonly TimeInterface $time,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     LoggerChannelInterface $logger,
   ) {

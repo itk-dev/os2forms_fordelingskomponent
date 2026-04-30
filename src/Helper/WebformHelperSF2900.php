@@ -66,7 +66,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
     private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
     #[Autowire(service: 'webform.token_manager')]
     private readonly WebformTokenManagerInterface $webformTokenManager,
-    private readonly StateInterface $state,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]

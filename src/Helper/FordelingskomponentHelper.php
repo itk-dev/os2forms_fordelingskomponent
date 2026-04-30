@@ -734,7 +734,7 @@ XML;
     File $file,
     string $sftpFilename,
     HandlerSettings $handlerSettings,
-    WebformSubmission $submission,
+    WebformSubmissionInterface $submission,
     string $transactionId,
     ?string $recipientItSystem = NULL,
   ): string {
