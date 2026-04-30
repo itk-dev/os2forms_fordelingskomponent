@@ -47,21 +47,18 @@ final class AnvenderKvitteringRepository extends AbstractRepository {
 
   /**
    * Load kvittering by transaktions-id.
+   *
+   * @return \Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering[]
    */
-  public function loadByAnvenderTransaktionsId(string $anvenderTransaktionsId, ?string $distributionTransaktionsId = NULL): ?AnvenderKvittering {
+  public function loadByAnvenderTransaktionsId(string $anvenderTransaktionsId, ?string $distributionTransaktionsId = NULL): array {
     $criteria = [
       ['anvender_transaktions_id', $anvenderTransaktionsId],
     ];
     if (NULL !== $distributionTransaktionsId) {
       $criteria[] = ['distribution_transaktions_id', $distributionTransaktionsId];
     }
-    $result = $this->loadBy($criteria);
 
-    if (1 !== count($result)) {
-      return NULL;
-    }
-
-    return reset($result);
+    return $this->loadBy($criteria);
   }
 
   /**
@@ -81,23 +78,11 @@ final class AnvenderKvitteringRepository extends AbstractRepository {
         'created_at' => $kvittering->createdAt,
         'updated_at' => $kvittering->updatedAt,
       ];
-      if (NULL === $this->loadByAnvenderTransaktionsId(
-        anvenderTransaktionsId: $kvittering->anvenderTransaktionsId,
-          distributionTransaktionsId: $kvittering->distributionTransaktionsId,
-        )) {
-        $this->database
-          ->insert(self::TABLE)
-          ->fields($fields)
-          ->execute();
-      }
-      else {
-        $this->database
-          ->update(self::TABLE)
-          ->condition('anvender_transaktions_id', $kvittering->anvenderTransaktionsId)
-          ->condition('distribution_transaktions_id', $kvittering->distributionTransaktionsId)
-          ->fields($fields)
-          ->execute();
-      }
+
+      $this->database
+        ->insert(self::TABLE)
+        ->fields($fields)
+        ->execute();
 
       return TRUE;
     }

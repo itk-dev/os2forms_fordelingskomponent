@@ -139,6 +139,11 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
         '#title' => $this->t('Request'),
         '#markup' => $this->renderYaml($item->request),
       ],
+      [
+        '#type' => 'item',
+        '#title' => $this->t('Response'),
+        '#markup' => $this->renderYaml($item->response),
+      ],
     ];
   }
 

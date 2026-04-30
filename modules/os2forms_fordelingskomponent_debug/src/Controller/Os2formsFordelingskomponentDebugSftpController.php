@@ -7,6 +7,7 @@ namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
@@ -25,7 +26,7 @@ final class Os2formsFordelingskomponentDebugSftpController extends AbstractContr
   /**
    * Builds the response.
    */
-  public function __invoke(?string $dir, ?string $filename = NULL): array|Response {
+  public function __invoke(Request $request, ?string $dir, ?string $filename = NULL): array|Response {
     $sftp = $this->helper->sf2900()->sftp();
 
     if (NULL !== $filename && preg_match('/\.[^.]+$/', $filename)) {
@@ -45,6 +46,10 @@ final class Os2formsFordelingskomponentDebugSftpController extends AbstractContr
 
       // Filter out . and ..
       $files = array_filter($files, static fn (string $name) => !preg_match('/^\.+$/', $name), ARRAY_FILTER_USE_KEY);
+
+      if ($filter = ($request->query->all()['filter'] ?? NULL)) {
+        $files = array_filter($files, static fn (string $filename) => array_all($filter, fn (string $value) => str_contains($filename, $value)), ARRAY_FILTER_USE_KEY);
+      }
 
       $header = [
         'filepath' => $this->t('Path'),

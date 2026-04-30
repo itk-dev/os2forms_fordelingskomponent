@@ -23,13 +23,17 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
    * @return \Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse[]
    *   The list of forsendelser.
    */
-  private function loadBy(array $conditions = []): array {
+  private function loadBy(array $conditions = [], array $orderBy = ['created_at' => 'DESC']): array {
     $query = $this->database
       ->select(self::TABLE, 't')
       ->fields('t');
 
     foreach ($conditions as $condition) {
       $query->condition(...$condition);
+    }
+
+    foreach ($orderBy as $field => $direction) {
+      $query->orderBy($field, $direction);
     }
 
     $statement = $query->execute();
