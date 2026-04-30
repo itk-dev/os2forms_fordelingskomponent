@@ -2,6 +2,7 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
+use Drupal\webform\Entity\WebformSubmission;
 use ItkDev\Serviceplatformen\Service\SF2900\SF2900\SftpHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -380,10 +381,15 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   /**
    * Get SFTP filename.
    */
-  private function getSftpFilename(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, string $filename): string {
+  private function getSftpFilename(
+    HandlerSettings $handlerSettings,
+    WebformSubmissionInterface $submission,
+    string $filename,
+  ): string {
     return implode('_', [
       uniqid('os2forms_fordelingskomponent_'),
-      md5($handlerSettings->handlerId . '||' . $submission->uuid()),
+      $handlerSettings->handlerId,
+      $submission->uuid(),
       $filename,
     ]);
   }
@@ -399,6 +405,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   public function uploadFiles(
     DistributionFormularType|DistributionDokumentType|DistributionJournalPostType $distributionObject,
     HandlerSettings $handlerSettings,
+    WebformSubmissionInterface $submission,
   ): array {
     $sf2900 = $this->sf2900();
     $transactionId = Serializer::createUuid();
@@ -421,7 +428,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
           /** @var \Drupal\file\Entity\File $file */
           $file = $item['file'];
           $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
-          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $transactionId,
+          $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $submission, $transactionId,
             recipientItSystem: $recipientItSystem);
           $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
           $triggerObjects[] = $triggerObject;
@@ -434,10 +441,17 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
 
   /**
    * Check if files are delivered.
+   *
+   * @todo Report back if delivery has failed, i.e. if receipts exist but
+   * report errors.
    */
   public function checkFilesDelivered(
     array $triggerObjects,
+    WebformSubmissionInterface $submission,
   ): bool {
+    $context = [
+      'webform_submission' => $submission,
+    ];
     foreach ($triggerObjects as $triggerObject) {
       try {
         $sxe = new \SimpleXMLElement($triggerObject);
@@ -445,16 +459,28 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
         if (empty($filename)) {
           throw new \RuntimeException('Cannot get file name');
         }
+        $this->debug('Checking file %filename', $context + [
+          '%filename' => $filename,
+        ]);
 
         $receipt = $this->sf2900()->sftp()->getContents($filename . '.sftpreceipt', SftpHelper::INCOMING_FOLDER);
         $receiptXse = new \SimpleXMLElement($receipt);
-        $message = (string) $receiptXse->xpath('//Receipt/Message')[0];
-        if ('SUCCESS' !== $message) {
-          throw new \RuntimeException(sprintf('Message for %s: %s', $filename, $message));
+        $status = (string) $receiptXse->xpath('//Receipt/Message')[0];
+
+        $this->debug('`Status for file %filename: %status', $context + [
+          '%filename' => $filename,
+          '%status' => $status,
+        ]);
+        if ('SUCCESS' !== $status) {
+          throw new \RuntimeException(sprintf('Message for %s: %s', $filename, $status));
         }
       }
       catch (\Exception $exception) {
-        $this->logger->error($exception->getMessage());
+        $this->logger->warning('Error checking file %filename: %message', $context + [
+          '%filename' => $filename ?? NULL,
+          '%message' => $exception->getMessage(),
+          'exception' => $exception,
+        ]);
         return FALSE;
       }
     }
@@ -636,10 +662,10 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       $this->anvenderForsendelseRepository->save(
         new AnvenderForsendelse(
           webformId: $context->submission->getWebform()->id(),
-          webformHandlerId:  $context->handlerSettings->handlerId,
+          webformHandlerId: $context->handlerSettings->handlerId,
           webformSubmissionId: $context->submission->id(),
           anvenderTransaktionsId: $anvenderTransaktionsId,
-          request:  $request,
+          request: $request,
           distributionTransaktionsId: $response->getDistributionContext()->getDistributionTransktionsID(),
           response: $response
         )
@@ -704,7 +730,14 @@ XML;
    *
    * @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf
    */
-  private function buildTriggerFile(File $file, string $sftpFilename, HandlerSettings $handlerSettings, string $transactionId, ?string $recipientItSystem = NULL): string {
+  private function buildTriggerFile(
+    File $file,
+    string $sftpFilename,
+    HandlerSettings $handlerSettings,
+    WebformSubmission $submission,
+    string $transactionId,
+    ?string $recipientItSystem = NULL,
+  ): string {
     $dom = new \DOMDocument();
     $dom->loadXML(self::TRIGGER_FILE_TEMPLATE);
     $xpath = new \DOMXPath($dom);
@@ -757,14 +790,16 @@ XML;
     $xml = $dom->saveXML();
 
     try {
-      $this->xmlHelper->validateXml($xml, 'module://os2forms_fordelingskomponent/resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd');
+      $this->xmlHelper->validateXml($xml,
+        'module://os2forms_fordelingskomponent/resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd');
     }
     catch (InvalidXmlException $e) {
       $this->logger->error('Invalid XML in trigger file: %message.', [
+        'webform_submission' => $submission,
         '%message' => $e->getMessage(),
         'exception' => $e,
       ]);
-      throw new RuntimeException('Invalid XML in trigger file: %message.', ['%message' => $e->getMessage()]);
+      throw new RuntimeException(sprintf('Invalid XML in trigger file: %s', $e->getMessage()));
     }
 
     return $xml;

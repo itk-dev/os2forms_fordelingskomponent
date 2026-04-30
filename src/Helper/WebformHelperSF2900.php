@@ -206,7 +206,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @see self::processJob()
    */
-  public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900|HandlerSettings $handlerSettings, ?array $payload = []): ?Job {
+  public function createJob(WebformSubmissionInterface $webformSubmission, WebformHandlerSF2900|HandlerSettings $handlerSettings, ?string $state = NULL, ?array $payload = []): ?Job {
     $context = [
       'handler_id' => WebformHandlerSF2900::ID,
       'webform_submission' => $webformSubmission,
@@ -217,7 +217,11 @@ final class WebformHelperSF2900 implements LoggerInterface {
         $handlerSettings = $this->settings->getHandlerSettings($handlerSettings);
       }
 
-      $job = Job::create(FordelingskomponentSF2900::class, $payload + [
+      $job = Job::create(FordelingskomponentSF2900::class, [
+        self::PAYLOAD_KEY => [
+          self::PAYLOAD_STATE => $state,
+        ] + $payload,
+      ] + [
         'formId' => $webformSubmission->getWebform()->id(),
         'submissionId' => $webformSubmission->id(),
         'handlerSettings' => $handlerSettings->toArray(),
@@ -225,8 +229,12 @@ final class WebformHelperSF2900 implements LoggerInterface {
       $queue = $this->loadQueue();
       $queue->enqueueJob($job);
       $context['@queue'] = $queue->id();
-      $this->notice('Job for afsend added to the queue @queue.', $context + [
-        'operation' => 'Fordelingskomponent afsend queued',
+      $this->notice('Fordelingskomponent job added to the queue @queue.', $context + [
+        'operation' => match ($state) {
+          self::STATE_UPLOAD_FILES => 'Fordelingskomponent upload files',
+          self::STATE_CHECK_FILES => 'Fordelingskomponent check files',
+          default => 'Fordelingskomponent afsend',
+        },
       ]);
 
       return $job;
@@ -285,28 +293,29 @@ final class WebformHelperSF2900 implements LoggerInterface {
         // 1. Upload files and trigger files. When done, create a job to
         // 2. Check that all files have been delivered. Finally
         // 3. Send distribution object.
-        $state = $this->getJobState($job);
+        [$state, $info] = $this->getJobState($job);
         switch ($state) {
           case self::STATE_UPLOAD_FILES:
-            $files = $this->helper->uploadFiles($distributionObject, $handlerSettings);
+            $files = $this->helper->uploadFiles($distributionObject, $handlerSettings, $submission);
             $this->notice('Fordelingskomponent files uploaded', $context);
-            $this->createJob($submission, $handlerSettings, [self::PAYLOAD_CHECK_FILES => $files]);
+            $this->createJob($submission, $handlerSettings, self::STATE_CHECK_FILES, [self::PAYLOAD_FILES => $files]);
             break;
 
           case self::STATE_CHECK_FILES:
-            $files = $payload[self::PAYLOAD_CHECK_FILES];
-            if (!$this->helper->checkFilesDelivered($files)) {
+            $files = $info[self::PAYLOAD_FILES];
+            if (!$this->helper->checkFilesDelivered($files, $submission)) {
+              $this->notice('Fordelingskomponent files not yet delivered', $context);
               return JobResult::failure(sprintf('Files not yet delivered'));
             }
             else {
               $this->notice('Fordelingskomponent files delivered', $context);
-              $this->createJob($submission, $handlerSettings, [self::PAYLOAD_FILES_DELIVERED => TRUE]);
+              $this->createJob($submission, $handlerSettings, self::STATE_SEND_DISTRIBUTION_OBJECT, [self::PAYLOAD_FILES_DELIVERED => TRUE]);
             }
             break;
 
           case self::STATE_SEND_DISTRIBUTION_OBJECT:
             $this->helper->sendDokument($submission, $distributionObject, $attachment, $handlerSettings);
-            $this->notice('Fordelingskomponent afsendt', $context);
+            $this->notice('Fordelingskomponent distribution object afsendt', $context);
             break;
         }
       }
@@ -350,9 +359,11 @@ final class WebformHelperSF2900 implements LoggerInterface {
     return $handlerSettings;
   }
 
+  private const string PAYLOAD_KEY = 'os2forms_fordelingskomponent';
+  private const string PAYLOAD_STATE = 'state';
   private const string STATE_UPLOAD_FILES = 'upload_files';
 
-  private const string PAYLOAD_CHECK_FILES = 'check_files';
+  private const string PAYLOAD_FILES = 'files';
   private const string STATE_CHECK_FILES = 'check_files';
 
   private const string PAYLOAD_FILES_DELIVERED = 'files_delivered';
@@ -361,20 +372,28 @@ final class WebformHelperSF2900 implements LoggerInterface {
   /**
    * Get state for a job.
    *
-   * This is only used when we must upload files and hence the first state (and
-   * the default) is "upload files".
+   * The state is computed based on data set in the job payload.
+   *
+   * This is only used when we must upload files (and check that they're ready
+   * before sending the actual distribution object) and hence the first state
+   * (and the default) is "upload files".
+   *
+   * @return array
+   *   A job state and the job info.
    */
-  private function getJobState(Job $job): string {
+  private function getJobState(Job $job): array {
     $payload = $job->getPayload();
 
-    if (isset($payload[self::PAYLOAD_FILES_DELIVERED])) {
-      return self::STATE_SEND_DISTRIBUTION_OBJECT;
+    $info = $payload[self::PAYLOAD_KEY] ?? NULL;
+    $state = self::STATE_UPLOAD_FILES;
+    if (isset($info[self::PAYLOAD_FILES_DELIVERED])) {
+      $state = self::STATE_SEND_DISTRIBUTION_OBJECT;
     }
-    if (isset($payload[self::PAYLOAD_CHECK_FILES])) {
-      return self::STATE_CHECK_FILES;
+    elseif (isset($info[self::PAYLOAD_FILES])) {
+      $state = self::STATE_CHECK_FILES;
     }
 
-    return self::STATE_UPLOAD_FILES;
+    return [$state, $info];
   }
 
 }

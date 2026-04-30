@@ -16,11 +16,13 @@ final class AnvenderKvitteringRepository extends AbstractRepository {
    *
    * @param array $conditions
    *   The criteria.
+   * @param array<string, string> $orderBy
+   *   The order.
    *
    * @return \Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering[]
    *   The list of kvittering.
    */
-  private function loadBy(array $conditions = []): array {
+  private function loadBy(array $conditions = [], array $orderBy = ['created_at' => 'DESC']): array {
     $query = $this->database
       ->select(self::TABLE, 't')
       ->fields('t');
@@ -29,11 +31,16 @@ final class AnvenderKvitteringRepository extends AbstractRepository {
       $query->condition(...$condition);
     }
 
+    foreach ($orderBy as $field => $direction) {
+      $query->orderBy($field, $direction);
+    }
+
     $statement = $query->execute();
     assert(NULL !== $statement);
     $result = $statement->fetchAll();
     return array_map(
       static fn(object $row) => new AnvenderKvittering(
+        id: $row->id,
         anvenderTransaktionsId: $row->anvender_transaktions_id,
         distributionTransaktionsId: $row->distribution_transaktions_id,
         request: unserialize($row->request, options: ['allowed_classes' => TRUE]),
@@ -46,9 +53,26 @@ final class AnvenderKvitteringRepository extends AbstractRepository {
   }
 
   /**
+   * Load kvittering by ID.
+   *
+   * @return ?\Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering
+   *   The kvittering if any.
+   */
+  public function load(int $id): ?AnvenderKvittering {
+    $criteria = [
+      ['id', $id],
+    ];
+
+    $result = $this->loadBy($criteria);
+
+    return 1 === count($result) ? reset($result) : NULL;
+  }
+
+  /**
    * Load kvittering by transaktions-id.
    *
    * @return \Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering[]
+   *   The kvitteringer.
    */
   public function loadByAnvenderTransaktionsId(string $anvenderTransaktionsId, ?string $distributionTransaktionsId = NULL): array {
     $criteria = [

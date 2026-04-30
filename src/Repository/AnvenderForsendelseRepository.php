@@ -19,6 +19,8 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
    *
    * @param array $conditions
    *   The criteria.
+   * @param array<string, string> $orderBy
+   *   The order.
    *
    * @return \Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse[]
    *   The list of forsendelser.

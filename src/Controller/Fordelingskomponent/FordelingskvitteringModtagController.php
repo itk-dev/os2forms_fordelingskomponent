@@ -35,6 +35,9 @@ final class FordelingskvitteringModtagController extends AbstractSoapController 
 
   /**
    * FordelingskvitteringModtag handler.
+   *
+   * Note that we don't connect to receipt directly to a distribution. They are
+   * related by transaction IDs.
    */
   // phpcs:ignore Drupal.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
   public function FordelingskvitteringModtag(
@@ -43,14 +46,6 @@ final class FordelingskvitteringModtagController extends AbstractSoapController 
     $kvittering = $request->getForretningskvittering();
     // @todo Do something with the kvittering.
     $context = $request->getDistributionContext();
-
-    $forsendelse = $this->forsendelseRepository->loadByAnvenderTransaktionsId(
-      anvenderTransaktionsId: $context->getAnvenderTransaktionsID(),
-      distributionTransaktionsId: $context->getDistributionTransktionsID(),
-    );
-    if (NULL === $forsendelse) {
-      $this->logger->warning(sprintf('Kvittering: Forsendelse %s not found.', $context->getAnvenderTransaktionsID()));
-    }
 
     $response = new FordelingskvitteringModtagAnvenderResponseType();
 
@@ -63,12 +58,6 @@ final class FordelingskvitteringModtagController extends AbstractSoapController 
       response: $response,
     );
     $this->kvitteringRepository->save($kvittering);
-
-    // @todo Should we set a status code (rather than deliveredAt) on the forsendelse?
-    if (NULL !== $forsendelse && $request->getForretningskvittering()->getForretningsValideringsKode() === ForretningsValideringsKodeType::VALUE_ACCEPTERET) {
-      $forsendelse->deliveredAt = $this->time->getRequestTime();
-      $this->forsendelseRepository->save($forsendelse);
-    }
 
     return $response;
   }

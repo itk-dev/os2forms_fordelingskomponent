@@ -56,19 +56,26 @@ final class InstallHooks {
         'anvender_transaktions_id',
       ],
       'indexes' => [
+        'anvender_transaktions_id' => [
+          'anvender_transaktions_id',
+        ],
         'distribution_transaktions_id' => [
           'distribution_transaktions_id',
         ],
       ],
     ];
 
-    $createTable = static function (string $description, array $fields = [], array $foreignKeys = [], array $indexes = []) use ($baseSchema): array {
+    $createTable = static function (string $description, array $fields = [], array $primaryKey = [], array $foreignKeys = [], array $indexes = []) use ($baseSchema): array {
       $table = $baseSchema + [
         'description' => $description,
       ];
 
       foreach ($fields as $name => $spec) {
         $table['fields'][$name] = $spec;
+      }
+
+      if ($primaryKey) {
+        $table['primary key'] = $primaryKey;
       }
 
       foreach ($foreignKeys as $name => $spec) {
@@ -123,6 +130,17 @@ final class InstallHooks {
 
     $schema[self::TABLE_ANVENDER_KVITTERING] = $createTable(
       description: 'Stores data on kvitteringer.',
+      fields: [
+        'id' => [
+          'description' => 'Unique ID',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+      ],
+      primaryKey: [
+        'id',
+      ],
     );
 
     $schema[self::TABLE_MODTAGER_FORSENDELSE] = $createTable(

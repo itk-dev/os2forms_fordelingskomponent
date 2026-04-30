@@ -14,6 +14,7 @@ final class AnvenderKvittering {
    * Constructor.
    */
   public function __construct(
+    public readonly ?int $id,
     public readonly string $anvenderTransaktionsId,
     public readonly string $distributionTransaktionsId,
     public readonly FordelingskvitteringModtagAnvenderRequestType $request,

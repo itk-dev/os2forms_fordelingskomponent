@@ -26,7 +26,7 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
    * Builds the response.
    */
   public function __invoke(Request $request, WebformInterface $webform, WebformSubmissionInterface $webform_submission): array {
-    if ($anvenderTransaktionsId = $request->query->get('anvenderTransaktionsId')) {
+    if ($anvenderTransaktionsId = $request->query->get('anvender_transaktions_id')) {
       if ($item = $this->repository->loadByAnvenderTransaktionsId($anvenderTransaktionsId)) {
         return $this->itemDetails($item);
       }
@@ -53,8 +53,10 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
             // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Link.php/class/Link/10
             '#title' => $item->anvenderTransaktionsId,
             '#type' => 'link',
-            '#url' => Url::fromRoute('<current>', [
-              'anvenderTransaktionsId' => $item->anvenderTransaktionsId,
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse', [
+              'webform' => $webform->id(),
+              'webform_submission' => $webform_submission->id(),
+              'anvender_transaktions_id' => $item->anvenderTransaktionsId,
             ]),
           ],
         ],
@@ -68,8 +70,8 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
             '#title' => $this->t('Receipts'),
             '#type' => 'link',
             '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering', [
-              'webform' => $item->webformId,
-              'webform_submission' => $item->webformSubmissionId,
+              'webform' => $webform->id(),
+              'webform_submission' => $webform_submission->id(),
               'anvender_transaktions_id' => $item->anvenderTransaktionsId,
             ]),
           ],

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 
+use Drupal\Core\Url;
+use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering;
 use Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -22,13 +25,83 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
   /**
    * Builds the response.
    */
-  public function __invoke(WebformInterface $webform, WebformSubmissionInterface $webform_submission, string $anvender_transaktions_id): array {
-    $item = $this->repository->loadByAnvenderTransaktionsId($anvender_transaktions_id);
+  public function __invoke(Request $request, WebformInterface $webform, WebformSubmissionInterface $webform_submission, string $anvender_transaktions_id): array {
+    if ($id = (int) $request->query->get('id')) {
+      if ($item = $this->repository->load($id)) {
+        return $this->itemDetails($item);
+      }
 
-    if (NULL === $item) {
       throw new NotFoundHttpException();
     }
 
+    $items = $this->repository->loadByAnvenderTransaktionsId($anvender_transaktions_id);
+
+    // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Table.php/class/Table/10
+    $header = [
+      'id' => $this->t('ID'),
+      'anvenderTransaktionsId' => $this->t('anvenderTransaktionsId'),
+      'distributionTransaktionsId' => $this->t('distributionTransaktionsId'),
+      'createdAt' => $this->t('Created at'),
+      'updatedAt' => $this->t('Updated at'),
+    ];
+    $rows = [];
+    foreach ($items as $item) {
+      $rows[] = [
+        'id' => [
+          'data' => [
+            '#title' => $item->id,
+            '#type' => 'link',
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering',
+              [
+                'webform' => $webform->id(),
+                'webform_submission' => $webform_submission->id(),
+                'anvender_transaktions_id' => $item->anvenderTransaktionsId,
+                'id' => $item->id,
+              ]),
+          ],
+        ],
+        'anvenderTransaktionsId' => [
+          'data' => [
+            '#title' => $item->anvenderTransaktionsId,
+            '#type' => 'link',
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse',
+              [
+                'webform' => $webform->id(),
+                'webform_submission' => $webform_submission->id(),
+                'anvender_transaktions_id' => $item->anvenderTransaktionsId,
+              ]),
+          ],
+        ],
+        'distributionTransaktionsId' => [
+          'data' => [
+            '#markup' => $item->distributionTransaktionsId,
+          ],
+        ],
+        'createdAt' => [
+          'data' => [
+            '#markup' => $this->formatDatetime($item->createdAt),
+          ],
+        ],
+        'updatedAt' => [
+          'data' => [
+            '#markup' => $this->formatDatetime($item->updatedAt),
+          ],
+        ],
+      ];
+    }
+
+    return [
+      '#type' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+      '#empty' => $this->t('No entries available.'),
+    ];
+  }
+
+  /**
+   * Build item details.
+   */
+  private function itemDetails(AnvenderKvittering $item) {
     return [
       [
         '#type' => 'item',
