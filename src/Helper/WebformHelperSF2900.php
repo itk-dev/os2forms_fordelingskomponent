@@ -217,6 +217,12 @@ final class WebformHelperSF2900 implements LoggerInterface {
         $handlerSettings = $this->settings->getHandlerSettings($handlerSettings);
       }
 
+      if (NULL === $state) {
+        // In initial job creating (right after submission), validate the
+        // submission and abort on error.
+        $this->validateSubmission($webformSubmission, $handlerSettings);
+      }
+
       $job = Job::create(FordelingskomponentSF2900::class, [
         self::PAYLOAD_KEY => [
           self::PAYLOAD_STATE => $state,
@@ -240,7 +246,8 @@ final class WebformHelperSF2900 implements LoggerInterface {
       return $job;
     }
     catch (\Exception $exception) {
-      $this->error('Error creating job for afsend.', $context + [
+      $this->error('Error creating job for fordelingskomponent: %message', $context + [
+        '%message' => $exception->getMessage(),
         'operation' => 'Fordelingskomponent afsend failed',
         'exception' => $exception,
       ]);
@@ -394,6 +401,15 @@ final class WebformHelperSF2900 implements LoggerInterface {
     }
 
     return [$state, $info];
+  }
+
+  /**
+   * Validate a submission.
+   */
+  public function validateSubmission(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): void {
+    $attachment = $this->getAttachment($submission, $handlerSettings);
+
+    $this->helper->buildDistributionObject($submission, $handlerSettings, $attachment);
   }
 
 }

@@ -398,6 +398,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    */
   public function postSave(WebformSubmissionInterface $webform_submission, $update = TRUE) {
     // Run only when submission is completed.
+    // @todo Run on update?
     if (!$webform_submission->isCompleted()) {
       return;
     }
