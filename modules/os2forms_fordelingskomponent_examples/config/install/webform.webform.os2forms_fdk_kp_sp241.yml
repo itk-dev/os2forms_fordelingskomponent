@@ -15,8 +15,8 @@ third_party_settings:
       email_recipients: ""
     os2forms_nemid:
       session_type: ""
-      webform_type: personal
-      nemlogin_auto_redirect: 1
+      webform_type: ""
+      nemlogin_auto_redirect: 0
       os2forms_nemlogin_openid_connect:
         authentication_settings:
           user_claim: ""
@@ -50,6 +50,9 @@ third_party_settings:
         link_attributes: {}
   webform_encrypt:
     element:
+      markup:
+        encrypt: true
+        encrypt_profile: webform
       ansoeger_fornavn:
         encrypt: true
         encrypt_profile: webform
@@ -106,12 +109,15 @@ template: false
 archive: false
 id: os2forms_fdk_kp_sp241
 title: "SP241 (eksempel): Ansøgning om helbredstillæg"
-description: "<p>/webform/os2forms_fdk_kp_sp241/test?ansoeger_personnummer=1234567890&amp;ansoeger_telefonnummer=12345678</p>"
+description: ""
 categories:
   - Eksempel
   - KP
   - SP
 elements: |-
+  markup:
+    '#type': webform_markup
+    '#markup': '<p><a href="/webform/[webform:id]/test?ansoeger_personnummer=1234567890&amp;ansoeger_telefonnummer=12345678&amp;fuldmagt_fuldmagthaverspersonnummer=0987654321">Udfyld med testdata</a></p>'
   ansoeger_fornavn:
     '#type': textfield
     '#title': Fornavn
@@ -424,6 +430,6 @@ handlers:
           recipient_it_system_look_up: 1
           recipient_it_system: ""
           recipient_authority: "55133018"
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<SP241 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>\r\n        {% for file in files.dokumenter_overslag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Overslag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_faktura|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Faktura</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_bilag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Bilag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.ansoeger_fornavn }}</Fornavn>\r\n            {% if submission.data.ansoeger_mellemnavn|default(false) %}\r\n            <Mellemnavn>{{ submission.data.ansoeger_mellemnavn }}</Mellemnavn>\r\n            {% endif %}\r\n            <Efternavn>{{ submission.data.ansoeger_efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Erklaering>Accepteret</Erklaering>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>{{ submission.data.ansoeger_fornavn }}{% if submission.data.ansoeger_mellemnavn|default(false) %} {{ submission.data.ansoeger_mellemnavn }}{% endif %} {{ submission.data.ansoeger_efternavn }}</Underskrift>\r\n        <Underskriftsdato>{{ submission.data.underskriftsoplysninger_underskriftsdato|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</SP241>\r\n"
+        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<SP241 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>\r\n        {% for file in files.dokumenter_overslag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Overslag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_faktura|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Faktura</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_bilag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Bilag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.ansoeger_fornavn }}</Fornavn>\r\n            {% if submission.data.ansoeger_mellemnavn|default(false) %}\r\n            <Mellemnavn>{{ submission.data.ansoeger_mellemnavn }}</Mellemnavn>\r\n            {% endif %}\r\n            <Efternavn>{{ submission.data.ansoeger_efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Erklaering>Accepteret</Erklaering>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>{{ submission.data.ansoeger_fornavn }}{% if submission.data.ansoeger_mellemnavn|default(false) %} {{ submission.data.ansoeger_mellemnavn }}{% endif %} {{ submission.data.ansoeger_efternavn }}</Underskrift>\r\n        <Underskriftsdato>{{ submission.data.underskriftsoplysninger_underskriftsdato|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</SP241>\r\n"
         xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP241.xsd"
 variants: {}
