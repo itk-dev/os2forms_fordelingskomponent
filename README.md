@@ -131,9 +131,14 @@ XML
 
 ## Debugging
 
-``` php
-# settings.local.php
-$settings['os2forms_fordelingskomponent']['log_level'] = \Drupal\Core\Logger\RfcLogLevel::DEBUG;
+``` shell
+drush sql:query --extra='--table' "SELECT (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_forsendelse) AS os2forms_fordelingskomponent_anvender_forsendelse, (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_kvittering) AS os2forms_fordelingskomponent_anvender_kvittering"
+# Forsendelser
+drush sql:query --extra='--table' "SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_forsendelse"
+# Kvitteringer
+drush sql:query --extra='--table' "SELECT anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_kvittering"
+# Forsendelser med kvitteringer
+drush sql:query --extra='--table' "SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_forsendelse WHERE anvender_transaktions_id IN (SELECT anvender_transaktions_id FROM os2forms_fordelingskomponent_anvender_kvittering)"
 ```
 
 ``` shell

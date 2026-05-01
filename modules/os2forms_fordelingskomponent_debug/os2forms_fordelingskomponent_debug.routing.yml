@@ -8,7 +8,7 @@ os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp:
   methods: &methods
     - GET
   requirements: &requirements
-    _permission: "administer site configuration"
+    _permission: "view os2forms_fordelingskomponent objects"
 
 os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp_filename:
   path: "/admin/os2forms-fordelingskomponent-debug/os2forms-fordelingskomponent-debug-sftp/{dir}/{filename}"
