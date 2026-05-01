@@ -2,6 +2,11 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
+use Digitaliseringskataloget\Sftp\FileContentDescriptorType;
+use Digitaliseringskataloget\Sftp\FileDescriptorType;
+use Digitaliseringskataloget\Sftp\SFTPDynamicRoutingInfoType;
+use Digitaliseringskataloget\Sftp\TechnicalReceipt;
+use Digitaliseringskataloget\Sftp\Trigger;
 use ItkDev\Serviceplatformen\Service\SF2900\SF2900\SftpHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
@@ -24,7 +29,7 @@ use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\os2web_audit\Service\Logger as AuditLogger;
 use Drupal\os2web_key\KeyHelper;
 use Drupal\webform\WebformSubmissionInterface;
-use ItkDev\Serviceplatformen\Service\SF1601\Serializer;
+use ItkDev\Serviceplatformen\Service\SF2900\Serializer;
 use ItkDev\Serviceplatformen\Service\SF2900\Event\AfterServiceCallEvent;
 use ItkDev\Serviceplatformen\Service\SF2900\SF2900;
 use ItkDev\Serviceplatformen\SF2900\EnumType\AktoerTypeType;
@@ -79,6 +84,11 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   private FileStorageInterface $fileStorage;
 
   /**
+   * The serializer.
+   */
+  private Serializer $serializer;
+
+  /**
    * Constructor.
    */
   public function __construct(
@@ -98,6 +108,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     private readonly AuditLogger $auditLogger,
   ) {
     $this->fileStorage = $entityTypeManager->getStorage('file');
+    $this->serializer = new Serializer();
   }
 
   /**
@@ -438,8 +449,10 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     return $triggerObjects;
   }
 
+  private const string SFTP_MESSAGE_SUCCESS = 'SUCCESS';
+
   /**
-   * Check if files are delivered.
+   * Check if all files are delivered.
    *
    * @todo Report back if delivery has failed, i.e. if receipts exist but
    * report errors.
@@ -451,10 +464,10 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     $context = [
       'webform_submission' => $submission,
     ];
-    foreach ($triggerObjects as $triggerObject) {
+    foreach ($triggerObjects as $xml) {
       try {
-        $sxe = new \SimpleXMLElement($triggerObject);
-        $filename = (string) $sxe->xpath('//FileDescriptor/FileName')[0];
+        $trigger = $this->serializer->deserialize($xml, Trigger::class);
+        $filename = $trigger->getFileDescriptor()->getFileName();
         if (empty($filename)) {
           throw new \RuntimeException('Cannot get file name');
         }
@@ -463,20 +476,34 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
         ]);
 
         $receipt = $this->sf2900()->sftp()->getContents($filename . '.sftpreceipt', SftpHelper::INCOMING_FOLDER);
-        $receiptXse = new \SimpleXMLElement($receipt);
-        $status = (string) $receiptXse->xpath('//Receipt/Message')[0];
+        $receipt = $this->serializer->deserialize($receipt, TechnicalReceipt::class);
+        $errors = $receipt->getErrorMessage();
+        if (!empty($errors)) {
+          $error = $errors[0];
+          $this->logger->error('Error checking file %filename: %code_description (%code): %description', $context + [
+            '%filename' => $filename,
+            '%code' => $error->getErrorCode(),
+            '%code_description' => $error->getErrorCodeDescription(),
+            '%description' => $error->getErrorDescription(),
+            'error' => $this->serializer->serialize($error),
+          ]);
+
+          throw new \RuntimeException(sprintf('SFTP error for %s: %s', $filename, $error->getErrorCodeDescription()));
+        }
+
+        $message = $receipt->getReceipt()->getMessage();
 
         $this->debug('`Status for file %filename: %status', $context + [
           '%filename' => $filename,
-          '%status' => $status,
+          '%status' => $message,
         ]);
-        if ('SUCCESS' !== $status) {
-          throw new \RuntimeException(sprintf('Message for %s: %s', $filename, $status));
+        if (self::SFTP_MESSAGE_SUCCESS !== $message) {
+          throw new \RuntimeException(sprintf('Message for %s: %s', $filename, $message));
         }
       }
       catch (\Exception $exception) {
         $this->logger->warning('Error checking file %filename: %message', $context + [
-          '%filename' => $filename ?? NULL,
+          '%filename' => $filename,
           '%message' => $exception->getMessage(),
           'exception' => $exception,
         ]);
@@ -698,31 +725,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     return $this->transactionContexts[$transactionId];
   }
 
-  // @see https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=16
-  // @todo Generate classes from resources/ServiceContract-SFTP-20230926/xsd/SFTPTypes.xsd.
-  private const string TRIGGER_FILE_TEMPLATE = <<<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<ns2:Trigger xmlns:ns2="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
-  <FileDescriptor>
-    <FileName/>
-    <SizeInBytes/>
-    <Sender/>
-    <SendersFileId/>
-    <Recipients>ROUTING_V1_0_0</Recipients>
-  </FileDescriptor>
-  <FileContentDescriptor>
-    <SFTPDynamicRoutingInfo>
-      <InfRef/>
-      <SenderIt-system/>
-      <SenderAuthority/>
-      <TransactionId/>
-      <SenderTimestamp/>
-      <RecipientIt-system/>
-      <RecipientAuthority/>
-    </SFTPDynamicRoutingInfo>
-  </FileContentDescriptor>
-</ns2:Trigger>
-XML;
+  private const string ROUTING_V1_0_0 = 'ROUTING_V1_0_0';
 
   /**
    * Build trigger file.
@@ -737,56 +740,39 @@ XML;
     string $transactionId,
     ?string $recipientItSystem = NULL,
   ): string {
-    $dom = new \DOMDocument();
-    $dom->loadXML(self::TRIGGER_FILE_TEMPLATE);
-    $xpath = new \DOMXPath($dom);
-    $xpath->registerNamespace('ns2', 'http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types');
-    $setValue = function (string $expression, mixed $value) use ($xpath) {
-      $nodes = $xpath->query($expression);
-      if (!$nodes || 1 !== $nodes->count()) {
-        throw new \RuntimeException(sprintf('No unique node found for expression %s', $expression));
-      }
-      /** @var \DOMElement $node */
-      $node = $nodes->item(0);
-      $node->nodeValue = $value;
-    };
-    $removeElement = function (string $expression) use ($xpath) {
-      $nodes = $xpath->query($expression);
-      if (!$nodes || 1 !== $nodes->count()) {
-        throw new \RuntimeException(sprintf('No unique node found for expression %s', $expression));
-      }
-      /** @var \DOMElement $node */
-      $node = $nodes->item(0);
-      $node->parentNode->removeChild($node);
-    };
-
-    $setValue('//FileDescriptor/FileName', $sftpFilename);
-    $setValue('//FileDescriptor/SizeInBytes', $file->getSize());
-    $setValue('//FileDescriptor/Sender', $handlerSettings->sender->sftp->username);
-    $setValue('//FileDescriptor/SendersFileId', $file->uuid());
+    $trigger = new Trigger();
+    $trigger->setFileDescriptor(
+      (new FileDescriptorType())
+        ->setFileName($sftpFilename)
+        ->setSizeInBytes($file->getSize())
+        ->setSender($handlerSettings->sender->sftp->username)
+        ->setSendersFileId($file->uuid())
+        ->setRecipients([self::ROUTING_V1_0_0])
+    );
 
     $infRef = $handlerSettings->distributionObject->files->filspecifikation;
     $senderItSystem = $handlerSettings->sender->registreringItSystem;
     $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
-    $timestamp = SF2900::formatDateTime(new \DateTimeImmutable());
 
     $recipientItSystem = trim((string) ($recipientItSystem ?? $handlerSettings->distributionObject->files->recipientItSystem));
     $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->files->recipientAuthority;
 
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/InfRef', $infRef);
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderIt-system', $senderItSystem);
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderAuthority', $senderAuthority);
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/TransactionId', $transactionId);
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/SenderTimestamp', $timestamp);
-    if (empty($recipientItSystem)) {
-      $removeElement('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system');
+    $routingInfo = (new SFTPDynamicRoutingInfoType())
+      ->setInfRef($infRef)
+      ->setSenderItSystem($senderItSystem)
+      ->setSenderAuthority($senderAuthority)
+      ->setTransactionId($transactionId)
+      ->setSenderTimestamp(new \DateTime())
+      ->setRecipientAuthority($recipientAuthority);
+    if (!empty($recipientItSystem)) {
+      $routingInfo->setRecipientItSystem($recipientItSystem);
     }
-    else {
-      $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientIt-system', $recipientItSystem);
-    }
-    $setValue('//FileContentDescriptor/SFTPDynamicRoutingInfo/RecipientAuthority', $recipientAuthority);
+    $trigger->setFileContentDescriptor(
+      (new FileContentDescriptorType())
+        ->setSFTPDynamicRoutingInfo($routingInfo)
+    );
 
-    $xml = $dom->saveXML();
+    $xml = $this->serializer->serialize($trigger);
 
     try {
       $this->xmlHelper->validateXml($xml,
