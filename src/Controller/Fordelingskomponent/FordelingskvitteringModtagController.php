@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent\Controller\Fordelingskomponent;
 
-use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering;
-use Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository;
 use Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository;
 use ItkDev\Serviceplatformen\SF2900\StructType\FordelingskvitteringModtagAnvenderRequestType;
 use ItkDev\Serviceplatformen\SF2900\StructType\FordelingskvitteringModtagAnvenderResponseType;

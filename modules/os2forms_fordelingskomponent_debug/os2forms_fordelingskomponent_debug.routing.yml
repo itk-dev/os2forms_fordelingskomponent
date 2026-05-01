@@ -16,7 +16,7 @@ os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp_filen
   methods: *methods
   requirements: *requirements
 
-os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse:
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse:
   path: "/admin/structure/webform/manage/{webform}/submission/{webform_submission}/os2forms-fordelingskomponent-debug-forsendelse"
   defaults:
     _title: "Fordelingskomponentforsendelser"
@@ -30,7 +30,7 @@ os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendels
       webform_submission:
         type: "entity:webform_submission"
 
-os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering:
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_kvittering:
   path: "/admin/structure/webform/manage/{webform}/submission/{webform_submission}/os2forms-fordelingskomponent-debug-forsendelse/kvittering/{anvender_transaktions_id}"
   defaults:
     _title: "Fordelingskomponentkvitteringer"

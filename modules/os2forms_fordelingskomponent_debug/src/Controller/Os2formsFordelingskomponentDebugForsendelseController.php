@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 
-use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsendelse;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository;
+use Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +19,7 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
 
   public function __construct(
     private readonly AnvenderForsendelseRepository $repository,
+    private readonly AnvenderKvitteringRepository $kvitteringRepository,
   ) {
   }
 
@@ -27,12 +28,9 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
    */
   public function __invoke(Request $request, WebformInterface $webform, WebformSubmissionInterface $webform_submission): array {
     if ($anvenderTransaktionsId = $request->query->get('anvender_transaktions_id')) {
-      if ($item = $this->repository->loadByAnvenderTransaktionsId($anvenderTransaktionsId)) {
-        return $this->itemDetails($item);
-      }
-
-      throw new NotFoundHttpException();
+      return $this->itemDetails($anvenderTransaktionsId);
     }
+
     $items = $this->repository->loadBySubmission($webform_submission);
 
     // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Table.php/class/Table/10
@@ -40,20 +38,19 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
       'anvenderTransaktionsId' => $this->t('anvenderTransaktionsId'),
       'distributionTransaktionsId' => $this->t('distributionTransaktionsId'),
       'receipts' => $this->t('Receipts'),
-      'webform handlers' => $this->t('Webform handlers'),
       'createdAt' => $this->t('Created at'),
       'updatedAt' => $this->t('Updated at'),
-      'deliveredAt' => $this->t('Delivered at'),
     ];
     $rows = [];
     foreach ($items as $item) {
+      $receipts = $this->kvitteringRepository->loadByAnvenderTransaktionsId($item->anvenderTransaktionsId);
       $rows[] = [
         'anvenderTransaktionsId' => [
           'data' => [
             // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Link.php/class/Link/10
             '#title' => $item->anvenderTransaktionsId,
             '#type' => 'link',
-            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse', [
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse', [
               'webform' => $webform->id(),
               'webform_submission' => $webform_submission->id(),
               'anvender_transaktions_id' => $item->anvenderTransaktionsId,
@@ -67,21 +64,12 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
         ],
         'receipts' => [
           'data' => [
-            '#title' => $this->t('Receipts'),
+            '#title' => count($receipts),
             '#type' => 'link',
-            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering', [
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_kvittering', [
               'webform' => $webform->id(),
               'webform_submission' => $webform_submission->id(),
               'anvender_transaktions_id' => $item->anvenderTransaktionsId,
-            ]),
-          ],
-        ],
-        'webform handlers' => [
-          'data' => [
-            '#title' => $this->t('Webform handlers'),
-            '#type' => 'link',
-            '#url' => Url::fromRoute('entity.webform.handlers', [
-              'webform' => $item->webformId,
             ]),
           ],
         ],
@@ -93,11 +81,6 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
         'updatedAt' => [
           'data' => [
             '#markup' => $this->formatDatetime($item->updatedAt),
-          ],
-        ],
-        'deliveredAt' => [
-          'data' => [
-            '#markup' => $this->formatDatetime($item->deliveredAt),
           ],
         ],
       ];
@@ -114,7 +97,12 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
   /**
    * Build item details.
    */
-  private function itemDetails(AnvenderForsendelse $item) {
+  private function itemDetails(string $anvenderTransaktionsId) {
+    $item = $this->repository->loadByAnvenderTransaktionsId($anvenderTransaktionsId);
+    if (NULL === $item) {
+      throw new NotFoundHttpException();
+    }
+
     return [
       [
         '#type' => 'item',

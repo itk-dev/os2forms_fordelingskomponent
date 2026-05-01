@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Render\ElementInfoManager;
-use Drupal\Core\State\StateInterface;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidAttachmentElementException;
 use Drupal\os2forms_fordelingskomponent\Exception\RuntimeException;
 use Drupal\os2forms_fordelingskomponent\Exception\SubmissionNotFoundException;
@@ -174,7 +173,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $queue = $this->queueStorage->load($id);
 
     if (NULL === $queue) {
-      throw new RuntimeException('Cannot load queue %queue_id', ['%queue_id' => $id]);
+      throw new RuntimeException(sprintf('Cannot load queue %s', $id));
     }
 
     return $queue;

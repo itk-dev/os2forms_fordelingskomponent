@@ -1,5 +1,6 @@
-os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse:
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse:
   title: "Fordelingskomponentforsendelser"
-  route_name: os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse
+  route_name: os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse
   parent_id: entity.webform_submission.canonical
   weight: 999
+  base_route: os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse

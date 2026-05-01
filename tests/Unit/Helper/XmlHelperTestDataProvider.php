@@ -8,7 +8,7 @@ use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
  * Xml helper test data provider.
  */
 final class XmlHelperTestDataProvider {
-  private const string RESOURCE_PATH = 'file://' . __DIR__ . '/../../../modules/os2forms_fordelingskomponent_examples/resources';
+  private const string RESOURCE_PATH = 'file://' . __DIR__ . '/../../../resources';
 
   /**
    * Data provider.
@@ -235,7 +235,7 @@ XML,
     </Underskriftsoplysninger>
 </Anmodning>
 XML,
-      self::RESOURCE_PATH . '/xsd/Anmodning.xsd',
+      self::RESOURCE_PATH . '/SP/SF2900_XSD/Anmodning.xsd',
     ];
 
     yield [
@@ -258,7 +258,7 @@ XML,
     </Underskriftsoplysninger>
 </Anmodning>
 XML,
-      self::RESOURCE_PATH . '/xsd/Anmodning.xsd',
+      self::RESOURCE_PATH . '/SP/SF2900_XSD/Anmodning.xsd',
       new InvalidXmlException(),
     ];
   }

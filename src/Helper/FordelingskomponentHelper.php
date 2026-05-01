@@ -2,7 +2,6 @@
 
 namespace Drupal\os2forms_fordelingskomponent\Helper;
 
-use Drupal\webform\Entity\WebformSubmission;
 use ItkDev\Serviceplatformen\Service\SF2900\SF2900\SftpHelper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;

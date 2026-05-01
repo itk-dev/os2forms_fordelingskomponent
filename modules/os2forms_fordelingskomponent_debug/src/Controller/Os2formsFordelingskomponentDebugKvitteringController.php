@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\os2forms_fordelingskomponent_debug\Controller;
 
 use Drupal\Core\Url;
-use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderKvittering;
 use Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
@@ -27,11 +26,7 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
    */
   public function __invoke(Request $request, WebformInterface $webform, WebformSubmissionInterface $webform_submission, string $anvender_transaktions_id): array {
     if ($id = (int) $request->query->get('id')) {
-      if ($item = $this->repository->load($id)) {
-        return $this->itemDetails($item);
-      }
-
-      throw new NotFoundHttpException();
+      return $this->itemDetails($id);
     }
 
     $items = $this->repository->loadByAnvenderTransaktionsId($anvender_transaktions_id);
@@ -51,7 +46,7 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
           'data' => [
             '#title' => $item->id,
             '#type' => 'link',
-            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_kvittering',
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_kvittering',
               [
                 'webform' => $webform->id(),
                 'webform_submission' => $webform_submission->id(),
@@ -64,7 +59,7 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
           'data' => [
             '#title' => $item->anvenderTransaktionsId,
             '#type' => 'link',
-            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_forsendelse',
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse',
               [
                 'webform' => $webform->id(),
                 'webform_submission' => $webform_submission->id(),
@@ -101,7 +96,13 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
   /**
    * Build item details.
    */
-  private function itemDetails(AnvenderKvittering $item) {
+  private function itemDetails(int $id) {
+    $item = $this->repository->load($id);
+
+    if (NULL === $item) {
+      throw new NotFoundHttpException();
+    }
+
     return [
       [
         '#type' => 'item',
