@@ -27,9 +27,6 @@ final class SettingsForm extends ConfigFormBase {
   use StringTranslationTrait;
   use AutowireTrait;
 
-  public const string SENDER_ID = 'sender_id';
-  public const string REGISTRERING_IT_SYSTEM = 'registrering_it_system';
-
   /**
    * The queue storage.
    *

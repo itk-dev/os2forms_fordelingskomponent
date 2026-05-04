@@ -503,7 +503,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       }
       catch (\Exception $exception) {
         $this->logger->warning('Error checking file %filename: %message', $context + [
-          '%filename' => $filename,
+          '%filename' => $filename ?? NULL,
           '%message' => $exception->getMessage(),
           'exception' => $exception,
         ]);
