@@ -397,7 +397,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     string $filename,
   ): string {
     return implode('_', [
-      uniqid('os2forms_fordelingskomponent_'),
+      'os2forms_fordelingskomponent',
       $handlerSettings->handlerId,
       $submission->uuid(),
       $filename,
