@@ -104,8 +104,10 @@ id: os2forms_fdk_kp_anmoding
 title: "OS2Forms Fordelingskomponent: Anmodning (KP)"
 description: ""
 categories:
-  - Example
+  - Eksempel
   - Fordelingskomponent
+  - KP
+  - SP
 elements: |-
   ansoeger_oplysninger:
     '#type': fieldset
