@@ -132,15 +132,45 @@ XML
 ## Debugging
 
 ``` shell
-drush sql:query --extra='--table' "SELECT (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_forsendelse) AS os2forms_fordelingskomponent_anvender_forsendelse, (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_kvittering) AS os2forms_fordelingskomponent_anvender_kvittering"
-# Forsendelser
-drush sql:query --extra='--table' "SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_forsendelse"
-# Kvitteringer
-drush sql:query --extra='--table' "SELECT anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_kvittering"
-# Forsendelser med kvitteringer
-drush sql:query --extra='--table' "SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id FROM os2forms_fordelingskomponent_anvender_forsendelse WHERE anvender_transaktions_id IN (SELECT anvender_transaktions_id FROM os2forms_fordelingskomponent_anvender_kvittering)"
-```
+# Latest receipts
+drush sql:query "
+SELECT k.anvender_transaktions_id, FROM_UNIXTIME(k.created_at) AS created_at
+FROM os2forms_fordelingskomponent_anvender_kvittering AS k
+ORDER BY k.created_at DESC
+LIMIT 10
+"
 
-``` shell
-drush sql:query --extra='--table' "SELECT (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_forsendelse) AS os2forms_fordelingskomponent_anvender_forsendelse, (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_kvittering) AS os2forms_fordelingskomponent_anvender_kvittering;"
+# Latest receipts with submission IDs
+drush sql:query "
+SELECT k.anvender_transaktions_id, FROM_UNIXTIME(k.created_at) AS created_at, f.webform_id, f.webform_submission_id,
+CONCAT('/admin/structure/webform/manage/', f.webform_id, '/submission/', f.webform_submission_id,'/os2forms-fordelingskomponent-debug-forsendelse') AS path
+FROM os2forms_fordelingskomponent_anvender_kvittering AS k JOIN os2forms_fordelingskomponent_anvender_forsendelse AS f ON f.anvender_transaktions_id = k.anvender_transaktions_id
+ORDER BY k.created_at DESC
+LIMIT 10
+"
+
+drush sql:query "
+SELECT
+    (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_forsendelse) AS os2forms_fordelingskomponent_anvender_forsendelse,
+    (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_kvittering) AS os2forms_fordelingskomponent_anvender_kvittering
+"
+
+# Forsendelser
+drush sql:query "
+SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id
+FROM os2forms_fordelingskomponent_anvender_forsendelse
+"
+
+# Kvitteringer
+drush sql:query "
+SELECT anvender_transaktions_id, distribution_transaktions_id
+FROM os2forms_fordelingskomponent_anvender_kvittering
+"
+
+# Forsendelser med kvitteringer
+drush sql:query "
+SELECT webform_id, webform_submission_id, anvender_transaktions_id, distribution_transaktions_id
+FROM os2forms_fordelingskomponent_anvender_forsendelse
+WHERE anvender_transaktions_id IN (SELECT anvender_transaktions_id FROM os2forms_fordelingskomponent_anvender_kvittering)
+"
 ```
