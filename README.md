@@ -149,6 +149,15 @@ ORDER BY k.created_at DESC
 LIMIT 10
 "
 
+# "Forsendelser" with number of receipts
+drush sql:query "
+SELECT f.anvender_transaktions_id, FROM_UNIXTIME(f.created_at) AS created_at,
+(SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_kvittering AS k WHERE k.anvender_transaktions_id = f.anvender_transaktions_id) AS '#receipts',
+CONCAT('/admin/structure/webform/manage/', f.webform_id, '/submission/', f.webform_submission_id,'/os2forms-fordelingskomponent-debug-forsendelse') AS path
+FROM os2forms_fordelingskomponent_anvender_forsendelse AS f
+ORDER BY created_at DESC
+"
+
 drush sql:query "
 SELECT
     (SELECT COUNT(*) FROM os2forms_fordelingskomponent_anvender_forsendelse) AS os2forms_fordelingskomponent_anvender_forsendelse,
