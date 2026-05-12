@@ -18,17 +18,19 @@
  */
 #}
 {% block content %}
-    {% for exception in preview.exceptions %}
-        <div class="alert alert-danger" role="alert">
-            {{ exception.message }}
-        </div>
-    {% endfor %}
-
-    {% for warning in preview.warnings %}
-        <div class="alert alert-warning" role="alert">
-            {{ warning.message }}
-        </div>
-    {% endfor %}
+    {% set message_list = {} %}
+    {% if preview.exceptions|default(null) %}
+    {% set message_list = message_list|merge({error: preview.exceptions|map(e => e.message)}) %}
+    {% endif %}
+    {% if preview.warning|default(null) %}
+    {% set message_list = message_list|merge({warning: preview.warning|map(e => e.message)}) %}
+    {% endif %}
+    {% if message_list %}
+        {{ {
+            '#theme': 'status_messages',
+            '#message_list': message_list,
+        }|render }}
+    {% endif %}
 
     {% set distribution_type = handler_settings.distributionObject.distributionType %}
     {% set distribution_object = preview.distribution_object|default(null) %}

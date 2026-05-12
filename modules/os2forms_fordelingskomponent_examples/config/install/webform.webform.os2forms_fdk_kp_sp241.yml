@@ -160,7 +160,7 @@ elements: |-
       GRUPPE_BASIS: Basis
     '#prepopulate': true
     '#states':
-      _visible:
+      visible:
         ':input[name="sygeforsikring"]':
           checked: true
       required:
@@ -185,7 +185,7 @@ elements: |-
     '#title': Navn
     '#prepopulate': true
     '#states':
-      _visible:
+      visible:
         ':input[name="fuldmagt"]':
           checked: true
       required:
@@ -197,7 +197,7 @@ elements: |-
     '#pattern': '\d{10}'
     '#prepopulate': true
     '#states':
-      _visible:
+      visible:
         ':input[name="fuldmagt"]':
           checked: true
       required:
@@ -430,6 +430,55 @@ handlers:
           recipient_it_system_look_up: 1
           recipient_it_system: ""
           recipient_authority: "55133018"
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<SP241 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>\r\n        {% for file in files.dokumenter_overslag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Overslag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_faktura|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Faktura</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n        {% for file in files.dokumenter_bilag|default([]) %}\r\n        <Dokumenter>\r\n            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>\r\n            <Dokumenttype>Bilag</Dokumenttype>\r\n        </Dokumenter>\r\n        {% endfor %}\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.ansoeger_fornavn }}</Fornavn>\r\n            {% if submission.data.ansoeger_mellemnavn|default(false) %}\r\n            <Mellemnavn>{{ submission.data.ansoeger_mellemnavn }}</Mellemnavn>\r\n            {% endif %}\r\n            <Efternavn>{{ submission.data.ansoeger_efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Erklaering>Accepteret</Erklaering>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>{{ submission.data.ansoeger_fornavn }}{% if submission.data.ansoeger_mellemnavn|default(false) %} {{ submission.data.ansoeger_mellemnavn }}{% endif %} {{ submission.data.ansoeger_efternavn }}</Underskrift>\r\n        <Underskriftsdato>{{ submission.data.underskriftsoplysninger_underskriftsdato|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</SP241>\r\n"
+
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <SP241 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>
+                  {% for file in files.dokumenter_overslag|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Overslag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_faktura|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Faktura</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_bilag|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Bilag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+              </Header>
+              <AnsoegerOplysninger>
+                  <Ansoeger>
+                      <Fornavn>{{ submission.data.ansoeger_fornavn }}</Fornavn>
+                      {% if submission.data.ansoeger_mellemnavn|default(false) %}
+                      <Mellemnavn>{{ submission.data.ansoeger_mellemnavn }}</Mellemnavn>
+                      {% endif %}
+                      <Efternavn>{{ submission.data.ansoeger_efternavn }}</Efternavn>
+                      <Personnummer>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</Personnummer>
+                  </Ansoeger>
+              </AnsoegerOplysninger>
+              <Erklaering>Accepteret</Erklaering>
+              <Underskriftsoplysninger>
+                  <Underskrift>{{ submission.data.ansoeger_fornavn }}{% if submission.data.ansoeger_mellemnavn|default(false) %} {{ submission.data.ansoeger_mellemnavn }}{% endif %} {{ submission.data.ansoeger_efternavn }}</Underskrift>
+                  <Underskriftsdato>{{ submission.data.underskriftsoplysninger_underskriftsdato|date("Y-m-d") }}</Underskriftsdato>
+              </Underskriftsoplysninger>
+              {% if submission.data.fuldmagt|default(false) %}
+              <Fuldmagt>
+                  <FuldmagtDokumentnavn>{{ submission.data.fuldmagt_fuldmagtdokumentnavn }}</FuldmagtDokumentnavn>
+                  <FuldmagthaversPersonnummer>urn:oio:cpr:{{ submission.data.fuldmagt_fuldmagthaverspersonnummer }}</FuldmagthaversPersonnummer>
+              </Fuldmagt>
+              {% endif %}
+          </SP241>
+
         xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP241.xsd"
 variants: {}

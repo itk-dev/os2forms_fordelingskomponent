@@ -80,7 +80,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form[DistributionContextSettings::NAME] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Fordelingskomponent'),
+      '#title' => $this->t('Fordelingskontekst'),
       '#tree' => TRUE,
     ] + $this->buildConfigurationFormDistributionContext();
 
@@ -101,13 +101,13 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $globalSettings = $this->settingsService->getDistributionContextSettings();
 
     $section[DistributionContextSettings::ROUTING_MODTAGER_AKTOER] = [
-      '#title' => $this->t('Routing modtager aktoer'),
+      '#title' => $this->t('Routing modtager aktør'),
       '#type' => 'textfield',
       '#attributes' => [
         'pattern' => DistributionContextSettings::ROUTING_MODTAGER_AKTOER_PATTERN,
       ],
       '#default_value' => $settings->routingModtagerAktoer,
-      '#description' => $this->t('Routing modtager aktoer (UUID). If set, any routing rules (using %kle_emne and %handling_facet) will be ignored.', [
+      '#description' => $this->t('Routing modtager aktør (UUID). If set, any routing rules (using %kle_emne and %handling_facet) will be ignored.', [
         '%kle_emne' => $this->t('KLE-emne'),
         '%handling_facet' => $this->t('Handling facet'),
       ]),
@@ -133,7 +133,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       '#attributes' => [
         'pattern' => DistributionContextSettings::HANDLING_FACET_PATTERN,
       ],
-      '#description' => $this->t('handlingfacet (format: [A-Å]dd)'),
+      '#description' => $this->t('Handling-facet (format: [A-Å]dd)'),
     ];
 
     $section[DistributionContextSettings::TITEL] = [
@@ -342,7 +342,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       && !preg_match('/' . DistributionContextSettings::HANDLING_FACET_PATTERN . '/', (string) $value)) {
       $setError(
         [DistributionContextSettings::NAME, DistributionContextSettings::HANDLING_FACET],
-        $this->t('Invalid Handling-facet: %value.', ['%value' => $value])
+        $this->t('Invalid handling-facet: %value.', ['%value' => $value])
       );
     }
 

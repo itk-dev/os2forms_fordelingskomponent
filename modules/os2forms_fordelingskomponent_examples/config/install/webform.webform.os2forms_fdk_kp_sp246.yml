@@ -43,9 +43,6 @@ third_party_settings:
       overslag_pris:
         encrypt: true
         encrypt_profile: webform
-      computed_total:
-        encrypt: true
-        encrypt_profile: webform
 weight: 0
 open: null
 close: null
@@ -144,30 +141,18 @@ elements: |-
         ':input[name="overslag_brillestel"]':
           checked: true
   overslag_pris:
-    '#type': textfield
     '#title': 'I alt'
-    '#input_mask': "'alias': 'numeric', 'radixPoint': ',', 'digits': 2, 'digitsOptional': false, 'allowMinus': false"
-    '#required': true
-    '#states':
-      visible:
-        - ':input[name="overslag_brilleglas"]':
-            checked: true
-        - or
-        - ':input[name="overslag_brillestel"]':
-            checked: true
-  computed_total:
     '#type': webform_computed_twig
-    '#title': 'Computed total'
     '#template': |
-      {{ [
-           (data.overslag_brilleglas_pris)|json_encode,
-           (0 + data.overslag_brilleglas_pris)|json_encode,
-         ]|json_encode }}
-      {{ data.overslag_brillestel_pris|json_encode }}
-      {% set overslag_brilleglas_pris = data.overslag_brilleglas_pris|default(0)|replace({'.': ''})|replace({',': '.'}) %}
-      {% set overslag_brillestel_pris = data.overslag_brillestel_pris|default(0)|replace({'.': ''})|replace({',': '.'}) %}
-
-      {{ (overslag_brilleglas_pris + overslag_brillestel_pris)|number_format(2, ',', '') }}
+      {# number_format (https://twig.symfony.com/doc/3.x/filters/number_format.html) will cast anything to a float before formatting
+      (cf. https://github.com/twigphp/Twig/blob/99d95dd6b8b0cc3c2397d15d45a4bb87eff89ddc/src/Extension/CoreExtension.php#L698) #}
+      {# Strip thousand and decimal separators (from Danish floats); compute with 4 decimals #}
+      {% set values = [
+         data.overslag_brilleglas_pris|replace({'.': ''})|replace({',': '.'})|number_format(4),
+         data.overslag_brillestel_pris|replace({'.': ''})|replace({',': '.'})|number_format(4),
+      ] %}
+      {% set sum = values|reduce((carry, value) => carry + value) %}
+      {{ sum|number_format(2, ',', '') }}
     '#store': true
     '#ajax': true
 css: ""

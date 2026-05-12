@@ -1,0 +1,280 @@
+# Danish translation of module os2forms_fordelingskomponent
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2026-05-12 13:16+0200\n"
+"PO-Revision-Date: 2026-05-12 13:25+0200\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.9\n"
+
+msgid "ID"
+msgstr "Id"
+
+msgid "anvenderTransaktionsId"
+msgstr "anvenderTransaktionsId"
+
+msgid "distributionTransaktionsId"
+msgstr "distributionTransaktionsId"
+
+msgid "Created at"
+msgstr "Oprettet"
+
+msgid "Updated at"
+msgstr "Opdateret"
+
+msgid "No entries available."
+msgstr "Ingen data."
+
+msgid "Request"
+msgstr "Forespørgsel"
+
+msgid "Path"
+msgstr "Sti"
+
+msgid "Last accessed at"
+msgstr "Sidst tilgået"
+
+msgid "Last modified at"
+msgstr "Sidst ændret"
+
+msgid "Receipts"
+msgstr "Kvitteringer"
+
+msgid "Response"
+msgstr "Svar"
+
+msgid "Sender"
+msgstr "Afsender"
+
+msgid "General"
+msgstr "Generelt"
+
+msgid "Sender ID"
+msgstr "Afsender-id"
+
+msgid "Sender ID (CVR)."
+msgstr "Afsender-id (CVR)."
+
+msgid "Routing myndighed"
+msgstr "\"Routing myndighed\""
+
+msgid ""
+"Default routing myndighed (CVR). May be overwritten by handler settings."
+msgstr ""
+"Standard-routing-myndighed (CVR-nr.). Kan overskrives af "
+"behandlerindstillinger."
+
+msgid "Registrering it-system"
+msgstr "Registrering it-system"
+
+msgid "Certificate"
+msgstr "Certifikat"
+
+msgid "Passwordless certificate."
+msgstr "Certifikat uden adgangskode."
+
+msgid "SFTP"
+msgstr "SFTP"
+
+msgid "Username"
+msgstr "Brugernavn"
+
+msgid "SFTP username."
+msgstr "SFTP-brugernavn."
+
+msgid "Private key"
+msgstr "Privat nøgle"
+
+msgid "SFTP private key."
+msgstr "Privat nøgle til SFTP."
+
+msgid "Queue"
+msgstr "Kø"
+
+msgid "No queue"
+msgstr "Ingen kø"
+
+msgid "Test mode"
+msgstr "Testtilstand"
+
+msgid "The sender ID is not a valid CVR."
+msgstr "Afsender-id'et er ikke et gyldigt CVR-nummer."
+
+msgid "The routing myndighed is not a valid CVR."
+msgstr "Routing-myndighed er ikke et gyldigt CVR-nr."
+
+msgid "The registrering it system is not a valid UUID."
+msgstr "Registrering it-system er ikke et gyldigt UUID."
+
+msgid "Fordelingskontekst"
+msgstr "Fordelingskontekst"
+
+msgid "Fordelingsobjekt"
+msgstr "Fordelingsobjekt"
+
+msgid "Routing modtager aktør"
+msgstr "Routing-modtager-aktør"
+
+msgid "KLE-emne"
+msgstr "KLE-emne"
+
+msgid "Handling facet"
+msgstr "Handlingsfacet"
+
+msgid ""
+"Routing modtager aktør (UUID). If set, any routing rules (using %kle_emne "
+"and %handling_facet) will be ignored."
+msgstr ""
+"Routing-modtager-aktør (UUID). Hvis dette er udfyldt, vil routing-regler "
+"(baseret på %kle_emne og %handling_facet) ikke blive brugt."
+
+msgid "KLE-emne (format: dd.dd.dd)"
+msgstr "KLE-emne (format: dd.dd.dd)"
+
+msgid "Handling-facet"
+msgstr "Handlingsfacet"
+
+msgid "handlingfacet (format: [A-Å]dd)"
+msgstr "Handlingfacet (format: [A-Å]dd)"
+
+msgid "Titel"
+msgstr "Titel"
+
+msgid "Beskrivelse"
+msgstr "Beskrivelse"
+
+msgid "Distribution type"
+msgstr "Distributionstype"
+
+msgid "Journalpost"
+msgstr "Journalpost"
+
+msgid "Dokument"
+msgstr "Dokument"
+
+msgid "Formular"
+msgstr "Formular"
+
+msgid "Message"
+msgstr "Besked"
+
+msgid "Journal post message. Supports tokens."
+msgstr "Journalpostbesked. Understøtter tokens."
+
+msgid "Element that contains the document to send"
+msgstr "Element der indeholder dokumentet der skal sendes"
+
+msgid "Formulartype"
+msgstr "Formulartype"
+
+msgid "Brugervendt nøgle"
+msgstr "Brugervendt nøgle"
+
+msgid "Files"
+msgstr "Filer"
+
+msgid "Filspecifikation (InfRef)"
+msgstr "Filspecifikation (InfRef)"
+
+msgid "Filspecifikation matching %formular_type"
+msgstr "Filspecifikation der hører til %formular_type"
+
+msgid "Recipient IT system"
+msgstr "Modtager-it-system"
+
+msgid "Look up %recipient_it_system based on distribution object routing"
+msgstr "Find %recipient_it_system ud fra distributionsobjekt-routing"
+
+msgid "Recipient IT system (UUID). Leave empty for implicit file routing."
+msgstr "Modtager-it-system (UUID). Leave empty for implicit file routing."
+
+msgid "Recipient authority"
+msgstr "Modtager-autoritet"
+
+msgid "CVR for recipient"
+msgstr "Modtagers CVR-nr."
+
+msgid "XML template"
+msgstr "Xml-skabelon"
+
+msgid "XSD URL"
+msgstr "Xsd-url"
+
+msgid "Invalid routing modtager aktør: %value."
+msgstr "Ugyldig routing-modtager-aktør: %value."
+
+msgid "Invalid KLE-emne: %value."
+msgstr "Ugyldigt KLE-emne: %value."
+
+msgid "Invalid handling-facet: %value."
+msgstr "Ugyldig handlingsfacet: %value."
+
+msgid "Invalid recipient IT system: %value."
+msgstr "Ugyldigt modtage-it-system: %value."
+
+msgid "Invalid XML template: %message."
+msgstr "Ugyldigt xml-skabelon: %message."
+
+msgid "Cannot read XSD URL %url."
+msgstr "Xsd-url %url kan ikke læses."
+
+msgid "KLE-emne: %kle_emne; Handling-facet: %handling_facet"
+msgstr "KLE-emne: %kle_emne; handlingsfacet: %handling_facet"
+
+msgid "Show routing info"
+msgstr "Vis routing-info"
+
+msgid "Preview distribution object"
+msgstr "Forhåndsvisning af distributionsobjekt"
+
+msgid "Distribution objects"
+msgstr "Distributionsobjekter"
+
+msgid "Previous submission"
+msgstr "Forrige resultat"
+
+msgid "Next submission"
+msgstr "Næste resultat"
+
+msgid "Edit handler %handler"
+msgstr "Rediger bahandler %handler"
+
+msgid "Back to webform handlers"
+msgstr "Tilbage til behandlere"
+
+msgid "Handler settings"
+msgstr "Behandlerindstillinger"
+
+msgid "Distribution object"
+msgstr "Distributionsobjekt"
+
+msgid "XML"
+msgstr "Xml"
+
+msgid "XML render context"
+msgstr "Xml-render-kontekst"
+
+msgid "Unknown distribution type: @distribution_type"
+msgstr "Ukendt distributionstype: @distribution_type"
+
+msgid "Queue for Fordelingskomponent jobs."
+msgstr "Kø til Fordelingskomponent-jobs."
+
+msgid ""
+"Queue for Fordelingskomponent jobs. <a href=':queue_url'>The queue</a> "
+"must be run via Drupal's cron or via <code>drush "
+"advancedqueue:queue:process @queue</code> (in a cron job)."
+msgstr ""
+"Kø til Fordelingskomponent-jobs. <a href=':queue_url'>Køen</a> skal "
+"behandles via Drupal cron eller via <code>drush "
+"advancedqueue:queue:process @queue</code> (i et cron-job)."
+
+msgid "Handling-facet (format: [A-Å]dd)"
+msgstr "Handlingsfacet (format: [A-Å]dd)"

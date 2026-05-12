@@ -13,3 +13,6 @@ dependencies:
   - "webform:webform"
 
 configure: os2forms_fordelingskomponent.admin.settings
+
+"interface translation project": os2forms_fordelingskomponent
+"interface translation server pattern": module://%project/translations/%project.%language.po

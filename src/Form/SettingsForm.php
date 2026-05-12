@@ -153,8 +153,8 @@ final class SettingsForm extends ConfigFormBase {
     $settings = $this->settings->getGeneralSettings();
 
     $description = empty($settings->queue)
-      ? $this->t('Optional queue for fordelingskomponent jobs. If no queue is specified, all fordelingskomponent jobs are run immediately.')
-      : $this->t("Optional queue for fordelingskomponent jobs. If no queue is specified, all fordelingskomponent jobs are run immediately. <a href=':queue_url'>The queue</a> must be run via Drupal's cron or via <code>drush advancedqueue:queue:process @queue</code> (in a cron job).",
+      ? $this->t('Queue for Fordelingskomponent jobs.')
+      : $this->t("Queue for Fordelingskomponent jobs. <a href=':queue_url'>The queue</a> must be run via Drupal's cron or via <code>drush advancedqueue:queue:process @queue</code> (in a cron job).",
         [
           '@queue' => $settings->queue,
           ':queue_url' => '/admin/config/system/queues/jobs/' . urlencode((string) $settings->queue),

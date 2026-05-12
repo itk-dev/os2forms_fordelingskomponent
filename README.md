@@ -1,5 +1,8 @@
 # Fordelingskomponent for OS2Forms
 
+* [User's manual](docs/Users-manual.md)
+* [Development](docs/Development.md)
+
 ## Installation
 
 1. Create two keys (on `/admin/config/system/keys`)
