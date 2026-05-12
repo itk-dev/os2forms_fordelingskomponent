@@ -136,14 +136,6 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       '#description' => $this->t('handlingfacet (format: [A-Å]dd)'),
     ];
 
-    $section[DistributionContextSettings::BRUGERVENDT_NOEGLE] = [
-      '#title' => $this->t('Brugervendt nøgle'),
-      '#type' => 'textfield',
-      '#default_value' => $settings->brugervendtNoegle,
-      '#required' => TRUE,
-      '#description' => 'WHAT IS THIS?!',
-    ];
-
     $section[DistributionContextSettings::TITEL] = [
       '#title' => $this->t('Titel'),
       '#type' => 'textfield',
@@ -234,6 +226,15 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     $setStates($section[DistributionObjectSettings::FORMULAR_TYPE], [
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,
     ], require: FALSE);
+
+    $section[DistributionObjectSettings::BRUGERVENDT_NOEGLE] = [
+      '#title' => $this->t('Brugervendt nøgle'),
+      '#type' => 'textfield',
+      '#default_value' => $settings->brugervendtNoegle,
+    ];
+    $setStates($section[DistributionObjectSettings::BRUGERVENDT_NOEGLE], [
+      DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT,
+    ]);
 
     $section[DistributionObjectSettings::FILES] = [
       '#type' => 'fieldset',

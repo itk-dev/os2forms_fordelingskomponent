@@ -250,7 +250,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
         ],
         attributListe: new AttributterListeType([
           new AttributterType(
-            brugervendtNoegleTekst: $handlerSettings->distributionContext->brugervendtNoegle,
+            brugervendtNoegleTekst: $handlerSettings->distributionObject->brugervendtNoegle,
             titelTekst: $handlerSettings->distributionContext->titel,
             beskrivelseTekst: $handlerSettings->distributionContext->beskrivelse,
             // @todo What to use here?

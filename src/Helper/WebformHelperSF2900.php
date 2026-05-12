@@ -357,8 +357,8 @@ final class WebformHelperSF2900 implements LoggerInterface {
     // @todo Should we clone the settings before making changes?
     $handlerSettings->distributionContext->titel = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->titel, $submission);
     $handlerSettings->distributionContext->beskrivelse = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->beskrivelse, $submission);
-    $handlerSettings->distributionContext->brugervendtNoegle = $this->webformTokenManager->replace((string) $handlerSettings->distributionContext->brugervendtNoegle, $submission);
 
+    $handlerSettings->distributionObject->brugervendtNoegle = $this->webformTokenManager->replace((string) $handlerSettings->distributionObject->brugervendtNoegle, $submission);
     $handlerSettings->distributionObject->journalpostMessage = $this->webformTokenManager->replace((string) $handlerSettings->distributionObject->journalpostMessage, $submission);
 
     return $handlerSettings;

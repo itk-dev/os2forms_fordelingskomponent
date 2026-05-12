@@ -23,9 +23,6 @@ final class DistributionContextSettings extends AbstractSettings {
   public const string HANDLING_FACET = 'handling_facet';
   public ?string $handlingFacet = NULL;
 
-  public const string BRUGERVENDT_NOEGLE = 'brugervendt_noegle';
-  public ?string $brugervendtNoegle = NULL;
-
   public const string ROUTING_MODTAGER_AKTOER_PATTERN = self::UUID_PATTERN;
   public const string ROUTING_MODTAGER_AKTOER = 'routing_modtager_aktoer';
   public ?string $routingModtagerAktoer = NULL;

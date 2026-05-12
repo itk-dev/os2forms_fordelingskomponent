@@ -24,6 +24,9 @@ final class DistributionObjectSettings extends AbstractSettings {
   public const string DISTRIBUTION_TYPE_DOKUMENT = ObjektTypeType::VALUE_DOKUMENT;
   public const string DISTRIBUTION_TYPE_FORMULAR = ObjektTypeType::VALUE_FORMULAR;
 
+  public const string BRUGERVENDT_NOEGLE = 'brugervendt_noegle';
+  public ?string $brugervendtNoegle = NULL;
+
   public const string JOURNALPOST_MESSAGE = 'journalpost_message';
   public ?string $journalpostMessage = NULL;
 
