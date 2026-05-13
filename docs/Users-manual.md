@@ -218,6 +218,10 @@ will result in a final XML document looking like
 
 If "XSD URL" is filled, the XSD on the URL will be used to validate the generated XML document before sending it.
 
+XSDs for "KP-formularer" are available in the [`resources/SP/SF2900_XSD/`](../resources/SP/SF2900_XSD/) folder and they
+can be referenced in the "XSL URL" setting like
+'module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP241.xsd`, say.
+
 > [!TIP]
 > On a webform's handler list (`/admin/structure/webform/manage/…/handlers`), you can find links to previews of
 >

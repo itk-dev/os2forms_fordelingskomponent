@@ -114,6 +114,7 @@ categories:
   - Fordelingskomponent
   - KP
   - SP
+
 elements: |-
   markup:
     '#type': webform_markup
@@ -220,6 +221,7 @@ elements: |-
     '#excluded_elements': {  }
     '#exclude_empty': 0
     '#exclude_empty_checkbox': 0
+
 css: ""
 javascript: ""
 settings:
@@ -417,11 +419,11 @@ handlers:
         routing_modtager_aktoer: ""
         kle_emne: 32.03.12
         handling_facet: G01
-        brugervendt_noegle: "@todo Skal skjules for “formular“"
         titel: "@todo Titel SP241"
         beskrivelse: "@todo Beskrivelse\r\n\r\nSe https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=14 for at finde formulartype mm."
       distribution_object:
         distribution_type: FORMULAR
+        brugervendt_noegle: ""
         journalpost_message: ""
         attachment_element: kvittering
         formular_type: HelbredstillægAnsøgningFormular_1

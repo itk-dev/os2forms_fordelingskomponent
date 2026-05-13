@@ -50,10 +50,50 @@ uid: 1
 template: false
 archive: false
 id: os2forms_fdk_kp_sp246
-title: os2forms_fdk_kp_sp246
+title: "SP264: Specificeret overslag fra optiker/øjenlæge"
 description: ""
-categories: {}
+categories:
+  - Eksempel
+  - Fordelingskomponent
+  - KP
+  - SP
+
 elements: |-
+  markup:
+    '#type': webform_markup
+    '#markup': '<p><a href="/webform/[webform:id]/test?ansoeger_navn=T.+Estersen&ansoeger_personnummer=1234567890&behandler_telefon=87878787&behandler_email=healer@itdoesnotwork.example.com&aarsag=HarBriller&aarsag_harbriller_alder=29&overslag_brilleglas_venstre_styrke=4,2&overslag_brilleglas_hoejre_styrke=8,7&overslag_brilleglas_pris=1,23&overslag_brillestel_navn=Test&overslag_brillestel_pris=0,37">Udfyld med testdata</a></p>'
+
+  ansoeger_navn:
+    '#type': textfield
+    '#title': Navn
+    '#required': true
+    '#prepopulate': true
+  ansoeger_personnummer:
+    '#type': textfield
+    '#title': Personnummer
+    '#required': true
+    '#pattern': '\d{10}'
+    '#prepopulate': true
+  underskriftsoplysninger_underskriftsdato:
+    '#type': date
+    '#title': Underskriftsdato
+    '#disabled': true
+    '#default_value': today
+
+  behandler_telefon:
+    '#type': textfield
+    '#title': behandler_telefon
+    '#input_mask': '99999999'
+    '#prepopulate': true
+    '#required': true
+
+  behandler_email:
+    '#type': textfield
+    '#title': behandler_email
+    '#prepopulate': true
+    '#input_mask': "'alias': 'email'"
+    '#required': true
+
   aarsag:
     '#type': select
     '#title': Årsag
@@ -62,6 +102,7 @@ elements: |-
       AndenBegrundelse: AndenBegrundelse
       SpecielleForhold: SpecielleForhold
     '#required': true
+    '#prepopulate': true
   aarsag_harbriller_alder:
     '#type': number
     '#title': 'Brillens/kontaktlinsernes alder'
@@ -72,6 +113,7 @@ elements: |-
           value: HarBriller
     '#min': 0
     '#max': 100
+    '#prepopulate': true
   aarsag_andenbegrundelse:
     '#type': textfield
     '#title': 'Anden/yderligere/mere specifik begrundelse'
@@ -81,6 +123,7 @@ elements: |-
       visible:
         ':input[name="aarsag"]':
           value: AndenBegrundelse
+    '#prepopulate': true
   aarsag_specielleforhold:
     '#type': textfield
     '#title': 'Specielle forhold, fx allergi, der goer sig gaeldende for valg af stel/glas (husk laegeerklaering)'
@@ -90,9 +133,11 @@ elements: |-
       visible:
         ':input[name="aarsag"]':
           value: SpecielleForhold
+    '#prepopulate': true
   overslag_brilleglas:
     '#type': checkbox
     '#title': Overslag_Brilleglas
+    '#prepopulate': true
   overslag_brilleglas_venstre_styrke:
     '#type': textfield
     '#title': Overslag_Brilleglas_Venstre_Styrke
@@ -102,6 +147,7 @@ elements: |-
       visible:
         ':input[name="overslag_brilleglas"]':
           checked: true
+    '#prepopulate': true
   overslag_brilleglas_hoejre_styrke:
     '#type': textfield
     '#title': Overslag_Brilleglas_Hoejre_Styrke
@@ -111,6 +157,7 @@ elements: |-
       visible:
         ':input[name="overslag_brilleglas"]':
           checked: true
+    '#prepopulate': true
   overslag_brilleglas_pris:
     '#type': textfield
     '#title': Overslag_Brilleglas_Pris
@@ -120,9 +167,11 @@ elements: |-
       visible:
         ':input[name="overslag_brilleglas"]':
           checked: true
+    '#prepopulate': true
   overslag_brillestel:
     '#type': checkbox
     '#title': Overslag_Brillestel
+    '#prepopulate': true
   overslag_brillestel_navn:
     '#type': textfield
     '#title': Overslag_Brillestel_Navn
@@ -131,6 +180,7 @@ elements: |-
       visible:
         ':input[name="overslag_brillestel"]':
           checked: true
+    '#prepopulate': true
   overslag_brillestel_pris:
     '#type': textfield
     '#title': Overslag_Brillestel_Pris
@@ -140,6 +190,7 @@ elements: |-
       visible:
         ':input[name="overslag_brillestel"]':
           checked: true
+    '#prepopulate': true
   overslag_pris:
     '#title': 'I alt'
     '#type': webform_computed_twig
@@ -155,6 +206,24 @@ elements: |-
       {{ sum|number_format(2, ',', '') }}
     '#store': true
     '#ajax': true
+  dokumenter_overslag:
+    '#type': webform_document_file
+    '#title': Overslag
+  dokumenter_faktura:
+    '#type': webform_document_file
+    '#title': Faktura
+  dokumenter_bilag:
+    '#type': webform_document_file
+    '#title': Bilag
+  kvittering:
+    '#type': os2forms_attachment
+    '#title': kvittering
+    '#export_type': pdf
+    '#digital_signature': 0
+    '#excluded_elements': {  }
+    '#exclude_empty': 0
+    '#exclude_empty_checkbox': 0
+
 css: ""
 javascript: ""
 settings:
@@ -338,5 +407,96 @@ access:
     roles: {}
     users: {}
     permissions: {}
-handlers: {}
+
+handlers:
+  fordelingskomponent_sf2900:
+    id: os2forms_fordelingskomponent_sf2900
+    handler_id: fordelingskomponent_sf2900
+    label: "Fordelingskomponent (sf2900)"
+    notes: ""
+    status: true
+    conditions: {}
+    weight: 0
+    settings:
+      distribution_context:
+        routing_modtager_aktoer: ""
+        kle_emne: 32.03.12
+        handling_facet: G01
+        titel: "SP264: Specificeret overslag fra optiker/øjenlæge"
+        beskrivelse: "Se https://rimi-itk.github.io/digitaliseringskataloget.dk/digitaliseringskataloget.dk/sf1415/0.6/Integrationsbeskrivelse_SF1415.pdf#page=14 for at finde formulartype mm."
+      distribution_object:
+        distribution_type: FORMULAR
+        brugervendt_noegle: ""
+        journalpost_message: ""
+        attachment_element: kvittering
+        formular_type: ØjenspecialistOverslagFormular_1
+        files:
+          filspecifikation: ØjenspecialistOverslagBilag_1
+          recipient_it_system_look_up: 1
+          recipient_it_system: ""
+          recipient_authority: "55133018"
+
+        xml_template: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <SP246 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+              <Header>
+                  <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>
+                  <ModtagetDato>{{ submission.completed|date("Y-m-d") }}</ModtagetDato>
+                  <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>
+                  {% for file in files.dokumenter_overslag|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Overslag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_faktura|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Faktura</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+                  {% for file in files.dokumenter_bilag|default([]) %}
+                  <Dokumenter>
+                      <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+                      <Dokumenttype>Bilag</Dokumenttype>
+                  </Dokumenter>
+                  {% endfor %}
+              </Header>
+              <Aarsag>
+                  {% if submission.data.aarsag == 'HarBriller' %}
+                  <HarBriller>
+                      <Alder>{{ submission.data.aarsag_harbriller_alder }}</Alder>
+                  </HarBriller>
+                  {% endif %}
+              </Aarsag>
+              <Overslag>
+                  {# number_format (https://twig.symfony.com/doc/3.x/filters/number_format.html) will cast anything to a float before formatting
+                  (cf. https://github.com/twigphp/Twig/blob/99d95dd6b8b0cc3c2397d15d45a4bb87eff89ddc/src/Extension/CoreExtension.php#L698) #}
+                  {# Strip thousand and decimal separators (from Danish floats); compute with 4 decimals #}
+                  {% set values = [
+                     submission.data.overslag_brilleglas_pris|replace({'.': ''})|replace({',': '.'})|number_format(4),
+                     submission.data.overslag_brillestel_pris|replace({'.': ''})|replace({',': '.'})|number_format(4),
+                  ] %}
+                  {% set sum = values|reduce((carry, value) => carry + value) %}
+                  <Pris>{{ sum|number_format(2, '.', '') }}</Pris>
+              </Overslag>
+              <Erklaering>
+                  <NavnAnsoeger>{{ submission.data.ansoeger_navn }}</NavnAnsoeger>
+                  <CPRAnsoeger>urn:oio:cpr:{{ submission.data.ansoeger_personnummer }}</CPRAnsoeger>
+                  <UnderskriftsoplysningerAnsoeger>
+                      <UnderskriftAnsoeger>{{ submission.data.ansoeger_navn }}</UnderskriftAnsoeger>
+                      <UnderskriftsdatoAnsoeger>{{ submission.data.underskriftsoplysninger_underskriftsdato|date("Y-m-d") }}</UnderskriftsdatoAnsoeger>
+                  </UnderskriftsoplysningerAnsoeger>
+              </Erklaering>
+              <Behandler>
+                  <UnderskriftsoplysningerBehandler>
+                      <UnderskriftBehandler>{{ submission.data.ansoeger_navn }}</UnderskriftBehandler>
+                      <UnderskriftsdatoBehandler>{{ submission.data.underskriftsoplysninger_underskriftsdato|date("Y-m-d") }}</UnderskriftsdatoBehandler>
+                  </UnderskriftsoplysningerBehandler>
+                  <TelefonnummerBehandler>{{ submission.data.behandler_telefon }}</TelefonnummerBehandler>
+                  <EMailBehandler>{{ submission.data.behandler_email }}</EMailBehandler>
+              </Behandler>
+          </SP246>
+
+        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP246.xsd"
 variants: {}
