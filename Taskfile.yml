@@ -33,10 +33,8 @@ tasks:
   coding-standards:apply:
     desc: "Apply coding standards"
     cmds:
-      # - task: coding-standards:javascript:apply
       - task: coding-standards:markdown:apply
       - task: coding-standards:php:apply
-      # - task: coding-standards:styles:apply
       - task: coding-standards:twig:apply
       - task: coding-standards:yaml:apply
     silent: true
@@ -44,26 +42,11 @@ tasks:
   coding-standards:check:
     desc: "Apply coding standards"
     cmds:
-      # - task: coding-standards:javascript:check
       - task: coding-standards:markdown:check
       - task: coding-standards:php:check
-      # - task: coding-standards:styles:check
       - task: coding-standards:twig:check
       - task: coding-standards:yaml:check
     silent: true
-
-  coding-standards:javascript:apply:
-    desc: "Apply coding standards for javascript"
-    cmds:
-      # Cf. .github/workflows/javascript.yaml
-      - docker compose run --rm prettier 'web/themes/custom/**/js/**/*.js' --write
-
-  coding-standards:javascript:check:
-    desc: "Apply coding standards for javascript"
-    cmds:
-      - task: coding-standards:javascript:apply
-      # Cf. .github/workflows/javascript.yaml
-      - docker compose run --rm prettier 'web/themes/custom/**/js/**/*.js' --check
 
   coding-standards:markdown:apply:
     desc: "Apply coding standards for Markdown"
@@ -93,19 +76,6 @@ tasks:
       - docker compose run --rm phpfpm vendor/bin/phpcs
     silent: true
 
-  coding-standards:styles:apply:
-    desc: "Apply coding standards for styles"
-    cmds:
-      # Cf. .github/workflows/styles.yaml
-      - docker compose run --rm prettier 'web/themes/custom/**/css/**/*.{css,scss}' --write
-
-  coding-standards:styles:check:
-    desc: "Apply coding standards for styles"
-    cmds:
-      - task: coding-standards:styles:apply
-      # Cf. .github/workflows/styles.yaml
-      - docker compose run --rm prettier 'web/themes/custom/**/css/**/*.{css,scss}' --check
-
   coding-standards:twig:apply:
     desc: "Apply coding standards for Twig"
     cmds:
@@ -134,8 +104,12 @@ tasks:
 
   test:
     cmds:
-      - docker compose run --env PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST --env PHP_IDE_CONFIG --rm phpfpm vendor/bin/phpunit {{.CLI_ARGS}}
+      - docker compose run --env PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST
+        --env PHP_IDE_CONFIG --rm phpfpm vendor/bin/phpunit {{.CLI_ARGS}}
 
   xdebug:test:
     cmds:
-      - PHP_XDEBUG_MODE=debug PHP_XDEBUG_WITH_REQUEST=yes PHP_IDE_CONFIG=serverName=localhost docker compose run --env PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST --env PHP_IDE_CONFIG --rm phpfpm vendor/bin/phpunit {{.CLI_ARGS}}
+      - PHP_XDEBUG_MODE=debug PHP_XDEBUG_WITH_REQUEST=yes
+        PHP_IDE_CONFIG=serverName=localhost docker compose run --env
+        PHP_XDEBUG_MODE --env PHP_XDEBUG_WITH_REQUEST --env PHP_IDE_CONFIG --rm
+        phpfpm vendor/bin/phpunit {{.CLI_ARGS}}
