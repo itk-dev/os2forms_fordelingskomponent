@@ -16,7 +16,7 @@
         "ext-xsl": "*",
         "drupal/system_stream_wrapper": "^2.1",
         "drush/drush": "^12 || ^13",
-        "itk-dev/serviceplatformen": "dev-feature/SF2900-Fordelingskomponenten as 1.7.9999",
+        "itk-dev/serviceplatformen": "^1.9",
         "os2forms/os2forms": "^5.0"
     },
     "require-dev": {
