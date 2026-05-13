@@ -101,7 +101,7 @@ uid: 1
 template: false
 archive: false
 id: os2forms_fdk_kp_anmoding
-title: "OS2Forms Fordelingskomponent: Anmodning (KP)"
+title: "Anmodning (eksempel): Anmodning om refusion"
 description: ""
 categories:
   - Eksempel
@@ -417,80 +417,5 @@ handlers:
                   <Underskriftsdato>{{ submission.completed.value|date("Y-m-d") }}</Underskriftsdato>
               </Underskriftsoplysninger>
           </Anmodning>
-        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
-  fordelingskomponent_sf2900_malformed_xml:
-    id: os2forms_fordelingskomponent_sf2900
-    handler_id: fordelingskomponent_sf2900_malformed_xml
-    label: "Fordelingskomponent (malformed XML)"
-    notes: ""
-    status: false
-    conditions: {}
-    weight: -49
-    settings:
-      distribution_context:
-        kle_emne: 01.01.01
-        handling_facet: ""
-        brugervendt_noegle: "Brugervendt nøgle"
-        titel: Titel
-        beskrivelse: Beskrivelse
-      distribution_object:
-        distribution_type: FORMULAR
-        journalpost_message: ""
-        attachment_element: ""
-        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
-        files:
-          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
-          recipient_authority: "55133018"
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId }}</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
-        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
-  fordelingskomponent_sf2900_invalid_twig:
-    id: os2forms_fordelingskomponent_sf2900
-    handler_id: fordelingskomponent_sf2900_invalid_twig
-    label: "Fordelingskomponent (invalid Twig)"
-    notes: ""
-    status: false
-    conditions: {}
-    weight: -48
-    settings:
-      distribution_context:
-        kle_emne: 01.01.01
-        handling_facet: ""
-        brugervendt_noegle: "Brugervendt nøgle"
-        titel: Titel
-        beskrivelse: Beskrivelse
-      distribution_object:
-        distribution_type: FORMULAR
-        journalpost_message: ""
-        attachment_element: ""
-        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
-        files:
-          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
-          recipient_authority: "55133018"
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <Header>\r\n        <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.senderId</Myndighed>\r\n        <ModtagetDato>{{ submission.completed.value|date(\"Y-m-d\") }}</ModtagetDato>\r\n        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>\r\n    </Header>\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
-        xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
-  fordelingskomponent_sf2900_invalid_xml:
-    id: os2forms_fordelingskomponent_sf2900
-    handler_id: fordelingskomponent_sf2900_invalid_xml
-    label: "Fordelingskomponent (invalid XML)"
-    notes: ""
-    status: false
-    conditions: {}
-    weight: -47
-    settings:
-      distribution_context:
-        kle_emne: 01.01.01
-        handling_facet: ""
-        brugervendt_noegle: "Brugervendt nøgle"
-        titel: Titel
-        beskrivelse: Beskrivelse
-      distribution_object:
-        distribution_type: FORMULAR
-        journalpost_message: ""
-        attachment_element: ""
-        formular_type: BehandlingsudgifterRefusionsanmodningFormular_1
-        files:
-          filspecifikation: BehandlingsudgifterRefusionsanmodningBilag_1
-          recipient_authority: "55133018"
-        xml_template: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Anmodning xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n    <AnsoegerOplysninger>\r\n        <Ansoeger>\r\n            <Fornavn>{{ submission.data.fornavn }}</Fornavn>\r\n            <Efternavn>{{ submission.data.efternavn }}</Efternavn>\r\n            <Personnummer>urn:oio:cpr:0000000000</Personnummer>\r\n        </Ansoeger>\r\n    </AnsoegerOplysninger>\r\n    <Sagstype>\r\n        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>\r\n    </Sagstype>\r\n    <Underskriftsoplysninger>\r\n        <Underskrift>Underskrift0</Underskrift>\r\n        <Underskriftsdato>{{ submission.completed.value|date(\"Y-m-d\") }}</Underskriftsdato>\r\n    </Underskriftsoplysninger>\r\n</Anmodning>\r\n"
         xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/Anmodning.xsd"
 variants: {}

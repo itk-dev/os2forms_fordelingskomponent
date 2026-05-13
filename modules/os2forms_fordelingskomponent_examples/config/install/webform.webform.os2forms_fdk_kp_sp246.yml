@@ -2,11 +2,30 @@ langcode: da
 status: open
 dependencies:
   module:
+    - os2forms_fordelingskomponent
     - webform_encrypt
     - webform_revisions
 third_party_settings:
   webform_encrypt:
     element:
+      markup:
+        encrypt: true
+        encrypt_profile: webform
+      ansoeger_navn:
+        encrypt: true
+        encrypt_profile: webform
+      ansoeger_personnummer:
+        encrypt: true
+        encrypt_profile: webform
+      underskriftsoplysninger_underskriftsdato:
+        encrypt: true
+        encrypt_profile: webform
+      behandler_telefon:
+        encrypt: true
+        encrypt_profile: webform
+      behandler_email:
+        encrypt: true
+        encrypt_profile: webform
       aarsag:
         encrypt: true
         encrypt_profile: webform
@@ -43,6 +62,18 @@ third_party_settings:
       overslag_pris:
         encrypt: true
         encrypt_profile: webform
+      dokumenter_overslag:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_faktura:
+        encrypt: true
+        encrypt_profile: webform
+      dokumenter_bilag:
+        encrypt: true
+        encrypt_profile: webform
+      kvittering:
+        encrypt: true
+        encrypt_profile: webform
 weight: 0
 open: null
 close: null
@@ -50,19 +81,17 @@ uid: 1
 template: false
 archive: false
 id: os2forms_fdk_kp_sp246
-title: "SP264: Specificeret overslag fra optiker/øjenlæge"
+title: "SP264 (eksempel): Specificeret overslag fra optiker/øjenlæge"
 description: ""
 categories:
   - Eksempel
   - Fordelingskomponent
   - KP
   - SP
-
 elements: |-
   markup:
     '#type': webform_markup
     '#markup': '<p><a href="/webform/[webform:id]/test?ansoeger_navn=T.+Estersen&ansoeger_personnummer=1234567890&behandler_telefon=87878787&behandler_email=healer@itdoesnotwork.example.com&aarsag=HarBriller&aarsag_harbriller_alder=29&overslag_brilleglas_venstre_styrke=4,2&overslag_brilleglas_hoejre_styrke=8,7&overslag_brilleglas_pris=1,23&overslag_brillestel_navn=Test&overslag_brillestel_pris=0,37">Udfyld med testdata</a></p>'
-
   ansoeger_navn:
     '#type': textfield
     '#title': Navn
@@ -79,21 +108,18 @@ elements: |-
     '#title': Underskriftsdato
     '#disabled': true
     '#default_value': today
-
   behandler_telefon:
     '#type': textfield
     '#title': behandler_telefon
     '#input_mask': '99999999'
     '#prepopulate': true
     '#required': true
-
   behandler_email:
     '#type': textfield
     '#title': behandler_email
     '#prepopulate': true
     '#input_mask': "'alias': 'email'"
     '#required': true
-
   aarsag:
     '#type': select
     '#title': Årsag
@@ -223,7 +249,6 @@ elements: |-
     '#excluded_elements': {  }
     '#exclude_empty': 0
     '#exclude_empty_checkbox': 0
-
 css: ""
 javascript: ""
 settings:
@@ -407,7 +432,6 @@ access:
     roles: {}
     users: {}
     permissions: {}
-
 handlers:
   fordelingskomponent_sf2900:
     id: os2forms_fordelingskomponent_sf2900
@@ -435,7 +459,6 @@ handlers:
           recipient_it_system_look_up: 1
           recipient_it_system: ""
           recipient_authority: "55133018"
-
         xml_template: |
           <?xml version="1.0" encoding="UTF-8"?>
           <SP246 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -497,6 +520,5 @@ handlers:
                   <EMailBehandler>{{ submission.data.behandler_email }}</EMailBehandler>
               </Behandler>
           </SP246>
-
         xsd_url: "module://os2forms_fordelingskomponent/resources/SP/SF2900_XSD/SP246.xsd"
 variants: {}

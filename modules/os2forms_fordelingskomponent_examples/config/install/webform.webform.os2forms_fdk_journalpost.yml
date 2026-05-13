@@ -64,7 +64,9 @@ archive: false
 id: os2forms_fdk_journalpost
 title: 'OS2Forms Fordelingskomponent example with "journalpost"'
 description: ""
-categories: {}
+categories:
+  - Example
+  - Fordelingskomponent
 elements: |-
   message:
     '#type': textarea

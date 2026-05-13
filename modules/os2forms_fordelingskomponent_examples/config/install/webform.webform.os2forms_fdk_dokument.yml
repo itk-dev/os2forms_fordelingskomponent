@@ -67,7 +67,9 @@ archive: false
 id: os2forms_fdk_dokument
 title: 'OS2Forms Fordelingskomponent example with "dokument"'
 description: ""
-categories: {}
+categories:
+  - Example
+  - Fordelingskomponent
 elements: |-
   message:
     '#type': textarea
@@ -290,15 +292,22 @@ handlers:
         xsd_url: ""
         journalpost_message: "Dette er et fordelingsobjekt fra [site:base-url]."
       distribution_context:
+        routing_modtager_aktoer: ""
         kle_emne: 01.01.01
         handling_facet: ""
-        brugervendt_noegle: "Brugervendt nøgle"
         titel: Titel
         beskrivelse: Beskrivelse
       distribution_object:
         distribution_type: DOKUMENT
         journalpost_message: ""
         attachment_element: attachment
+        formular_type: ""
+        brugervendt_noegle: "Den brugervendte nøgle"
+        files:
+          filspecifikation: ""
+          recipient_it_system_look_up: 0
+          recipient_it_system: ""
+          recipient_authority: ""
         xml_template: ""
         xsd_url: ""
 variants: {}

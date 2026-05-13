@@ -94,8 +94,8 @@ close: null
 uid: 1
 template: false
 archive: false
-id: os2forms_fdk_kp_anmoding_dev
-title: "OS2Forms Fordelingskomponent: Anmodning (KP) – dev"
+id: os2forms_fdk_handlers
+title: "OS2Forms Fordelingskomponent: Handlers"
 description: ""
 categories:
   - Example

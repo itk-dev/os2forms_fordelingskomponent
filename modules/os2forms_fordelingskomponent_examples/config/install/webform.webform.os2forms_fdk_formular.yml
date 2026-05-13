@@ -67,7 +67,9 @@ archive: false
 id: os2forms_fdk_formular
 title: 'OS2Forms Fordelingskomponent example with "formular"'
 description: ""
-categories: {}
+categories:
+  - Example
+  - Fordelingskomponent
 elements: |-
   message:
     '#type': textarea
