@@ -244,7 +244,7 @@ msgid "Next submission"
 msgstr "Næste resultat"
 
 msgid "Edit handler %handler"
-msgstr "Rediger bahandler %handler"
+msgstr "Rediger behandler %handler"
 
 msgid "Back to webform handlers"
 msgstr "Tilbage til behandlere"
