@@ -21,8 +21,7 @@
    ssh-keygen -p -N "" -f cert/sf2900-sftp-nopass
    ```
 
-2. Create a queue (on `/admin/config/system/queues`) for Fordelingskomponent handler jobs.
-3. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
+2. Go to `/admin/os2forms_fordelingskomponent/settings` and configure the Fordelingskomponent module.
 
 [^1] It takes a very long time to read a key with a password (reference?)
 
