@@ -15,4 +15,7 @@ dependencies:
 configure: os2forms_fordelingskomponent.admin.settings
 
 "interface translation project": os2forms_fordelingskomponent
-"interface translation server pattern": module://%project/translations/%project.%language.po
+# @todo Using module://%project/ here does not work …
+# @todo Set a proper URL when the module has been released for real
+# "interface translation server pattern": module://%project/translations/%project.%language.po
+"interface translation server pattern": https://github.com/itk-dev/os2forms_fordelingskomponent/blob/os2forms_fordelingskomponent/translations/os2forms_fordelingskomponent.da.po

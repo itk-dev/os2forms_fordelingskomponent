@@ -27,6 +27,9 @@ final class SettingsForm extends ConfigFormBase {
   use StringTranslationTrait;
   use AutowireTrait;
 
+  // @todo Set a proper URL when the module has been released for real
+  private const string DOC_URL = 'https://github.com/itk-dev/os2forms_fordelingskomponent';
+
   /**
    * The queue storage.
    *
@@ -140,7 +143,9 @@ final class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Private key'),
       '#required' => TRUE,
       '#default_value' => $settings->sftp?->privateKey,
-      '#description' => $this->t('SFTP private key.'),
+      '#description' => $this->t('Passwordless SFTP private key (see <a href=":doc_url">the Fordelingskomponent for OS2Forms documentation</a> for details).', [
+        ':doc_url' => self::DOC_URL,
+      ]),
     ];
 
     return $section;

@@ -78,6 +78,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 final class FordelingskomponentHelper implements LoggerInterface, EventSubscriberInterface {
   use LoggerTrait;
 
+  private const array FILE_ELEMENT_TYPES = [
+    'managed_file',
+    'webform_document_file',
+    'webform_image_file',
+  ];
+
+  private const string ROUTING_V1_0_0 = 'ROUTING_V1_0_0';
+
+  private const string SFTP_MESSAGE_SUCCESS = 'SUCCESS';
+
   /**
    * The file storage.
    */
@@ -355,12 +365,6 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     );
   }
 
-  private const FILE_ELEMENT_TYPES = [
-    'managed_file',
-    'webform_document_file',
-    'webform_image_file',
-  ];
-
   /**
    * Build files for a distribution object.
    *
@@ -449,8 +453,6 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
 
     return $triggerObjects;
   }
-
-  private const string SFTP_MESSAGE_SUCCESS = 'SUCCESS';
 
   /**
    * Check if all files are delivered.
@@ -727,8 +729,6 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   ): ?TransactionContext {
     return $this->transactionContexts[$transactionId] ?? NULL;
   }
-
-  private const string ROUTING_V1_0_0 = 'ROUTING_V1_0_0';
 
   /**
    * Build trigger file.
