@@ -100,7 +100,7 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
     }
     catch (\Exception $exception) {
       $this->logger->error('Error deleting forsendelser for submissions @submissions: @message', [
-        '@submission' => implode(', ', $ids),
+        '@submissions' => implode(', ', $ids),
         '@message' => $exception->getMessage(),
         'exception' => $exception,
       ]);
