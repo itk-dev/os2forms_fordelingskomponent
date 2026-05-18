@@ -180,6 +180,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     return new DistributionJournalPostType(
       iD: $id,
       kLEEmneForslag: $handlerSettings->distributionContext->kleEmne,
+      handlingFacetForslag: $handlerSettings->distributionContext->handlingFacet,
       registrering: new JournalPostRegistreringType(
         fraTidsPunkt: SF2900::formatDateTime($fraTidsPunkt),
         livscyklusKode: LivscyklusKodeType::VALUE_OPRETTET,
@@ -685,17 +686,19 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       assert($response instanceof FordelingsobjektAfsendResponseType);
       $anvenderTransaktionsId = $request->getAnmodning()->getDistributionContext()->getAnvenderTransaktionsID();
       $context = $this->getTransactionContext($anvenderTransaktionsId);
-      $this->anvenderForsendelseRepository->save(
-        new AnvenderForsendelse(
-          webformId: $context->submission->getWebform()->id(),
-          webformHandlerId: $context->handlerSettings->handlerId,
-          webformSubmissionId: $context->submission->id(),
-          anvenderTransaktionsId: $anvenderTransaktionsId,
-          request: $request,
-          distributionTransaktionsId: $response->getDistributionContext()->getDistributionTransktionsID(),
-          response: $response
-        )
-      );
+      if (NULL !== $context) {
+        $this->anvenderForsendelseRepository->save(
+          new AnvenderForsendelse(
+            webformId: $context->submission->getWebform()->id(),
+            webformHandlerId: $context->handlerSettings->handlerId,
+            webformSubmissionId: $context->submission->id(),
+            anvenderTransaktionsId: $anvenderTransaktionsId,
+            request: $request,
+            distributionTransaktionsId: $response->getDistributionContext()->getDistributionTransktionsID(),
+            response: $response
+          )
+        );
+      }
     }
   }
 
@@ -721,8 +724,8 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
    */
   private function getTransactionContext(
     string $transactionId,
-  ): TransactionContext {
-    return $this->transactionContexts[$transactionId];
+  ): ?TransactionContext {
+    return $this->transactionContexts[$transactionId] ?? NULL;
   }
 
   private const string ROUTING_V1_0_0 = 'ROUTING_V1_0_0';

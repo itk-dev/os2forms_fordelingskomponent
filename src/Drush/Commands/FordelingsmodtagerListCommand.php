@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 // phpcs:disable Drupal.Commenting.ClassComment.Missing
 #[AsCommand(
   name: 'os2forms-fordelingskomponent:fordelingsmodtager:list',
+  description: 'Show list of recipients',
 )]
 final class FordelingsmodtagerListCommand extends AbstractCommand {
 
@@ -23,7 +24,6 @@ final class FordelingsmodtagerListCommand extends AbstractCommand {
    */
   protected function configure(): void {
     $this
-      ->addArgument('routingMyndighed', InputArgument::REQUIRED, 'The routing myndighed')
       ->addArgument('routingKleEmne', InputArgument::REQUIRED, 'The KLE-emne')
       ->addArgument('routingHandlingFacet', InputArgument::OPTIONAL, 'The routingHandlingFacet');
   }
@@ -34,16 +34,18 @@ final class FordelingsmodtagerListCommand extends AbstractCommand {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
 
-    $routingMyndighed = $input->getArgument('routingMyndighed');
+    $routingMyndighed = $this->settings->getSenderSettings()->routingMyndighed;
     $routingKLEEmne = $input->getArgument('routingKleEmne');
     $routingHandlingFacet = $input->getArgument('routingHandlingFacet');
 
-    $info = $this->helper->sf2900()->getModtagerList(
+    $response = $this->helper->sf2900()->getModtagerList(
       routingMyndighed: $routingMyndighed,
       routingKLEEmne: $routingKLEEmne,
       routingHandlingFacet: $routingHandlingFacet,
     );
-    $io->writeln(json_encode($info, JSON_PRETTY_PRINT));
+
+    $io->section('Response');
+    $io->writeln(json_encode($response, JSON_PRETTY_PRINT));
 
     return self::SUCCESS;
   }

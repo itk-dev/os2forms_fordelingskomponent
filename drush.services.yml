@@ -1,28 +1,32 @@
 services:
   os2forms_fordelingskomponent.sftp.ls:
     class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpLsCommand
-    arguments:
+    arguments: &abstract_command_arguments
       - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+      - '@Drupal\os2forms_fordelingskomponent\Settings'
     tags:
       - { name: console.command }
 
   os2forms_fordelingskomponent.sftp.put:
     class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpPutCommand
-    arguments:
-      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    arguments: *abstract_command_arguments
     tags:
       - { name: console.command }
 
   os2forms_fordelingskomponent.sftp.get:
     class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SftpGetCommand
-    arguments:
-      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    arguments: *abstract_command_arguments
+    tags:
+      - { name: console.command }
+
+  os2forms_fordelingskomponent.fordelingsmodtager.list:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\FordelingsmodtagerListCommand
+    arguments: *abstract_command_arguments
     tags:
       - { name: console.command }
 
   os2forms_fordelingskomponent.send.journalnotat:
     class: Drupal\os2forms_fordelingskomponent\Drush\Commands\SendJournalnotatCommand
-    arguments:
-      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+    arguments: *abstract_command_arguments
     tags:
       - { name: console.command }

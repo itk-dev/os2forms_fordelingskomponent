@@ -25,11 +25,15 @@
 
 [^1] It takes a very long time to read a key with a password (reference?)
 
-## Console commands
+## Drush commands
+
+A number of Drush commands may come in handy during development and testing. Run
 
 ``` shell
-drush os2forms-fordelingskomponent:sftp:ls
+drush os2forms-fordelingskomponent
 ```
+
+to see the list of Drush commands provided by the module.
 
 ---
 
