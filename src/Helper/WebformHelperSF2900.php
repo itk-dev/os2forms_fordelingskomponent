@@ -39,6 +39,18 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class WebformHelperSF2900 implements LoggerInterface {
   use LoggerTrait;
 
+  private const string PAYLOAD_KEY = 'os2forms_fordelingskomponent';
+  private const string PAYLOAD_STATE = 'state';
+  private const string STATE_UPLOAD_FILES = 'upload_files';
+
+  private const string PAYLOAD_FILES = 'files';
+  private const string STATE_CHECK_FILES = 'check_files';
+
+  private const string PAYLOAD_FILES_DELIVERED = 'files_delivered';
+  private const string STATE_SEND_DISTRIBUTION_OBJECT = 'send_distribution_object';
+
+  private const string PDF_MIME_TYPE = 'application/pdf';
+
   /**
    * The webform submission storage.
    *
@@ -124,6 +136,11 @@ final class WebformHelperSF2900 implements LoggerInterface {
 
     $fileName = $instance::getFileName($element, $submission);
     $mimeType = $instance::getFileMimeType($element, $submission);
+
+    if (self::PDF_MIME_TYPE !== $mimeType) {
+      throw new InvalidAttachmentElementException(sprintf('The attachment element must be a PDF file (%s); got %s.', self::PDF_MIME_TYPE, $mimeType));
+    }
+
     $content = $instance::getFileContent($element, $submission);
 
     return new Attachment(
@@ -363,16 +380,6 @@ final class WebformHelperSF2900 implements LoggerInterface {
 
     return $handlerSettings;
   }
-
-  private const string PAYLOAD_KEY = 'os2forms_fordelingskomponent';
-  private const string PAYLOAD_STATE = 'state';
-  private const string STATE_UPLOAD_FILES = 'upload_files';
-
-  private const string PAYLOAD_FILES = 'files';
-  private const string STATE_CHECK_FILES = 'check_files';
-
-  private const string PAYLOAD_FILES_DELIVERED = 'files_delivered';
-  private const string STATE_SEND_DISTRIBUTION_OBJECT = 'send_distribution_object';
 
   /**
    * Get state for a job.
