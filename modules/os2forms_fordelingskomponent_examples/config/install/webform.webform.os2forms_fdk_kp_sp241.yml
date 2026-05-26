@@ -14,8 +14,8 @@ third_party_settings:
       email_recipients: ""
     os2forms_nemid:
       session_type: ""
-      webform_type: ""
-      nemlogin_auto_redirect: 0
+      webform_type: personal
+      nemlogin_auto_redirect: 1
       os2forms_nemlogin_openid_connect:
         authentication_settings:
           user_claim: ""
@@ -119,21 +119,21 @@ elements: |-
     '#type': webform_markup
     '#markup': '<p><a href="/webform/[webform:id]/test?ansoeger_personnummer=1234567890&amp;ansoeger_telefonnummer=12345678&amp;fuldmagt_fuldmagthaverspersonnummer=0987654321">Udfyld med testdata</a></p>'
   ansoeger_fornavn:
-    '#type': textfield
+    '#type': os2forms_nemid_first_name
     '#title': Fornavn
     '#required': true
     '#prepopulate': true
   ansoeger_mellemnavn:
-    '#type': textfield
+    '#type': os2forms_nemid_middle_name
     '#title': Mellemnavn
     '#prepopulate': true
   ansoeger_efternavn:
-    '#type': textfield
+    '#type': os2forms_nemid_last_name
     '#title': Efternavn
     '#required': true
     '#prepopulate': true
   ansoeger_personnummer:
-    '#type': textfield
+    '#type': os2forms_nemid_cpr
     '#title': Personnummer
     '#required': true
     '#pattern': '\d{10}'

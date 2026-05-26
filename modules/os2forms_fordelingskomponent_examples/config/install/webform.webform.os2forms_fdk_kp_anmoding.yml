@@ -55,6 +55,9 @@ third_party_settings:
       dokumenter_bilag:
         encrypt: true
         encrypt_profile: webform
+      first_name:
+        encrypt: true
+        encrypt_profile: webform
   os2forms:
     os2forms_email_handler:
       enabled: 0
@@ -169,6 +172,11 @@ elements: |-
     '#type': webform_document_file
     '#title': Bilag
     '#multiple': 3
+  first_name:
+    '#type': os2forms_nemid_first_name
+    '#title': 'first name'
+    '#multiple': false
+    '#readonly': true
 css: ""
 javascript: ""
 settings:
