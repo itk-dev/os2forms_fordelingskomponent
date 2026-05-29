@@ -303,6 +303,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
 
     $section[DistributionObjectSettings::XSD_URL] = [
       '#type' => 'textfield',
+      '#size' => 128,
       '#title' => $this->t('XSD URL'),
       '#default_value' => $settings->xsdUrl,
     ];
@@ -388,7 +389,6 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     foreach ([
       DistributionContextSettings::NAME,
       DistributionObjectSettings::NAME,
-               // SenderSettings::NAME,.
     ] as $name) {
       $this->configuration[$name] = $form_state->getValue($name);
     }
