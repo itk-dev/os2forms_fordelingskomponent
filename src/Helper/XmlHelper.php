@@ -56,9 +56,17 @@ class XmlHelper {
         $this->checkXml($template);
       }
 
-      return $this->useTwig(
+      $xml = $this->useTwig(
         fn () => $this->createTemplate($template)->render($context)
       );
+
+      // Prettyprint XML.
+      $dom = new \DOMDocument();
+      $dom->preserveWhiteSpace = FALSE;
+      $dom->formatOutput = TRUE;
+      $dom->loadXML($xml);
+
+      return $dom->saveXML();
     }
     catch (\Throwable $exception) {
       throw new InvalidXmlException($exception->getMessage(), $exception->getCode(), $exception);
