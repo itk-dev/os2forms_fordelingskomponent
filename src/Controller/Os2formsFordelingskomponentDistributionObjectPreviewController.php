@@ -8,6 +8,7 @@ use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks;
 use Drupal\os2forms_fordelingskomponent\Model\Attachment;
+use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\os2forms_fordelingskomponent\Settings;
 use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
@@ -75,7 +76,12 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
     $warnings = [];
 
     $distributionObject = NULL;
-    $xml = [];
+    $xml = new XmlRenderResult(
+      template: '',
+      context: [],
+      rendered: NULL,
+      exception: NULL,
+    );
     try {
       $attachment = new Attachment('preview', Attachment::MIME_TYPE_PDF, 'preview.pdf');
       $distributionObject = $this->helper->buildDistributionObject($handlerSettings, $submission, $attachment);

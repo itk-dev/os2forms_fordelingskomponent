@@ -41,28 +41,33 @@
 {% endblock %}
 
 {% block navigation %}
-  <div class="navigation">
+    <div class="navigation">
+        <div class="edit-handler">
+            <a href="{{ path('entity.webform.handler.edit_form', {webform: webform.id, webform_handler: handler.handlerId, destination: path('<current>')}) }}">{{ 'Edit handler %handler'|trans({'%handler': handler.label}) }}</a>
+        </div>
+        <div class="return">
+            <a href="{{ path('entity.webform.handlers', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Back to webform handlers'|trans({'%handler': handler.label}) }}</a>
+        </div>
+    </div>
+
     <div class="paging">
-        {% if links is defined %}
-            {% if links.prev %}
-                <a href="{{ links.prev }}">{{ 'Previous submission'|t }}</a>
-            {% else %}
-                <span disabled>{{ 'Previous submission'|t }}</span>
+    <div class="navigation">
+            {% if links is defined %}
+                {% if links.prev %}
+                    <a href="{{ links.prev }}">{{ 'Previous submission'|t }}</a>
+                {% else %}
+                    <span disabled>{{ 'Previous submission'|t }}</span>
+                {% endif %}
+
+                <a href="{{ path('entity.webform_submission.yaml', {webform: submission.webform.id, webform_submission: submission.id}) }}">{{ 'Show submission'|t }}</a>
+                {% if links.next %}
+                    <a href="{{ links.next }}">{{ 'Next submission'|t }}</a>
+                {% else %}
+                    <span disabled>{{ 'Next submission'|t }}</span>
+                {% endif %}
             {% endif %}
-            {% if links.next %}
-                <a href="{{ links.next }}">{{ 'Next submission'|t }}</a>
-            {% else %}
-                <span disabled>{{ 'Next submission'|t }}</span>
-            {% endif %}
-        {% endif %}
+        </div>
     </div>
-    <div class="edit-handler">
-        <a href="{{ path('entity.webform.handler.edit_form', {webform: webform.id, webform_handler: handler.handlerId, destination: path('<current>')}) }}">{{ 'Edit handler %handler'|trans({'%handler': handler.label}) }}</a>
-    </div>
-    <div class="return">
-        <a href="{{ path('entity.webform.handlers', {webform: webform.id, webform_handler: handler.handlerId}) }}">{{ 'Back to webform handlers'|trans({'%handler': handler.label}) }}</a>
-    </div>
-  </div>
 {% endblock %}
 
 {% block content %}{% endblock %}
