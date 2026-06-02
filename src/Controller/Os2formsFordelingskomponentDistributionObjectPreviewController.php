@@ -7,11 +7,7 @@ namespace Drupal\os2forms_fordelingskomponent\Controller;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks;
-use Drupal\os2forms_fordelingskomponent\Model\Attachment;
-use Drupal\os2forms_fordelingskomponent\Model\XmlRenderResult;
-use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\os2forms_fordelingskomponent\Settings;
-use Drupal\os2forms_fordelingskomponent\Settings\HandlerSettings;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,45 +59,8 @@ final class Os2formsFordelingskomponentDistributionObjectPreviewController exten
       '#submission' => $webform_submission,
       '#handler' => $handler,
       '#handler_settings' => $handlerSettings,
-      '#preview' => $this->renderPreview($handler, $handlerSettings, $webform_submission),
+      '#preview' => $this->helper->renderPreview($handler, $webform_submission, $handlerSettings),
       '#links' => $links,
-    ];
-  }
-
-  /**
-   * Render preview of distribution object.
-   */
-  public function renderPreview(WebformHandlerSF2900 $handler, HandlerSettings $handlerSettings, WebformSubmissionInterface $submission): array {
-    $exceptions = [];
-    $warnings = [];
-
-    $distributionObject = NULL;
-    $xml = new XmlRenderResult(
-      template: '',
-      context: [],
-      rendered: NULL,
-      exception: NULL,
-    );
-    try {
-      $attachment = new Attachment('preview', Attachment::MIME_TYPE_PDF, 'preview.pdf');
-      $distributionObject = $this->helper->buildDistributionObject($handlerSettings, $submission, $attachment);
-    }
-    catch (\Exception $exception) {
-      $exceptions[] = $exception;
-    }
-
-    try {
-      $xml = $this->helper->renderXml($handlerSettings, $submission, validateXml: FALSE);
-    }
-    catch (\Throwable) {
-      // Silently ignore any errors.
-    }
-
-    return [
-      'exceptions' => $exceptions,
-      'warnings' => $warnings,
-      'distribution_object' => $distributionObject,
-      'xml' => $xml->withContextAsArray(),
     ];
   }
 

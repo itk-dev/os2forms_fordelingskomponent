@@ -109,6 +109,52 @@ final class WebformHelperSF2900 implements LoggerInterface {
   }
 
   /**
+   * Render preview of distribution object.
+   *
+   * @return array{
+   *   exceptions: \Exception[],
+   *   warnings: \Exception[],
+   *   distribution_object: DistributionFormularType|DistributionDokumentType|DistributionJournalPostType,
+   *   xml: XmlRenderResult,
+   *   }
+   */
+  public function renderPreview(WebformHandlerSF2900 $handler, WebformSubmissionInterface $submission, ?HandlerSettings $handlerSettings = NULL): array {
+    $handlerSettings ??= $this->settings->getHandlerSettings($handler);
+
+    $exceptions = [];
+    $warnings = [];
+
+    $distributionObject = NULL;
+    $xml = new XmlRenderResult(
+      template: '',
+      context: [],
+      rendered: NULL,
+      exception: NULL,
+    );
+    try {
+      $attachment = new Attachment('preview', Attachment::MIME_TYPE_PDF, 'preview.pdf');
+      $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
+    }
+    catch (\Exception $exception) {
+      $exceptions[] = $exception;
+    }
+
+    try {
+      $xml = $this->renderXml($handlerSettings, $submission, validateXml: FALSE);
+    }
+    catch (\Throwable) {
+      // Silently ignore any errors.
+    }
+
+    return [
+      'exceptions' => $exceptions,
+      'warnings' => $warnings,
+      'distribution_object' => $distributionObject,
+      'xml' => $xml->withContextAsArray(),
+    ];
+  }
+
+  /**
    * Get main document.
    *
    * @see WebformAttachmentController::download()

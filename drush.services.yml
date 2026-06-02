@@ -30,3 +30,13 @@ services:
     arguments: *abstract_command_arguments
     tags:
       - { name: console.command }
+
+  os2forms_fordelingskomponent.send.validate_xml:
+    class: Drupal\os2forms_fordelingskomponent\Drush\Commands\ValidateXmlCommand
+    arguments:
+      - '@Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper'
+      - '@Drupal\os2forms_fordelingskomponent\Settings'
+      - '@entity_type.manager'
+      - '@Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900'
+    tags:
+      - { name: console.command }
