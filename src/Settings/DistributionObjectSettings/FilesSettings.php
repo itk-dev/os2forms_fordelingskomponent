@@ -20,6 +20,9 @@ class FilesSettings extends AbstractSettings {
   public const string RECIPIENT_IT_SYSTEM_LOOK_UP = 'recipient_it_system_look_up';
   public bool $recipientItSystemLookUp = TRUE;
 
+  public const string RECIPIENT_AUTHORITY_OVERRIDE = 'recipient_authority_override';
+  public bool $recipientAuthorityOverride = FALSE;
+
   public const string RECIPIENT_AUTHORITY_PATTERN = self::CVR_PATTERN;
   public const string RECIPIENT_AUTHORITY = 'recipient_authority';
   public ?string $recipientAuthority = '';

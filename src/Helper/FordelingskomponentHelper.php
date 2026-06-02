@@ -755,10 +755,14 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
 
     $infRef = $handlerSettings->distributionObject->files->filspecifikation;
     $senderItSystem = $handlerSettings->sender->registreringItSystem;
-    $senderAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->sender->routingMyndighed;
+    $senderAuthority = sprintf('urn:oio:cvr-nr:%08d', $handlerSettings->sender->routingMyndighed);
 
     $recipientItSystem = trim((string) ($recipientItSystem ?? $handlerSettings->distributionObject->files->recipientItSystem));
-    $recipientAuthority = 'urn:oio:cvr-nr:' . $handlerSettings->distributionObject->files->recipientAuthority;
+    $recipientAuthority = trim($handlerSettings->distributionObject->files->recipientAuthority);
+    if ('' === $recipientAuthority) {
+      $recipientAuthority = $handlerSettings->sender->routingMyndighed;
+    }
+    $recipientAuthority = sprintf('urn:oio:cvr-nr:%08d', $recipientAuthority);
 
     $routingInfo = (new SFTPDynamicRoutingInfoType())
       ->setInfRef($infRef)

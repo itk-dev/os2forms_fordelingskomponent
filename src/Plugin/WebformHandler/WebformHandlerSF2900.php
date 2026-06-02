@@ -279,6 +279,18 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       ],
     ];
 
+    $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY_OVERRIDE] = [
+      '#title' => $this->t('Set %recipient_authority', [
+        '%recipient_authority' => $this->t('Recipient authority'),
+      ]),
+      '#type' => 'checkbox',
+      '#default_value' => $settings->files->recipientAuthorityOverride,
+      '#description' => $this->t('If %recipient_authority is not set here, the global %routing_myndighed_label value (@routing_myndighed_value) will be used.', [
+        '%recipient_authority' => $this->t('Recipient authority'),
+        '%routing_myndighed_label' => $this->t('Routing myndighed'),
+        '@routing_myndighed_value' => $this->settingsService->getSenderSettings()->routingMyndighed,
+      ]),
+    ];
     $section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY] = [
       '#title' => $this->t('Recipient authority'),
       '#type' => 'textfield',
@@ -286,7 +298,15 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
         'pattern' => DistributionObjectFilesSettings::RECIPIENT_AUTHORITY_PATTERN,
       ],
       '#default_value' => $settings->files->recipientAuthority,
-      '#description' => $this->t('CVR for recipient'),
+      '#description' => $this->t('CVR for recipient.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[' . DistributionObjectSettings::NAME . '][' . DistributionObjectSettings::FILES . '][' . DistributionObjectFilesSettings::RECIPIENT_AUTHORITY_OVERRIDE . ']"]' => ['checked' => TRUE],
+        ],
+        'required' => [
+          ':input[name="settings[' . DistributionObjectSettings::NAME . '][' . DistributionObjectSettings::FILES . '][' . DistributionObjectFilesSettings::RECIPIENT_AUTHORITY_OVERRIDE . ']"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
     $setStates($section[DistributionObjectSettings::FILES][DistributionObjectFilesSettings::RECIPIENT_AUTHORITY], [
       DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR,

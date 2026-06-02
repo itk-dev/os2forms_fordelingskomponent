@@ -101,7 +101,7 @@ final class SettingsForm extends ConfigFormBase {
     $section[SenderSettings::ROUTING_MYNDIGHED] = [
       '#type' => 'textfield',
       '#title' => $this->t('Routing myndighed'),
-      // '#required' => TRUE,
+      '#required' => TRUE,
       '#default_value' => $settings->routingMyndighed,
       '#description' => $this->t('Default routing myndighed (CVR). May be overwritten by handler settings.'),
     ];

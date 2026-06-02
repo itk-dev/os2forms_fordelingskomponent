@@ -35,6 +35,17 @@ drush os2forms-fordelingskomponent
 
 to see the list of Drush commands provided by the module.
 
+## Generatings submissions
+
+For testing and development, it may be useful to generate a number/lot of submissions on a webform. The
+[Webform](https://www.drupal.org/project/webform) and [Devel](https://www.drupal.org/project/devel) modules can help us
+do this:
+
+``` shell
+drush pm:install webform_devel devel_generate
+drush webform:generate --help
+```
+
 ---
 
 ``` shell name=key-create-sf2900_certificate
