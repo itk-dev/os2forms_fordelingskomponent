@@ -443,9 +443,9 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
         foreach ($items as $item) {
           /** @var \Drupal\file\Entity\File $file */
           $file = $item['file'];
-          $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
           $triggerObject = $this->buildTriggerFile($file, $item['sftp_filename'], $handlerSettings, $submission, $transactionId,
             recipientItSystem: $recipientItSystem);
+          $sftp->putFile($file->getFileUri(), $file->getFilename(), $item['sftp_filename']);
           $sftp->putContents($triggerObject, $item['sftp_filename'], $item['sftp_filename'] . '.trigger');
           $triggerObjects[] = $triggerObject;
         }
