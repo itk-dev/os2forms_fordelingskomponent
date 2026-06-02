@@ -377,6 +377,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     $fileElements = array_filter($elements,
       static fn(array $element) => in_array($element['#type'] ?? NULL, self::FILE_ELEMENT_TYPES));
     foreach ($fileElements as $type => $_) {
+      $groups[$type] = [];
       $values = $submission->getData()[$type] ?? NULL;
       if ($values) {
         /** @var \Drupal\file\FileInterface[] $files */
