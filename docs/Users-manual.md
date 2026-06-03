@@ -24,19 +24,19 @@ like:
         <Myndighed>urn:oio:cvr-nr:{{ handler.settings.sender.sender_id }}</Myndighed>
         <ModtagetDato>{{ submission.completed|date("Y-m-d") }}</ModtagetDato>
         <KLE>{{ handler.settings.distribution_context.kle_emne }}</KLE>
-        {% for file in files.dokumenter_overslag|default([]) %}
+        {% for file in files.dokumenter_overslag %}
         <Dokumenter>
             <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
             <Dokumenttype>Overslag</Dokumenttype>
         </Dokumenter>
         {% endfor %}
-        {% for file in files.dokumenter_faktura|default([]) %}
+        {% for file in files.dokumenter_faktura %}
         <Dokumenter>
             <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
             <Dokumenttype>Faktura</Dokumenttype>
         </Dokumenter>
         {% endfor %}
-        {% for file in files.dokumenter_bilag|default([]) %}
+        {% for file in files.dokumenter_bilag %}
         <Dokumenter>
             <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
             <Dokumenttype>Bilag</Dokumenttype>
