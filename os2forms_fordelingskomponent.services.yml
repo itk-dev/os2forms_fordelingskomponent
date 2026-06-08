@@ -29,3 +29,7 @@ services:
   Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository:
 
   Drupal\os2forms_fordelingskomponent\Settings:
+
+  Drupal\os2forms_fordelingskomponent\Os2formsFordelingskomponentTwigExtension:
+    tags:
+      - { name: twig.extension }

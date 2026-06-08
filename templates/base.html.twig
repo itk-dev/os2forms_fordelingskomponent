@@ -59,7 +59,11 @@
                     <span disabled>{{ 'Previous submission'|t }}</span>
                 {% endif %}
 
-                <a href="{{ path('entity.webform_submission.yaml', {webform: submission.webform.id, webform_submission: submission.id}) }}">{{ 'Show submission'|t }}</a>
+                <div class="submission">
+                    <a href="{{ path('entity.webform_submission.yaml', {webform: submission.webform.id, webform_submission: submission.id}) }}">{{ submission.label }}</a>
+                    [<a href="{{ path('entity.webform_submission.edit_form.all', {webform: submission.webform.id, webform_submission: submission.id}) }}">{{ 'Edit'|t }}</a>]
+                </div>
+
                 {% if links.next %}
                     <a href="{{ links.next }}">{{ 'Next submission'|t }}</a>
                 {% else %}

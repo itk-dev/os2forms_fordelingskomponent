@@ -239,3 +239,26 @@ The render context contains three main parts:
 2. Information on files attached (uploaded) to the submission (grouped by element key)
 3. The handler settings: This includes the global OS2Forms Fordelingskomponent module settings and the settings on the
    handler
+
+## Twig extensions
+
+This modules adds some useful Twig functions,
+
+`os2forms_fordelingskomponent_intval`
+`os2forms_fordelingskomponent_floatval`
+`os2forms_fordelingskomponent_gettype`
+
+that basically wrap the build PHP functions [`intval`](https://www.php.net/manual/en/function.intval.php),
+[`floatval`](https://www.php.net/manual/en/function.floatval.php) and
+[`gettype`](https://www.php.net/manual/en/function.gettype.php).
+
+However, `os2forms_fordelingskomponent_floatval` accepts a second argument `langcode` that's used to help extract the
+float value based on a language code:
+
+``` twig
+{{ os2forms_fordelingskomponent_floatval('1,23') == 123 }}
+{{ os2forms_fordelingskomponent_floatval('1.23') == 1.23 }}
+
+{{ os2forms_fordelingskomponent_floatval('1,23', langcode: 'da') == 1.23 }}
+{{ os2forms_fordelingskomponent_floatval('1.23', langcode: 'da') == 123}}
+```

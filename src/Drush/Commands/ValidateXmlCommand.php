@@ -58,7 +58,7 @@ final class ValidateXmlCommand extends AbstractCommand {
       ->addArgument('webform-id', InputArgument::REQUIRED, 'Webform ID')
       ->addArgument('handler-id', InputArgument::REQUIRED, 'Handler ID')
       ->addOption('show-xml', NULL, InputOption::VALUE_NONE, 'Show XML')
-      ->addOption('break-on-error', NULL, InputOption::VALUE_OPTIONAL, 'Break on error. If set, terminate after first error.', TRUE);
+      ->addOption('break-on-error', NULL, InputOption::VALUE_OPTIONAL, 'Break on error. If set, terminate after first error.', FALSE);
   }
 
   /**
@@ -78,29 +78,38 @@ final class ValidateXmlCommand extends AbstractCommand {
     $handler = $this->getHandler($handlerId, $webform);
     $submissions = $this->loadSubmissions($webform);
 
-    foreach ($submissions as $submission) {
-      $preview = $this->webformHelper->renderPreview($handler, $submission);
-      $hasErrors = count($preview['exceptions']) > 0;
-      if ($hasErrors) {
-        foreach ($preview['exceptions'] as $exception) {
-          $io->error([$submission->label(), $exception->getMessage()]);
+    if (0 === count($submissions)) {
+      $io->warning(sprintf('No submissions on form %s', $webform->label()));
+    }
+    else {
+      foreach ($submissions as $submission) {
+        $preview = $this->webformHelper->renderPreview($handler, $submission);
+        $hasErrors = count($preview['exceptions']) > 0;
+        if ($hasErrors) {
+          foreach ($preview['exceptions'] as $exception) {
+            $io->error([$submission->label(), $exception->getMessage()]);
+          }
+        }
+        else {
+          $io->success($submission->label());
+        }
+
+        if ($showXml) {
+          if (NULL === $preview['xml']->rendered) {
+            $io->warning('Cannot render XML');
+          }
+          else {
+            $io->writeln($preview['xml']->rendered);
+          }
+        }
+
+        if ($hasErrors) {
+          if ($breakOnError) {
+            return self::FAILURE;
+          }
+          continue;
         }
       }
-      else {
-        $io->success($submission->label());
-      }
-
-      if ($showXml) {
-        $io->writeln($preview['xml']->rendered);
-      }
-
-      if ($hasErrors) {
-        if ($breakOnError) {
-          return self::FAILURE;
-        }
-        continue;
-      }
-
     }
 
     return self::SUCCESS;
