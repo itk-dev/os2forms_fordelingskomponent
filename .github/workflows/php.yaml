@@ -41,8 +41,7 @@ on:
     paths: &paths
       - "**/*.php"
       - "composer.json"
-      - "composer.lock"
-      - "docker-compose.yml"
+      - "compose.yaml"
   push:
     branches:
       - main

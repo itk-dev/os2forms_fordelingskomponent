@@ -31,8 +31,7 @@ on:
     paths: &paths
       - "**/*.twig"
       - "composer.json"
-      - "composer.lock"
-      - "docker-compose.yml"
+      - "compose.yaml"
   push:
     branches:
       - main

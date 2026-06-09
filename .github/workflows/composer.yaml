@@ -32,8 +32,7 @@ on:
   pull_request:
     paths: &paths
       - "composer.json"
-      - "composer.lock"
-      - "docker-compose.yml"
+      - "compose.yaml"
   push:
     branches:
       - main
