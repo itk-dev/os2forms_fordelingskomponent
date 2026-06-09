@@ -17,7 +17,7 @@
         "drupal/system_stream_wrapper": "^2.1",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "^1.9",
-        "os2forms/os2forms": "dev-feature/add-first-middle-and-last-name-nemid-elements as 5.2.0",
+        "os2forms/os2forms": "dev-feature/fordelingskomponent as 5.2.0",
         "os2web/os2web_datalookup": "dev-feature/fetch-first-middle-and-last-name as 3.4.0"
     },
     "require-dev": {
