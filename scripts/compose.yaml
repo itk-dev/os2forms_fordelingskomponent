@@ -20,4 +20,4 @@ services:
       MODULE_PATH: web/modules/contrib/$MODULE_NAME
       # https://getcomposer.org/doc/03-cli.md#composer-ignore-platform-req-or-composer-ignore-platform-reqs
       COMPOSER_IGNORE_PLATFORM_REQS: 1
-      COMPOSER_TOKEN: ${COMPOSER_TOKEN:-}
+      COMPOSER_AUTH: ${COMPOSER_AUTH:-}
