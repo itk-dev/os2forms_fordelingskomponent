@@ -304,7 +304,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     // The attachment must be a PDF.
     $titelTekst = basename($attachment->filename);
     $formatNavn = pathinfo($attachment->filename, PATHINFO_EXTENSION);
-    $formularIndhold = base64_encode($attachment->contents);
+    $formularIndhold = $attachment->contents;
 
     // The XML will be embedded in an SOAP:Envelope element, so we have to
     // make sure that the XML declaration is not included when embedding.
