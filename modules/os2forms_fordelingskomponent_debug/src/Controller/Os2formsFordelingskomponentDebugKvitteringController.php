@@ -33,18 +33,19 @@ final class Os2formsFordelingskomponentDebugKvitteringController extends Abstrac
 
     // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Table.php/class/Table/10
     $header = [
-      'id' => $this->t('ID'),
-      'anvenderTransaktionsId' => $this->t('anvenderTransaktionsId'),
+      'id' => $this->t('Kvittering'),
+      'anvenderTransaktionsId' => $this->t('Forsendelse'),
       'distributionTransaktionsId' => $this->t('distributionTransaktionsId'),
       'createdAt' => $this->t('Created at'),
       'updatedAt' => $this->t('Updated at'),
     ];
     $rows = [];
     foreach ($items as $item) {
+      $receipt = $item->request->getForretningskvittering();
       $rows[] = [
         'id' => [
           'data' => [
-            '#title' => $item->id,
+            '#title' => sprintf('%s: %s', $receipt->getKvitteringstype(), $receipt->getForretningsValideringsKode()),
             '#type' => 'link',
             '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_kvittering',
               [

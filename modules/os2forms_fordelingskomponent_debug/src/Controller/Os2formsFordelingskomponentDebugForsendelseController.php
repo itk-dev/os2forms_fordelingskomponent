@@ -35,6 +35,7 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
 
     // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Table.php/class/Table/10
     $header = [
+      'response' => $this->t('Response'),
       'anvenderTransaktionsId' => $this->t('anvenderTransaktionsId'),
       'distributionTransaktionsId' => $this->t('distributionTransaktionsId'),
       'receipts' => $this->t('Receipts'),
@@ -43,8 +44,22 @@ final class Os2formsFordelingskomponentDebugForsendelseController extends Abstra
     ];
     $rows = [];
     foreach ($items as $item) {
+      $receipt = $item->response->getForretningsKvittering();
       $receipts = $this->kvitteringRepository->loadByAnvenderTransaktionsId($item->anvenderTransaktionsId);
       $rows[] = [
+        'response' => [
+          'data' => [
+            // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Link.php/class/Link/10
+            '#title' => sprintf('%s: %s', $receipt->getKvitteringstype(), $receipt->getForretningsValideringsKode()),
+            '#type' => 'link',
+            '#url' => Url::fromRoute('os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse', [
+              'webform' => $webform->id(),
+              'webform_submission' => $webform_submission->id(),
+              'anvender_transaktions_id' => $item->anvenderTransaktionsId,
+            ]),
+          ],
+        ],
+
         'anvenderTransaktionsId' => [
           'data' => [
             // https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21Element%21Link.php/class/Link/10
