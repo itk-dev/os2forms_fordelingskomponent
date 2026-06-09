@@ -2,6 +2,7 @@ name: Project
 
 env:
   COMPOSE_USER: root
+  COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   pull_request:
