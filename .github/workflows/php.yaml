@@ -35,6 +35,7 @@ name: PHP
 
 env:
   COMPOSE_USER: runner
+  COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   pull_request:
@@ -65,9 +66,10 @@ jobs:
           # Create a temporary composer file to install https://github.com/mglaman/composer-drupal-lenient before the real install needs it.
           docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer init --no-interaction
           docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
-          docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer require mglaman/composer-drupal-lenient:^1
+          docker compose run --rm --env COMPOSER_TOKEN --env COMPOSER=composer.lenient.json phpfpm composer require mglaman/composer-drupal-lenient:^1
           docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm rm composer.lenient.*
-          docker compose run --rm phpfpm composer install
+          # The real install.
+          docker compose run --rm --env COMPOSER_TOKEN phpfpm composer install
 
       - run: |
           docker compose run --rm phpfpm vendor/bin/phpcs
