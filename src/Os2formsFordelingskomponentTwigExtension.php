@@ -15,6 +15,7 @@ final class Os2formsFordelingskomponentTwigExtension extends AbstractExtension {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function getFunctions(): array {
     $functions[] = new TwigFunction(
       'os2forms_fordelingskomponent_intval',

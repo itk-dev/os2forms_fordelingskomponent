@@ -18,9 +18,11 @@ final readonly class XmlRenderResult {
      * The context.
      *
      * @var array{
-     *   submission: array,
+     *   submission: array|WebformSubmissionInterface|null,
      *   files: array,
-     *   handler: array,
+     *   handler: array{
+     *     settings: array,
+     *   },
      * }
      */
     public array $context,
