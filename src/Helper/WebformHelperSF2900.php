@@ -354,7 +354,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
       $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
 
       $sftpRoutingRequired = $distributionObject instanceof DistributionFormular
-        && !empty($distributionObject->getFileGroups());
+        && !empty(array_filter($distributionObject->getFileGroups()));
 
       if (!$sftpRoutingRequired) {
         // No SFTP files uplead and awaiting delivery needed.

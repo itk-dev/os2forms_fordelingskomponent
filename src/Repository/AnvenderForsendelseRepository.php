@@ -7,6 +7,7 @@ use Drupal\os2forms_fordelingskomponent\Model\Fordelingskomponent\AnvenderForsen
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
+use ItkDev\Serviceplatformen\SF2900\EnumType\ObjektTypeType;
 
 /**
  * Repository for AnvenderForsendelse.
@@ -137,12 +138,23 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
       $forsendelse->createdAt ??= $now;
       $forsendelse->updatedAt = $now;
 
+      // The database doesn't like us saving binary PDF data, so we base64
+      // encode it.
+      $request = $forsendelse->request;
+      $distributionObject = $request->getAnmodning()->getDistributionObject();
+      switch ($distributionObject->getObjektType()) {
+        case ObjektTypeType::VALUE_FORMULAR:
+          $formular = $distributionObject->getObjektIndhold()->getDistributionFormular()->getMeddelelse()->getFormular();
+          $formular->setFormularIndhold(base64_encode($formular->getFormularIndhold()));
+          break;
+      }
+
       $fields = [
         'webform_id' => $forsendelse->webformId,
         'webform_handler_id' => $forsendelse->webformHandlerId,
         'webform_submission_id' => $forsendelse->webformSubmissionId,
         'anvender_transaktions_id' => $forsendelse->anvenderTransaktionsId,
-        'request' => serialize($forsendelse->request),
+        'request' => serialize($request),
         'distribution_transaktions_id' => $forsendelse->distributionTransaktionsId,
         'response' => serialize($forsendelse->response),
         'created_at' => $forsendelse->createdAt,
