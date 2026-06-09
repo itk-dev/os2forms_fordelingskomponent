@@ -75,8 +75,16 @@ class XmlHelper {
 
   /**
    * Get render context.
+   *
+   * @return array {
+   *   submission: array,
+   *   files: array,
+   *   handler: array{
+   *     settings: array
+   *   }
+   *   }
    */
-  public function getRenderContext(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, array $files) {
+  public function getRenderContext(HandlerSettings $handlerSettings, WebformSubmissionInterface $submission, array $files): array {
     return [
       'submission' => $submission->toArray(TRUE),
       'files' => $files,

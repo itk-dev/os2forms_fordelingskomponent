@@ -127,7 +127,13 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $distributionObject = NULL;
     $xml = new XmlRenderResult(
       template: '',
-      context: [],
+      context: [
+        'submission' => [],
+        'files' => [],
+        'handler' => [
+          'settings' => [],
+        ],
+      ],
       rendered: NULL,
       exception: NULL,
     );

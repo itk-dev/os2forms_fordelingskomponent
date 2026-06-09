@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\os2forms_fordelingskomponent\Drush\Commands;
 
-use Composer\Console\Input\InputOption;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
@@ -18,6 +17,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
