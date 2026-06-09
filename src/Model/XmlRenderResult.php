@@ -14,6 +14,15 @@ final readonly class XmlRenderResult {
    */
   public function __construct(
     public string $template,
+    /**
+     * The context.
+     *
+     * @var array{
+     *   submission: array,
+     *   files: array,
+     *   handler: array,
+     * }
+     */
     public array $context,
     public ?string $rendered,
     public ?\Exception $exception,

@@ -6,6 +6,7 @@ namespace Drupal\os2forms_fordelingskomponent\Drush\Commands;
 
 use Composer\Console\Input\InputOption;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Url;
 use Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper;
 use Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900;
 use Drupal\os2forms_fordelingskomponent\Plugin\WebformHandler\WebformHandlerSF2900;
@@ -58,6 +59,7 @@ final class ValidateXmlCommand extends AbstractCommand {
       ->addArgument('webform-id', InputArgument::REQUIRED, 'Webform ID')
       ->addArgument('handler-id', InputArgument::REQUIRED, 'Handler ID')
       ->addOption('show-xml', NULL, InputOption::VALUE_NONE, 'Show XML')
+      ->addOption('show-render-context', NULL, InputOption::VALUE_NONE, 'Show render context')
       ->addOption('break-on-error', NULL, InputOption::VALUE_OPTIONAL, 'Break on error. If set, terminate after first error.', FALSE);
   }
 
@@ -70,6 +72,7 @@ final class ValidateXmlCommand extends AbstractCommand {
     $webformId = $input->getArgument('webform-id');
     $handlerId = $input->getArgument('handler-id');
     $showXml = (bool) $input->getOption('show-xml');
+    $showRenderContext = (bool) $input->getOption('show-render-context');
     $breakOnError = filter_var($input->getOption('break-on-error') ?? TRUE, FILTER_VALIDATE_BOOLEAN);
 
     $io = new SymfonyStyle($input, $output);
@@ -84,14 +87,26 @@ final class ValidateXmlCommand extends AbstractCommand {
     else {
       foreach ($submissions as $submission) {
         $preview = $this->webformHelper->renderPreview($handler, $submission);
+        $previewUrl = Url::fromRoute('os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview', [
+          'webform' => $webform->id(),
+          'webform_handler' => $handler->getHandlerId(),
+          'webform_submission' => $submission->id(),
+        ])
+          ->setAbsolute()
+          ->toString(TRUE)->getGeneratedUrl();
         $hasErrors = count($preview['exceptions']) > 0;
         if ($hasErrors) {
-          foreach ($preview['exceptions'] as $exception) {
-            $io->error([$submission->label(), $exception->getMessage()]);
-          }
+          $io->error([
+            $submission->label(),
+            $previewUrl,
+            ...array_map(static fn (\Exception $exception) => $exception->getMessage(), $preview['exceptions']),
+          ]);
         }
         else {
-          $io->success($submission->label());
+          $io->success([
+            $submission->label(),
+            $previewUrl,
+          ]);
         }
 
         if ($showXml) {
@@ -101,6 +116,10 @@ final class ValidateXmlCommand extends AbstractCommand {
           else {
             $io->writeln($preview['xml']->rendered);
           }
+        }
+
+        if ($showRenderContext) {
+          $io->writeln(json_encode($preview['xml']->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
 
         if ($hasErrors) {
