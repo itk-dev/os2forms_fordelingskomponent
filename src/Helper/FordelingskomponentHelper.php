@@ -142,7 +142,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   ): DistributionFormularType|DistributionDokumentType|DistributionJournalPostType {
     $virkning = $this->buildVirkning($handlerSettings);
 
-    $id = Serializer::createUuid();
+    $id = $this->getTransactionId($submission);
     $fraTidsPunkt = new \DateTime();
     $brevDato = new \DateTime();
 
@@ -402,12 +402,39 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     WebformSubmissionInterface $submission,
     string $filename,
   ): string {
-    return implode('_', [
-      'os2forms_fordelingskomponent',
-      $handlerSettings->handlerId,
-      $submission->uuid(),
-      $filename,
-    ]);
+    $transactionId = $this->getTransactionId($submission);
+
+    // The SFTP filename must not be longer than 255 characters and it *must*
+    // contain the transaction ID.
+    // Filename candidates ordered by longest to shortest.
+    $candidates = [
+      implode('_', [
+        'os2forms_fdk',
+        $submission->uuid(),
+        $handlerSettings->handlerId,
+        $transactionId,
+        $filename,
+      ]),
+      implode('_', [
+        'os2forms_fdk',
+        $handlerSettings->handlerId,
+        $transactionId,
+        $filename,
+      ]),
+      // The safe bet.
+      implode('_', [
+        $transactionId,
+        'file.' . pathinfo($filename, PATHINFO_EXTENSION),
+      ]),
+    ];
+
+    foreach ($candidates as $candidate) {
+      if (strlen($candidate) < 255) {
+        return $candidate;
+      }
+    }
+
+    throw new RuntimeException('Cannot compute valid SFTP filename');
   }
 
   /**
@@ -424,7 +451,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     WebformSubmissionInterface $submission,
   ): array {
     $sf2900 = $this->sf2900();
-    $transactionId = Serializer::createUuid();
+    $transactionId = $this->getTransactionId($submission);
 
     $triggerObjects = [];
     if ($distributionObject instanceof DistributionFormular) {
@@ -533,7 +560,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     HandlerSettings $handlerSettings,
   ) {
     $sf2900 = $this->sf2900();
-    $transactionId = Serializer::createUuid();
+    $transactionId = $this->getTransactionId($submission);
 
     $dokumentFilNavn = NULL;
     if ($dokument instanceof DistributionDokumentType) {
@@ -566,6 +593,8 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     // If the cause is a submission, add webform id to audit logging message.
     $msg .= sprintf(' Webform id %s.', $submission->getWebform()->id());
     $this->auditLogger->info('Fordelingskomponent', $msg);
+
+    $this->unsetTransactionId($submission);
 
     return [$response, $sf2900->getLastRequest()];
   }
@@ -796,6 +825,50 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     }
 
     return $xml;
+  }
+
+  /**
+   * Map from submission UUID to transaction ID.
+   *
+   * @var array>string, string>
+   */
+  private array $transactionIds = [];
+
+  /**
+   * Set transaction ID for a submission.
+   */
+  public function setTransactionId(WebformSubmissionInterface $submission, string $id): void {
+    $this->transactionIds[$submission->uuid()] = $id;
+  }
+
+  /**
+   * Unset transaction ID for a submission.
+   */
+  public function unsetTransactionId(WebformSubmissionInterface $submission): void {
+    unset($this->transactionIds[$submission->uuid()]);
+  }
+
+  /**
+   * Get transaction ID for a submission.
+   *
+   * Unless self::unsetTransactionId() has been called, subsequent calls with
+   * the same submission will return the same ID.
+   *
+   * @return string
+   *   A UUID string.
+   *
+   * @throws \Drupal\os2forms_fordelingskomponent\Exception\RuntimeException
+   *   If a transaction ID cannot be found.
+   *
+   * @see self::unsetTransactionId()
+   */
+  private function getTransactionId(WebformSubmissionInterface $submission): string {
+    $id = $this->transactionIds[$submission->uuid()] ?? NULL;
+    if (NULL === $id) {
+      throw new RuntimeException(sprintf('Cannot get transaction ID for submission %s', $submission->uuid()));
+    }
+
+    return $id;
   }
 
 }

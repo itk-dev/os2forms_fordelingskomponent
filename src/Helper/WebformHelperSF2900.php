@@ -26,6 +26,7 @@ use Drupal\webform\WebformSubmissionInterface;
 use Drupal\webform\WebformSubmissionStorageInterface;
 use Drupal\webform\WebformTokenManagerInterface;
 use Drupal\webform_attachment\Element\WebformAttachmentBase;
+use ItkDev\Serviceplatformen\Service\SF2900\Serializer;
 use ItkDev\Serviceplatformen\SF2900\StructType\DistributionDokumentType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DistributionFormularType;
 use ItkDev\Serviceplatformen\SF2900\StructType\DistributionJournalPostType;
@@ -40,6 +41,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
   use LoggerTrait;
 
   private const string PAYLOAD_KEY = 'os2forms_fordelingskomponent';
+  private const string PAYLOAD_TRANSACTION_ID = 'transaction_id';
   private const string PAYLOAD_STATE = 'state';
   private const string STATE_UPLOAD_FILES = 'upload_files';
 
@@ -139,6 +141,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     );
     try {
       $attachment = new Attachment('preview', Attachment::MIME_TYPE_PDF, 'preview.pdf');
+      $this->helper->setTransactionId($submission, '00000000-0000-0000-0000-000000000000');
       $distributionObject = $this->buildDistributionObject($handlerSettings, $submission, $attachment);
     }
     catch (\Exception $exception) {
@@ -284,6 +287,9 @@ final class WebformHelperSF2900 implements LoggerInterface {
         $handlerSettings = $this->settings->getHandlerSettings($handlerSettings);
       }
 
+      // Create and set a new transaction ID if not already set.
+      $payload[self::PAYLOAD_TRANSACTION_ID] ??= Serializer::createUuid();
+
       if (NULL === $state) {
         // In initial job creating (right after submission), validate the
         // submission and abort on error.
@@ -334,6 +340,12 @@ final class WebformHelperSF2900 implements LoggerInterface {
       'operation' => 'fordelingskomponent afsend',
     ];
     try {
+      $fordelingskomponentPayload = $payload[self::PAYLOAD_KEY] ?? [];
+      $transactionId = $fordelingskomponentPayload[self::PAYLOAD_TRANSACTION_ID] ?? NULL;
+      if (NULL === $transactionId) {
+        throw new RuntimeException(sprintf('Cannot get transaction ID for job %s', $job->getId()));
+      }
+
       $submissionId = $payload['submissionId'];
       $submission = $this->loadSubmission($submissionId);
       if (NULL === $submission) {
@@ -346,6 +358,8 @@ final class WebformHelperSF2900 implements LoggerInterface {
         throw new SubmissionNotFoundException(str_replace(array_keys($context), array_values($context),
           $message));
       }
+
+      $this->helper->setTransactionId($submission, $transactionId);
 
       $context['webform_submission'] = $submission;
       $handlerSettings = new HandlerSettings($payload['handlerSettings']);
@@ -372,7 +386,9 @@ final class WebformHelperSF2900 implements LoggerInterface {
           case self::STATE_UPLOAD_FILES:
             $files = $this->helper->uploadFiles($distributionObject, $handlerSettings, $submission);
             $this->notice('Fordelingskomponent files uploaded', $context);
-            $this->createJob($submission, $handlerSettings, self::STATE_CHECK_FILES, [self::PAYLOAD_FILES => $files]);
+            $this->createJob($submission, $handlerSettings, self::STATE_CHECK_FILES, [
+              self::PAYLOAD_FILES => $files,
+            ] + $fordelingskomponentPayload);
             break;
 
           case self::STATE_CHECK_FILES:
@@ -383,7 +399,9 @@ final class WebformHelperSF2900 implements LoggerInterface {
             }
             else {
               $this->notice('Fordelingskomponent files delivered', $context);
-              $this->createJob($submission, $handlerSettings, self::STATE_SEND_DISTRIBUTION_OBJECT, [self::PAYLOAD_FILES_DELIVERED => TRUE]);
+              $this->createJob($submission, $handlerSettings, self::STATE_SEND_DISTRIBUTION_OBJECT, [
+                self::PAYLOAD_FILES_DELIVERED => TRUE,
+              ] + $fordelingskomponentPayload);
             }
             break;
 
@@ -466,7 +484,12 @@ final class WebformHelperSF2900 implements LoggerInterface {
   public function validateSubmission(WebformSubmissionInterface $submission, HandlerSettings $handlerSettings): void {
     $attachment = $this->getAttachment($submission, $handlerSettings);
 
-    $this->helper->buildDistributionObject($submission, $handlerSettings, $attachment);
+    try {
+      $this->helper->setTransactionId($submission, Serializer::createUuid());
+      $this->helper->buildDistributionObject($submission, $handlerSettings, $attachment);
+    } finally {
+      $this->helper->unsetTransactionId($submission);
+    }
   }
 
 }
