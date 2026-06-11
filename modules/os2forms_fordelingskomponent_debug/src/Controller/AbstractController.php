@@ -21,8 +21,7 @@ abstract class AbstractController extends ControllerBase {
   /**
    * Render YAML.
    */
-  protected function renderYaml(?\JsonSerializable $value): string
-  {
+  protected function renderYaml(?\JsonSerializable $value): string {
     return '<pre><code>'
       . htmlspecialchars(Yaml::dump(json_decode(json_encode($value), TRUE), inline: PHP_INT_MAX))
       . '</code></pre>';
