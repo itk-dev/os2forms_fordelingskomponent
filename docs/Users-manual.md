@@ -262,3 +262,28 @@ float value based on a language code:
 {{ os2forms_fordelingskomponent_floatval('1,23', langcode: 'da') == 1.23 }}
 {{ os2forms_fordelingskomponent_floatval('1.23', langcode: 'da') == 123}}
 ```
+
+A Twig filter, `os2forms_fordelingskomponent_xml_encode`, can be used to convert an array value to an XML fragment:
+
+``` twig
+{% set value = {
+  Person: {
+    firstname: 'Lucky',
+    lastname: 'Luke',
+  },
+  Horse: {
+    name: 'Jolly Jumper',
+  },
+} %}
+{{ value|os2forms_fordelingskomponent_xml_encode }}
+```
+
+will render
+
+``` xml
+<Person><firstname>John</firstname><lastname>Doe</lastname></Person><Horse><name>Jolly Jumper</name></Horse>
+```
+
+Notice that `os2forms_fordelingskomponent_xml_encode` is "[safe for
+HTML](https://twig.symfony.com/doc/3.x/advanced.html#automatic-escaping)", i.e. you don't have to use
+[`raw`](https://twig.symfony.com/doc/3.x/filters/raw.html) to render the XML.
