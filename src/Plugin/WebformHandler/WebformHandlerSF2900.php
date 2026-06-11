@@ -37,6 +37,8 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   public const string ID = 'os2forms_fordelingskomponent_sf2900';
 
   public const string SECTION_SF2900 = 'sf2900';
+  private const string ADDITIONAL = 'additional';
+  private const string STATES = 'states';
 
   /**
    * The settings.
@@ -89,6 +91,31 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
       '#title' => $this->t('Fordelingsobjekt'),
       '#tree' => TRUE,
     ] + $this->buildConfigurationFormDistributionObject();
+
+    // Additional.
+    // Lifted from EmailWebformHandler::buildConfigurationForm().
+    $resultsDisabled = (bool) $this->getWebform()->getSetting('results_disabled');
+    $form[self::ADDITIONAL] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Additional settings'),
+    ];
+    // Settings: States.
+    $states = (array) ($this->configuration[self::ADDITIONAL][self::STATES] ?? NULL);
+    $form[self::ADDITIONAL][self::STATES] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Send distribution object when …'),
+      '#options' => [
+        WebformSubmissionInterface::STATE_DRAFT_CREATED => $this->t('<b>draft is created</b>.'),
+        WebformSubmissionInterface::STATE_DRAFT_UPDATED => $this->t('<b>draft is updated</b>.'),
+        WebformSubmissionInterface::STATE_CONVERTED => $this->t('anonymous <b>submission is converted</b> to authenticated.'),
+        WebformSubmissionInterface::STATE_COMPLETED => $this->t('<b>submission is completed</b>.'),
+        WebformSubmissionInterface::STATE_UPDATED => $this->t('<b>submission is updated</b>.'),
+        WebformSubmissionInterface::STATE_DELETED => $this->t('<b>submission is deleted</b>.'),
+        WebformSubmissionInterface::STATE_LOCKED => $this->t('<b>submission is locked</b>.'),
+      ],
+      '#access' => !$resultsDisabled,
+      '#default_value' => $resultsDisabled ? [WebformSubmissionInterface::STATE_COMPLETED] : $states,
+    ];
 
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -412,15 +439,20 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     ] as $name) {
       $this->configuration[$name] = $form_state->getValue($name);
     }
+
+    $additional = $form_state->getValue(self::ADDITIONAL);
+    // Clean up states.
+    $additional[self::STATES] = array_values(array_filter($additional[self::STATES]));
+    $this->configuration[self::ADDITIONAL] = $additional;
   }
 
   /**
    * {@inheritdoc}
    */
   public function postSave(WebformSubmissionInterface $webform_submission, $update = TRUE) {
-    // Run only when submission is completed.
-    // @todo Run on update?
-    if (!$webform_submission->isCompleted()) {
+    $submissionState = $webform_submission->getWebform()->getSetting('results_disabled') ? WebformSubmissionInterface::STATE_COMPLETED : $webform_submission->getState();
+    $enabledStates = (array) ($this->configuration[self::ADDITIONAL][self::STATES] ?? NULL);
+    if (!in_array($submissionState, $enabledStates)) {
       return;
     }
 
@@ -451,17 +483,36 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   #[\Override]
   public function getSummary() {
     $settings = $this->settingsService->getHandlerSettings($this);
+    $enabledStates = array_filter((array) $this->getSetting(self::ADDITIONAL)[self::STATES] ?? []);
 
-    $build = [
-      'info' => [
-        '#prefix' => '<div>',
-        '#suffix' => '</div>',
-        '#markup' => $this->t('KLE-emne: %kle_emne; Handling-facet: %handling_facet',
-          [
-            '%kle_emne' => $settings->distributionContext->kleEmne,
-            '%handling_facet' => $settings->distributionContext->handlingFacet,
-          ]),
-      ],
+    // Set state.
+    $states = [
+      WebformSubmissionInterface::STATE_DRAFT_CREATED => $this->t('Draft created'),
+      WebformSubmissionInterface::STATE_DRAFT_UPDATED => $this->t('Draft updated'),
+      WebformSubmissionInterface::STATE_CONVERTED => $this->t('Converted'),
+      WebformSubmissionInterface::STATE_COMPLETED => $this->t('Completed'),
+      WebformSubmissionInterface::STATE_UPDATED => $this->t('Updated'),
+      WebformSubmissionInterface::STATE_DELETED => $this->t('Deleted'),
+    ];
+    $enabledStates = array_intersect_key($states, array_combine($enabledStates, $enabledStates));
+
+    $build[self::STATES] = [
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+      '#markup' => $this->t('Send @type distribution object when @states', [
+        '@type' => $settings->distributionObject->distributionType,
+        '@states' => implode(', ', $enabledStates),
+      ]),
+    ];
+
+    $build['info'] = [
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+      '#markup' => $this->t('KLE-emne: %kle_emne; Handling-facet: %handling_facet',
+                            [
+                              '%kle_emne' => $settings->distributionContext->kleEmne,
+                              '%handling_facet' => $settings->distributionContext->handlingFacet,
+                            ]),
     ];
 
     $items = [];
@@ -501,6 +552,17 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     ];
 
     return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration(): array {
+    return [
+      self::ADDITIONAL => [
+        self::STATES => [WebformSubmissionInterface::STATE_COMPLETED],
+      ],
+    ];
   }
 
   /**
