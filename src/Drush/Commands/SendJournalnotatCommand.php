@@ -36,6 +36,7 @@ final class SendJournalnotatCommand extends AbstractCommand {
    *
    * @see https://www.drush.org/13.x/commands/
    */
+  #[\Override]
   protected function configure(): void {
     $this
       ->addArgument('routingKleEmne', InputArgument::REQUIRED, 'The KLE-emne')
@@ -47,6 +48,7 @@ final class SendJournalnotatCommand extends AbstractCommand {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
 

@@ -1,17 +1,4 @@
-# itk-version: 3.2.4
-
 services:
-  phpfpm:
-    image: itkdev/php8.4-fpm:latest
-    user: ${COMPOSE_USER:-deploy}
-    volumes:
-      - .:/app-os2forms_fordelingskomponent
-    working_dir: /app-os2forms_fordelingskomponent
-    environment:
-      # https://getcomposer.org/doc/03-cli.md#composer-no-security-blocking
-      # @see https://github.com/OS2Forms/os2forms/issues/245
-      COMPOSER_NO_SECURITY_BLOCKING: 1
-
   # Code checks tools
   markdownlint:
     image: itkdev/markdownlint

@@ -31,6 +31,7 @@ final class FordelingskomponentSF2900 extends JobTypeBase implements ContainerFa
    *
    * @phpstan-param array<string, mixed> $configuration
    */
+  #[\Override]
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
@@ -60,6 +61,7 @@ final class FordelingskomponentSF2900 extends JobTypeBase implements ContainerFa
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function process(Job $job): JobResult {
     return $this->helper->processJob($job);
   }

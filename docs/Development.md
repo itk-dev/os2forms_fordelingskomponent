@@ -1,5 +1,22 @@
 # Development
 
+We use [DDEV Drupal Contrib](https://github.com/ddev/ddev-drupal-contrib) for development[^1].
+
+[^1]: The DDEV environment has been created by running
+
+      ```shell
+      ddev config --project-type=drupal10 --docroot=web
+      ddev dotenv set .ddev/.env.web --drupal-core '^10.5.10'
+      ```
+
+Start the show by running
+
+```shell
+task ddev:start
+```
+
+Run `task` to see other useful development tasks.
+
 ## Translations
 
 We use "interface translation project" (cf.

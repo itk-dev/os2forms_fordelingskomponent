@@ -534,7 +534,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       }
       catch (\Exception $exception) {
         $this->logger->warning('Error checking file %filename: %message', $context + [
-          '%filename' => $filename ?? NULL,
+          '%filename' => $filename,
           '%message' => $exception->getMessage(),
           'exception' => $exception,
         ]);
@@ -611,6 +611,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
    *
    * @phpstan-param array<string, mixed> $context
    */
+  #[\Override]
   public function log($level, $message, array $context = []): void {
     $this->logger->log($level, $message, $context);
     // @see https://www.drupal.org/node/3020595
@@ -700,6 +701,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function getSubscribedEvents(): array {
     return [
       // BeforeServiceCallEvent::class => 'beforeServiceCall',.

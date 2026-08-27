@@ -1,5 +1,9 @@
 .idea
-vendor
 composer.lock
+vendor/
 *.cache
-*.mo
+auth.json
+
+# DDEV stuff
+web/
+recipes/

@@ -3,50 +3,45 @@
 version: "3"
 
 tasks:
-  compose:
+  ddev:
+    desc: "Run DDEV command"
     cmds:
-      - docker compose {{.TASK_ARGS}} {{.CLI_ARGS}}
+      - ddev {{.TASK_ARGS}} {{.CLI_ARGS}}
     internal: true
-
-  composer:
-    desc: Run composer inside docker compose setup, e.g. `task {{.TASK}} -- install`
-    cmds:
-      - task: compose
-        vars:
-          TASK_ARGS: run --rm phpfpm composer {{.TASK_ARGS}}
-
-  composer:install:
-    desc: Run composer inside docker compose setup, e.g. `task {{.TASK}} -- install`
-    cmds:
-      - rm -fr composer.lock vendor
-      - |
-        # Create a temporary composer file to install https://github.com/mglaman/composer-drupal-lenient before the real install needs it.
-        docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer init --no-interaction
-        docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
-        docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer require mglaman/composer-drupal-lenient
-        docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm rm composer.lenient.*
-
-      - task: composer
-        vars:
-          TASK_ARGS: install
 
   coding-standards:apply:
     desc: "Apply coding standards"
     cmds:
+      - task: coding-standards:composer:apply
       - task: coding-standards:markdown:apply
       - task: coding-standards:php:apply
       - task: coding-standards:twig:apply
       - task: coding-standards:yaml:apply
-    silent: true
 
   coding-standards:check:
-    desc: "Apply coding standards"
+    desc: "Check coding standards"
     cmds:
+      - task: coding-standards:composer:check
       - task: coding-standards:markdown:check
       - task: coding-standards:php:check
       - task: coding-standards:twig:check
       - task: coding-standards:yaml:check
-    silent: true
+
+  coding-standards:composer:apply:
+    desc: "Apply coding standards for composer"
+    cmds:
+      - task: ddev
+        vars:
+          TASK_ARGS: composer normalize
+
+  coding-standards:composer:check:
+    - task: coding-standards:composer:apply
+    - task: ddev
+      vars:
+        TASK_ARGS: composer normalize --dry-run
+    - task: ddev
+      vars:
+        TASK_ARGS: composer validate
 
   coding-standards:markdown:apply:
     desc: "Apply coding standards for Markdown"
@@ -65,29 +60,33 @@ tasks:
     desc: "Apply coding standards for PHP"
     cmds:
       # Cf. .github/workflows/php.yaml
-      - docker compose run --rm phpfpm vendor/bin/phpcbf
-    silent: true
+      - task: ddev
+        vars:
+          TASK_ARGS: phpcbf
 
   coding-standards:php:check:
     desc: "Apply and check coding standards for PHP"
     cmds:
       - task: coding-standards:php:apply
       # Cf. .github/workflows/php.yaml
-      - docker compose run --rm phpfpm vendor/bin/phpcs
-    silent: true
+      - task: ddev
+        vars:
+          TASK_ARGS: phpcs
 
   coding-standards:twig:apply:
     desc: "Apply coding standards for Twig"
     cmds:
-      - docker compose run --rm phpfpm vendor/bin/twig-cs-fixer fix
-    silent: true
+      - task: ddev
+        vars:
+          TASK_ARGS: php vendor/bin/twig-cs-fixer fix
 
   coding-standards:twig:check:
     desc: "Apply and check coding standards for Twig"
     cmds:
       - task: coding-standards:twig:apply
-      - docker compose run --rm phpfpm vendor/bin/twig-cs-fixer lint
-    silent: true
+      - task: ddev
+        vars:
+          TASK_ARGS: php vendor/bin/twig-cs-fixer lint
 
   coding-standards:yaml:apply:
     desc: "Apply coding standards for YAML"
@@ -101,6 +100,50 @@ tasks:
       - task: coding-standards:yaml:apply
       # Cf. .github/workflows/yaml.yaml
       - docker compose run --rm prettier '**/*.{yml,yaml}' --check
+
+  code-analysis:
+    desc: "Run static code analysis"
+    cmds:
+      - task: code-analysis:phpstan
+
+  code-analysis:phpstan:
+    desc: "Run PHPStan"
+    cmds:
+      - task: ddev
+        vars:
+          TASK_ARGS: phpstan
+
+  rector:
+    desc: "Run rector"
+    cmds:
+      - task: ddev
+        vars:
+          TASK_ARGS: php vendor/bin/rector
+
+  ddev:start:
+    desc: Start DDEV setup (https://github.com/ddev/ddev-drupal-contrib)
+    # https://github.com/ddev/ddev-drupal-contrib
+    deps:
+      - composer:install:lenient
+    cmds:
+      - ddev add-on get ddev/ddev-drupal-contrib
+      - ddev restart
+      - ddev poser #--no-interaction
+      - ddev symlink-project
+      # Detect expected Drupal and PHP versions.
+      - ddev config --update
+
+  composer:install:lenient:
+    cmds:
+      # Create a temporary composer file to install https://github.com/mglaman/composer-drupal-lenient before the real install needs it.
+      - for:
+          - init --no-interaction
+          - config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
+          - require mglaman/composer-drupal-lenient:^1.0
+        cmd: ddev exec -- COMPOSER=composer.lenient.json composer {{.ITEM}}
+      # Clean up
+      - rm -f composer.lenient.*
+    internal: true
 
   test:
     cmds:

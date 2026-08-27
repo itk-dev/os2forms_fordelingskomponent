@@ -182,7 +182,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     if (!isset($element['#type'])) {
       throw new InvalidAttachmentElementException(sprintf('Cannot get attachment element %s', $handlerSettings->distributionObject->attachmentElement));
     }
-    [$type] = explode(':', $element['#type']);
+    [$type] = explode(':', (string) $element['#type']);
     $instance = $this->elementInfoManager->createInstance($type);
 
     if (!$instance instanceof WebformAttachmentBase) {
@@ -263,6 +263,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
    *
    * @phpstan-param array<string, mixed> $context
    */
+  #[\Override]
   public function log($level, $message, array $context = []): void {
     $this->logger->log($level, $message, $context);
     // @see https://www.drupal.org/node/3020595
