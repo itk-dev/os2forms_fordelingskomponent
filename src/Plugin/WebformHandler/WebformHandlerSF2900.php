@@ -483,7 +483,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   #[\Override]
   public function getSummary() {
     $settings = $this->settingsService->getHandlerSettings($this);
-    $enabledStates = array_filter((array) $this->getSetting(self::ADDITIONAL)[self::STATES] ?? []);
+    $enabledStates = array_filter((array) ($this->getSetting(self::ADDITIONAL)[self::STATES] ?? []));
 
     // Set state.
     $states = [

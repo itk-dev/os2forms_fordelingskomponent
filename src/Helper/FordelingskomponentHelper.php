@@ -830,7 +830,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   /**
    * Map from submission UUID to transaction ID.
    *
-   * @var array>string, string>
+   * @var array<string, string>
    */
   private array $transactionIds = [];
 
