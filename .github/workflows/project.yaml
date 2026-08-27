@@ -1,7 +1,7 @@
 name: Project
 
 env:
-  COMPOSE_USER: root
+  COMPOSE_USER: runner
   # https://getcomposer.org/doc/03-cli.md#composer-auth
   COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"} }'
 
@@ -13,20 +13,38 @@ on:
       - develop
 
 jobs:
-  code-analysis:
-    name: PHP - Code analysis
+  php:
+    name: PHP
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - uses: go-task/setup-task@v1
+      # https://github.com/ddev/github-action-setup-ddev
+      - uses: ddev/github-action-setup-ddev@v1
+        with:
+          autostart: false
 
-      - run: |
-          ./scripts/code-analysis
+      # Find a (better) way to pass COMPOSER_AUTH on to DDEV
+      - name: Create auth.json
+        run: echo "$COMPOSER_AUTH" > auth.json
 
-  rector:
-    name: PHP - Rector
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
+      - name: Start DDEV
+        run: task ddev:start
 
-      - run: |
-          ./scripts/rector
+      - name: Composer - validate
+        run: ddev composer validate --strict
+
+      - name: Composer - normalize
+        run: ddev composer normalize --dry-run
+
+      - name: PHP coding standards
+        run: ddev phpcs
+
+      - name: Twig coding standards
+        run: ddev php vendor/bin/twig-cs-fixer lint
+
+      - name: Code analysis
+        run: task code-analysis:phpstan
+
+      - name: Rector
+        run: task rector -- --dry-run

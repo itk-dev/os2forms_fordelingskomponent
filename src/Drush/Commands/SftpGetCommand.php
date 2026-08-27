@@ -23,6 +23,7 @@ final class SftpGetCommand extends AbstractCommand {
    *
    * @see https://www.drush.org/13.x/commands/
    */
+  #[\Override]
   protected function configure(): void {
     $this
       ->addArgument('filename', InputArgument::REQUIRED, 'Name of file to get')
@@ -32,6 +33,7 @@ final class SftpGetCommand extends AbstractCommand {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
     $sftp = $this->helper->sf2900()->sftp();

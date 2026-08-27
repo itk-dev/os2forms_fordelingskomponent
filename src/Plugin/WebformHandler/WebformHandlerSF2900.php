@@ -71,6 +71,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function getOffCanvasWidth(): string {
     return WebformDialogHelper::DIALOG_NONE;
   }
@@ -364,6 +365,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     $setError = static fn(string|array $path, TranslatableMarkup $message) => $form_state->setErrorByName(implode('][',
       (array) $path), $message);
@@ -378,7 +380,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     }
 
     $value = $form_state->getValue(DistributionContextSettings::NAME)[DistributionContextSettings::KLE_EMNE] ?? '';
-    if (!preg_match('/' . DistributionContextSettings::KLE_EMNE_PATTERN . '/', $value)) {
+    if (!preg_match('/' . DistributionContextSettings::KLE_EMNE_PATTERN . '/', (string) $value)) {
       $setError(
         [DistributionContextSettings::NAME, DistributionContextSettings::KLE_EMNE],
         $this->t('Invalid KLE-emne: %value.', ['%value' => $value])
@@ -395,7 +397,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
     }
 
     $value = $form_state->getValue(DistributionObjectSettings::NAME)[DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM] ?? '';
-    if ($value && !preg_match('/' . DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM_PATTERN . '/', $value)) {
+    if ($value && !preg_match('/' . DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM_PATTERN . '/', (string) $value)) {
       $setError(
         [DistributionObjectSettings::NAME, DistributionObjectFilesSettings::RECIPIENT_IT_SYSTEM],
         $this->t('Invalid recipient IT system: %value.', ['%value' => $value])
@@ -430,6 +432,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
@@ -449,6 +452,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function postSave(WebformSubmissionInterface $webform_submission, $update = TRUE) {
     $submissionState = $webform_submission->getWebform()->getSetting('results_disabled') ? WebformSubmissionInterface::STATE_COMPLETED : $webform_submission->getState();
     $enabledStates = (array) ($this->configuration[self::ADDITIONAL][self::STATES] ?? NULL);
@@ -464,6 +468,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    *
    * @phpstan-return void
    */
+  #[\Override]
   public function postDelete(WebformSubmissionInterface $webform_submission) {
     $this->helper->deleteMessages($this, [$webform_submission]);
   }
@@ -473,6 +478,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
    *
    * @phpstan-return void
    */
+  #[\Override]
   public function postPurge(array $webform_submissions) {
     $this->helper->deleteMessages($this, $webform_submissions);
   }
@@ -557,6 +563,7 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function defaultConfiguration(): array {
     return [
       self::ADDITIONAL => [

@@ -23,6 +23,7 @@ final class SftpLsCommand extends AbstractCommand {
    *
    * @see https://www.drush.org/13.x/commands/
    */
+  #[\Override]
   protected function configure(): void {
     $this
       ->addArgument('dir', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'List of directory paths', [SftpHelper::OUTGOING_FOLDER]);
@@ -31,6 +32,7 @@ final class SftpLsCommand extends AbstractCommand {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $io = new SymfonyStyle($input, $output);
     $sftp = $this->helper->sf2900()->sftp();

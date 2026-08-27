@@ -56,7 +56,7 @@ final class Os2formsFordelingskomponentTwigExtension extends AbstractExtension {
       'os2forms_fordelingskomponent_xml_encode',
       static function (array $value, string $numeric_key_prefix = 'key_'): string {
         // https://stackoverflow.com/a/19987539
-        $toXml = static function (\SimpleXMLElement $object, array $data) use (&$toXml, $numeric_key_prefix) {
+        $toXml = static function (\SimpleXMLElement $object, array $data) use (&$toXml, $numeric_key_prefix): void {
           foreach ($data as $key => $value) {
             // If the key is an integer, it needs text with it to actually work.
             $valid_key  = is_numeric($key) ? $numeric_key_prefix . $key : $key;

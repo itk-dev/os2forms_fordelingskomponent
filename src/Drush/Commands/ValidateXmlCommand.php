@@ -54,6 +54,7 @@ final class ValidateXmlCommand extends AbstractCommand {
    *
    * @see https://www.drush.org/13.x/commands/
    */
+  #[\Override]
   protected function configure(): void {
     $this
       ->addArgument('webform-id', InputArgument::REQUIRED, 'Webform ID')
@@ -66,6 +67,7 @@ final class ValidateXmlCommand extends AbstractCommand {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // I long for "invokable commands"
     // (https://symfony.com/doc/7.4/console.html#creating-a-command) ...
