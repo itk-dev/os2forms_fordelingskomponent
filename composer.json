@@ -64,6 +64,11 @@
             "simplesamlphp/composer-module-installer": false,
             "simplesamlphp/composer-xmlprovider-installer": false,
             "zaporylie/composer-drupal-optimizations": false
+        },
+        "policy": {
+            "advisories": {
+                "block": false
+            }
         }
     },
     "extra": {
