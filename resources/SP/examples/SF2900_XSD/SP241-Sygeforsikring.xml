@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SP241 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Header>
+        <Myndighed>urn:oio:cvr-nr:12345678</Myndighed>
+        <ModtagetDato>2026-04-24</ModtagetDato>
+        <KLE>{{ handler.settings.distributionContext.kleEmne }}</KLE>
+        <!-- {% for file in files.dokumenter_overslag|default([]) %} -->
+        <Dokumenter>
+            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+            <Dokumenttype>Overslag</Dokumenttype>
+        </Dokumenter>
+        <!-- {% endfor %} -->
+        <!-- {% for file in files.dokumenter_faktura|default([]) %} -->
+        <Dokumenter>
+            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+            <Dokumenttype>Faktura</Dokumenttype>
+        </Dokumenter>
+        <!-- {% endfor %} -->
+        <!-- {% for file in files.dokumenter_bilag|default([]) %} -->
+        <Dokumenter>
+            <Dokumentnavn>{{ file.sftp_filename }}</Dokumentnavn>
+            <Dokumenttype>Bilag</Dokumenttype>
+        </Dokumenter>
+        <!-- {% endfor %} -->
+    </Header>
+    <AnsoegerOplysninger>
+        <Ansoeger>
+            <Fornavn>{{ submission.data.fornavn }}</Fornavn>
+            <Efternavn>{{ submission.data.efternavn }}</Efternavn>
+            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+        </Ansoeger>
+    </AnsoegerOplysninger>
+    <Sygeforsikring>
+        <Gruppe>GRUPPE_BASIS</Gruppe>
+    </Sygeforsikring>
+    <Erklaering>Accepteret</Erklaering>
+    <Underskriftsoplysninger>
+        <Underskrift>Underskrift0</Underskrift>
+        <Underskriftsdato>2026-04-26</Underskriftsdato>
+    </Underskriftsoplysninger>
+</SP241>

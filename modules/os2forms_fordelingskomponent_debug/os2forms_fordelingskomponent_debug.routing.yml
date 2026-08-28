@@ -1,0 +1,45 @@
+# Drupal does not seem to support using / in route parameters (cf. https://drupal.stackexchange.com/questions/175758/slashes-in-single-route-parameter-or-other-ways-to-handle-a-menu-tail-with-dynam)
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp:
+  path: "/admin/os2forms-fordelingskomponent-debug/os2forms-fordelingskomponent-debug-sftp/{dir}"
+  defaults: &defaults
+    _title: "Fordelingskomponent SFTP"
+    _controller: '\Drupal\os2forms_fordelingskomponent_debug\Controller\Os2formsFordelingskomponentDebugSftpController'
+    dir: ~
+  methods: &methods
+    - GET
+  requirements: &requirements
+    _permission: "view os2forms_fordelingskomponent objects"
+
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_debug_sftp_filename:
+  path: "/admin/os2forms-fordelingskomponent-debug/os2forms-fordelingskomponent-debug-sftp/{dir}/{filename}"
+  defaults: *defaults
+  methods: *methods
+  requirements: *requirements
+
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_forsendelse:
+  path: "/admin/structure/webform/manage/{webform}/submission/{webform_submission}/os2forms-fordelingskomponent-debug-forsendelse"
+  defaults:
+    _title: "Fordelingskomponentforsendelser"
+    _controller: '\Drupal\os2forms_fordelingskomponent_debug\Controller\Os2formsFordelingskomponentDebugForsendelseController'
+  methods: *methods
+  requirements: *requirements
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+      webform_submission:
+        type: "entity:webform_submission"
+
+os2forms_fordelingskomponent_debug.os2forms_fordelingskomponent_kvittering:
+  path: "/admin/structure/webform/manage/{webform}/submission/{webform_submission}/os2forms-fordelingskomponent-debug-forsendelse/kvittering/{anvender_transaktions_id}"
+  defaults:
+    _title: "Fordelingskomponentkvitteringer"
+    _controller: '\Drupal\os2forms_fordelingskomponent_debug\Controller\Os2formsFordelingskomponentDebugKvitteringController'
+  methods: *methods
+  requirements: *requirements
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+      webform_submission:
+        type: "entity:webform_submission"

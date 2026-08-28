@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:tns="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types"
+        targetNamespace="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types"
+        attributeFormDefault="unqualified">
+
+    <include schemaLocation="SFTPDynamicRoutingInfo.xsd"/>
+    <include schemaLocation="RouteParameters.xsd"/>
+
+    <element name="Trigger" type="tns:TriggerType" />
+    <element name="FileMetadata" type="tns:FileMetadataType"/>
+    <element name="TechnicalReceipt" type="tns:TechnicalReceiptType"/>
+    <element name="BusinessReceipt" type="tns:BusinessReceiptType"/>
+    <element name="BusinessResponse" type="tns:BusinessResponseType"/>
+
+
+    <complexType name="TriggerType">
+        <sequence>
+            <element name="FileDescriptor" type="tns:FileDescriptorType" />
+            <element name="FileContentDescriptor" type="tns:FileContentDescriptorType" />
+        </sequence>
+    </complexType>
+
+    <complexType name="FileMetadataType">
+        <sequence>
+            <element name="FileTransferUUID" type="string"/>
+            <element name="FileDescriptor" type="tns:FileDescriptorType" />
+            <element name="FileContentDescriptor" type="tns:FileContentDescriptorType" />
+        </sequence>
+    </complexType>
+
+    <complexType name="FileContentDescriptorType">
+        <choice minOccurs="0">
+            <element name="SFTPDynamicRoutingInfo" type="tns:SFTPDynamicRoutingInfoType"/>
+            <any namespace="##other" maxOccurs="unbounded"/>
+        </choice>
+    </complexType>
+
+    <complexType name="FileDescriptorType">
+        <sequence>
+            <element name="FileName">
+                <simpleType>
+                    <restriction base="string">
+                        <maxLength value="255"/>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="SizeInBytes" type="unsignedLong" />
+            <element name="Sender" type="tns:SFTPUserType" />
+            <element name="SendersFileId" minOccurs="0" maxOccurs="1">
+                <simpleType>
+                    <restriction base="string">
+                        <maxLength value="255" />
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="Recipients" type="tns:SFTPUserType" minOccurs="1" maxOccurs="unbounded" />
+        </sequence>
+    </complexType>
+
+    <simpleType name="SFTPUserType">
+        <restriction base="string">
+            <maxLength value="255" />
+        </restriction>
+    </simpleType>
+
+    <complexType name="TechnicalReceiptType">
+        <sequence>
+            <element name="FileTransferUUID" type="string"/>
+            <element name="SendersFileId" type="string" minOccurs="0" maxOccurs="1" />
+            <choice>
+                <element name="Receipt" type="tns:ReceiptType" />
+                <element name="ErrorMessage" type="tns:ErrorMessage" minOccurs="1" maxOccurs="unbounded" />
+            </choice>
+        </sequence>
+    </complexType>
+
+    <complexType name="ReceiptType">
+        <sequence>
+            <element name="Message" type="string" />
+        </sequence>
+    </complexType>
+
+    <complexType name="ErrorMessage">
+        <sequence>
+            <element name="ErrorCode" type="int" />
+            <element name="ErrorCodeDescription" type ="string" />
+            <element name="ErrorDescription" type="string" />
+        </sequence>
+    </complexType>
+
+    <complexType name="BusinessReceiptType">
+        <sequence>
+            <element name="FileTransferUUID" type="string"/>
+            <element name="Filename" type="string"/>
+            <element name="Recipient" type="tns:SFTPUserType"/>
+            <element name="FileAcceptance">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="ACCEPTED"/>
+                        <enumeration value="REJECTED"/>
+                        <enumeration value="COULD_NOT_NOTIFY_RECIPIENT"/>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="Reason" type="string" minOccurs="0" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="BusinessResponseType">
+        <sequence>
+            <choice>
+                <element name="ResponseMessage" type="string"/>
+                <element name="ErrorMessage" type="tns:ErrorMessage" minOccurs="0" maxOccurs="unbounded" />
+            </choice>
+        </sequence>
+    </complexType>
+</schema>

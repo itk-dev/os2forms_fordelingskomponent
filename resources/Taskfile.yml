@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  xml:validate:
+    desc: Validate all XML files using their XSD file
+    sources:
+      - "SP/examples/**/*.xml"
+    cmds:
+      - for: sources
+        # https://taskfile.dev/docs/reference/templating#regular-expressions
+        # cmd: echo xmlstarlet val --err --xsd {{ regexReplaceAll "\\.xml" (.ITEM | replace "/examples/" "/" |  "\\.xml" ".xsd" }} {{.ITEM}}
+        cmd: xmlstarlet val --err --xsd {{ regexReplaceAll "(-[^-]+)?\\.xml$" (.ITEM  | replace "/examples/" "/") ".xsd" }} {{.ITEM}}
+    # Force the task to always run
+    # (cf. https://taskfile.dev/docs/guide#using-programmatic-checks-to-indicate-a-task-is-up-to-date)
+    status:
+      - false

@@ -1,0 +1,9 @@
+.idea
+composer.lock
+vendor/
+*.cache
+auth.json
+
+# DDEV stuff
+web/
+recipes/

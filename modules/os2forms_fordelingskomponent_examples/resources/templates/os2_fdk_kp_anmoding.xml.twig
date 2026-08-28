@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Anmodning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Header>
+        <Myndighed>urn:oio:cvr-nr:{{ handlers.settings.cvr }}</Myndighed>
+        <ModtagetDato>{{ webform_submission.complete|date(Y - m - d) }}</ModtagetDato>
+        <KLE>{{ handlers.settings.kle }}</KLE>
+    </Header>
+    <AnsoegerOplysninger>
+        <Ansoeger>
+            <Fornavn>{{ webform_submission.values.fornavn }}</Fornavn>
+            <Efternavn>{{ webform_submission.values.efternavn }}</Efternavn>
+            <Personnummer>urn:oio:cpr:0000000000</Personnummer>
+        </Ansoeger>
+    </AnsoegerOplysninger>
+    <Sagstype>
+        <AlmindeligtHelbredstillaeg>Medicin</AlmindeligtHelbredstillaeg>
+    </Sagstype>
+    <Underskriftsoplysninger>
+        <Underskrift>Underskrift0</Underskrift>
+        <Underskriftsdato>{{ webform_submission.complete|date('Y-m-d') }}</Underskriftsdato>
+    </Underskriftsoplysninger>
+</Anmodning>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2016 rel. 2 sp1 (http://www.altova.com) by Eskild Nejsum (KOMBIT A/S) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types" targetNamespace="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
+	<simpleType name="dateType">
+		<restriction base="date"/>
+	</simpleType>
+	<element name="RouteSelectionValueDate" type="tns:dateType">
+		<annotation>
+			<documentation>A rule must be valid for this date to be applicable for routing.</documentation>
+		</annotation>
+	</element>
+</schema>

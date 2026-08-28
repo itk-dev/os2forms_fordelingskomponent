@@ -1,0 +1,8 @@
+name: "os2forms_fordelingskomponent_debug"
+type: module
+description: "os2forms_fordelingskomponent_debug"
+package: OS2Forms
+core_version_requirement: ^10 || ^11
+
+dependencies:
+  - os2forms_fordelingskomponent:os2forms_fordelingskomponent

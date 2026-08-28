@@ -1,0 +1,68 @@
+os2forms_fordelingskomponent.admin.settings:
+  path: "/admin/os2forms_fordelingskomponent/settings"
+  defaults:
+    _title: "Fordelingskomponent settings"
+    _form: 'Drupal\os2forms_fordelingskomponent\Form\SettingsForm'
+  requirements:
+    _permission: "administer site configuration"
+
+os2forms_fordelingskomponent.routing_info:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/routing_info/{webform_handler}"
+  defaults:
+    _title: "Fordelingskomponent routing info"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentRoutingInfoController'
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+  requirements:
+    _entity_access: "webform.update"
+
+os2forms_fordelingskomponent.fordelingskomponent_distribution_object.preview:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/fordelingsobjekt/{webform_handler}/preview/{webform_submission}"
+  defaults:
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentDistributionObjectPreviewController'
+    _title: "Fordelingskomponent fordelingsobjekt preview"
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+      webform_submission:
+        type: "entity:webform_submission"
+  requirements:
+    _entity_access: "webform_submission.view"
+
+os2forms_fordelingskomponent.distribution_object.index:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/{webform_handler}/fordelingsobject"
+  defaults:
+    _title: "Fordelingskomponent fordelingsobject index"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentFordelingsobjectController::index'
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+  requirements:
+    _entity_access: "webform.update"
+
+os2forms_fordelingskomponent.distribution_object.show:
+  path: "/admin/structure/webform/manage/{webform}/os2forms_fordelingskomponent/{webform_handler}/fordelingsobject/{anvender_transaktions_id}"
+  defaults:
+    _title: "Fordelingskomponent fordelingsobject show"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Os2formsFordelingskomponentFordelingsobjectController::show'
+  options:
+    parameters:
+      webform:
+        type: "entity:webform"
+  requirements:
+    _entity_access: "webform.update"
+
+os2forms_fordelingskomponent.sf2900_2_4_FordelingskvitteringModtag:
+  path: "/os2forms-fordelingskomponent/sf2900/2.4/FordelingskvitteringModtag"
+  defaults:
+    _title: "SF2900 2.4 FordelingskvitteringModtag"
+    _controller: '\Drupal\os2forms_fordelingskomponent\Controller\Fordelingskomponent\FordelingskvitteringModtagController'
+  methods: [HEAD, POST]
+  requirements:
+    _permission: "access content"
+  options:
+    no_cache: "TRUE"

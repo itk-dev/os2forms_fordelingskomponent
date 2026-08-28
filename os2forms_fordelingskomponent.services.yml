@@ -1,0 +1,35 @@
+services:
+  _defaults:
+    autowire: true
+
+  logger.channel.os2forms_fordelingskomponent:
+    parent: logger.channel_base
+    # @todo This does not work as expected.
+    # class: Drupal\os2forms_fordelingskomponent\Logger\Os2FormsFordelingskomponentLoggerChannel
+    arguments: ["os2forms_fordelingskomponent"]
+
+  logger.channel.os2forms_fordelingskomponent_submission:
+    parent: logger.channel_base
+    arguments: ["webform_submission"]
+
+  Drupal\os2forms_fordelingskomponent\Helper\FordelingskomponentHelper:
+    tags:
+      - { name: "event_subscriber" }
+
+  Drupal\os2forms_fordelingskomponent\Helper\WebformHelperSF2900:
+
+  Drupal\os2forms_fordelingskomponent\Helper\XmlHelper:
+
+  Drupal\os2forms_fordelingskomponent\Hook\InstallHooks:
+
+  Drupal\os2forms_fordelingskomponent\Hook\ThemeHooks:
+
+  Drupal\os2forms_fordelingskomponent\Repository\AnvenderForsendelseRepository:
+
+  Drupal\os2forms_fordelingskomponent\Repository\AnvenderKvitteringRepository:
+
+  Drupal\os2forms_fordelingskomponent\Settings:
+
+  Drupal\os2forms_fordelingskomponent\Os2formsFordelingskomponentTwigExtension:
+    tags:
+      - { name: twig.extension }

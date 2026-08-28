@@ -1,0 +1,14 @@
+parameters:
+  paths:
+    - .
+  level: 5
+  customRulesetUsed: true
+  reportUnmatchedIgnoredErrors: false
+  excludePaths:
+      - rector.php
+      # Ignore any vendor folder (https://phpstan.org/user-guide/ignoring-errors#excluding-whole-files)
+      - vendor (?)
+
+  ignoreErrors:
+      - '#Call to method Drupal\\Core\\Entity\\Query\\QueryInterface::accessCheck\(\) will always evaluate to true.#'
+      - '#Call to method PHPUnit\\Framework\\Assert::assertTrue\(\) with true will always evaluate to true.#'

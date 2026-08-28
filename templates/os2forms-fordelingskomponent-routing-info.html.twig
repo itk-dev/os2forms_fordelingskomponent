@@ -1,0 +1,16 @@
+{% extends '@os2forms_fordelingskomponent/base.html.twig' %}
+
+{#
+/**
+ * @file
+ * Template for Fordelingskomponent routing info.
+ *
+ * Available variables:
+ * - webform: The webform
+ * - handler: The handler
+ * - return_url: The return URL (to list of webform handlers)
+ */
+#}
+{% block content %}
+    {{ _self.render_json(info) }}
+{% endblock %}

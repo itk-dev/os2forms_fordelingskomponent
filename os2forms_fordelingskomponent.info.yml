@@ -1,0 +1,21 @@
+name: "Fordelingskomponent"
+type: module
+description: "Fordelingsskomponent integration for OS2Forms"
+package: OS2Forms
+core_version_requirement: ^10 || ^11
+dependencies:
+  - advancedqueue:advancedqueue
+  - "os2web_key:os2web_key"
+  - "os2web_audit:os2web_audit"
+  # Why don't we get this dependency implicitly from os2web_key?
+  - "key:key"
+  - "system_stream_wrapper:system_stream_wrapper"
+  - "webform:webform"
+
+configure: os2forms_fordelingskomponent.admin.settings
+
+"interface translation project": os2forms_fordelingskomponent
+# @todo Using module://%project/ here does not work …
+# @todo Set a proper URL when the module has been released for real
+# "interface translation server pattern": module://%project/translations/%project.%language.po
+"interface translation server pattern": https://github.com/itk-dev/os2forms_fordelingskomponent/blob/os2forms_fordelingskomponent/translations/os2forms_fordelingskomponent.da.po

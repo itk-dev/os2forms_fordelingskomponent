@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2012 rel. 2 (x64) (http://www.altova.com) by Christian Hundborg Liboriussen (Netcompany A/S) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Anmodning">
+		<xs:annotation>
+			<xs:documentation>Anmodning om refusion</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Header">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Myndighed" type="myndighedstype"/>
+							<xs:element name="ModtagetDato" type="xs:date"/>
+							<xs:element name="KLE" type="max_laengde_strings_200">
+							</xs:element>
+							<xs:element name="Dokumenter" minOccurs="0" maxOccurs="30">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Dokumentnavn" type="max_laengde_strings_200"/>
+										<xs:element name="Dokumenttype" type="dokumenttype">
+											<xs:annotation>
+												<xs:documentation>- Overslag
+- Faktura
+- Bilag
+												</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="AnsoegerOplysninger">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="Ansoeger">
+								<xs:annotation>
+									<xs:documentation>Ved ansoegning med login</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Fornavn" type="max_laengde_strings_200"/>
+										<xs:element name="Mellemnavn" type="max_laengde_strings_200" minOccurs="0"/>
+										<xs:element name="Efternavn" type="max_laengde_strings_200"/>
+										<xs:element name="Personnummer" type="personnummer"/>
+										<xs:element name="Telefonnummer" type="telefonnummer" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="AnsoegningUdenLogin">
+								<xs:annotation>
+									<xs:documentation>Ved ansoegning uden login</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Fornavn" type="max_laengde_strings_200" minOccurs="0"/>
+										<xs:element name="Mellemnavn" type="max_laengde_strings_200" minOccurs="0"/>
+										<xs:element name="Efternavn" type="max_laengde_strings_200" minOccurs="0"/>
+										<xs:element name="Personnummer" type="personnummer" minOccurs="0"/>
+										<xs:element name="Telefonnummer" type="telefonnummer" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Sagstype">
+					<xs:complexType>
+						<xs:choice>
+							<xs:element name="AlmindeligtHelbredstillaeg" type="almhelbredstillaeg">
+								<xs:annotation>
+									<xs:documentation>- Medicin
+- Tandbehandling
+- Fodbehandling
+- Fysioterapi
+- Kiropraktik
+- Psykologhjaelp
+- Hoereapparatbehandling</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="UdvidetHelbredstillaeg" type="udvhelbredstillaeg">
+								<xs:annotation>
+									<xs:documentation>- Tandprotese
+- Fodbehandling
+- Briller</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Underskriftsoplysninger">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Underskrift" type="max_laengde_strings_200"/>
+							<xs:element name="Underskriftsdato" type="xs:date"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Bemaerkning" type="max_laengde_strings_200" minOccurs="0"/>
+				<xs:element name="Fuldmagt" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="FuldmagtDokumentnavn" type="max_laengde_strings_200"/>
+							<xs:element name="FuldmagthaversPersonnummer" type="personnummer"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="personnummer">
+		<xs:annotation>
+			<xs:documentation>Personnummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="22"/>
+			<xs:pattern value="urn:oio:cpr:\d+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="telefonnummer">
+		<xs:annotation>
+			<xs:documentation>Telefonnummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="dokumenttype">
+		<xs:annotation>
+			<xs:documentation>Angiver dokumenttype</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Overslag"/>
+			<xs:enumeration value="Faktura"/>
+			<xs:enumeration value="Bilag"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="almhelbredstillaeg">
+		<xs:annotation>
+			<xs:documentation>Angiver typen af almindeligt helbredstillaeg</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Medicin"/>
+			<xs:enumeration value="Tandbehandling"/>
+			<xs:enumeration value="Fodbehandling"/>
+			<xs:enumeration value="Fysioterapi"/>
+			<xs:enumeration value="Kiropraktik"/>
+			<xs:enumeration value="Psykologhjaelp"/>
+			<xs:enumeration value="Hoereappartbehandling"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="udvhelbredstillaeg">
+		<xs:annotation>
+			<xs:documentation>Angiver typen af udvidet helbredstillaeg</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Tandprotese"/>
+			<xs:enumeration value="Fodbehandling"/>
+			<xs:enumeration value="Briller"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="max_laengde_strings_200">
+		<xs:annotation>
+			<xs:documentation>Angiver generell max længde for strænger</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="myndighedstype">
+		<xs:annotation>
+			<xs:documentation>Myndighedstype</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="urn:oio:cvr-nr:[0-9]{8}"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

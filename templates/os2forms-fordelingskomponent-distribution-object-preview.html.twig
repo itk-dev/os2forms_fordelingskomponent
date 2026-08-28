@@ -1,0 +1,85 @@
+{% extends '@os2forms_fordelingskomponent/base.html.twig' %}
+
+{#
+/**
+ * @file
+ * Template for Fordelingskomponent payload preview.
+ *
+ * Available variables:
+ * - preview_urls: The preview URLs
+ *   - prev: Previous submission preview URL (if any)
+ *   - self: The current preview URL (if any)
+ *   - next: Next submission preview URL (if any)
+ * - webform: The webform
+ * - handler: The handler ID
+ * - submission: The submission ID
+ * - return_url: The return URL (to list of webform handlers)
+ * - render_url: The render URL to render the actual preview
+ */
+#}
+{% block content %}
+    {% set message_list = {} %}
+    {% if preview.exceptions|default(null) %}
+    {% set message_list = message_list|merge({error: preview.exceptions|map(e => e.message)}) %}
+    {% endif %}
+    {% if preview.warning|default(null) %}
+    {% set message_list = message_list|merge({warning: preview.warning|map(e => e.message)}) %}
+    {% endif %}
+    {% if message_list %}
+        {{ {
+            '#theme': 'status_messages',
+            '#message_list': message_list,
+        }|render }}
+    {% endif %}
+
+    {% set distribution_type = handler_settings.distributionObject.distributionType %}
+    {% set distribution_object = preview.distribution_object|default(null) %}
+    {% if distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_JOURNALPOST') %}
+        {{ distribution_type }}
+        {{ _self.render_json(distribution_object) }}
+    {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_DOKUMENT') %}
+        {{ distribution_type }}
+        {{ _self.render_json(distribution_object) }}
+    {% elseif distribution_type == constant('\\Drupal\\os2forms_fordelingskomponent\\Settings\\DistributionObjectSettings::DISTRIBUTION_TYPE_FORMULAR') %}
+        {{ distribution_type }}
+        {% if distribution_object %}
+            <details>
+                <summary>{{ 'Distribution object'|trans }}</summary>
+                {{ _self.render_json(distribution_object) }}
+            </details>
+        {% endif %}
+
+        {% set xml = distribution_object.meddelelse.formular.formularXml.any|default(preview.xml.rendered) %}
+        {% if xml %}
+            <details open>
+                <summary>{{ 'XML'|trans }}</summary>
+
+                {{ _self.render_xml(xml) }}
+            </details>
+        {% endif %}
+
+        {% set xml_template = handler_settings.distributionObject.xmlTemplate|default(null) %}
+        {% if xml_template %}
+            <details>
+                <summary>{{ 'XML template'|trans }}</summary>
+
+                {{ _self.render_xml(xml_template) }}
+            </details>
+        {% endif %}
+
+        {% if preview.xml.context %}
+            <details>
+                <summary>{{ 'XML render context'|trans }}</summary>
+
+                {{ _self.render_json(preview.xml.context) }}
+            </details>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            {{ 'Unknown distribution type: @distribution_type'|trans({'@distribution_type': distribution_type}) }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block handler_settings %}
+{% endblock %}

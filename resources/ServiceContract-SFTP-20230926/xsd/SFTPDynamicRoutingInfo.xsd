@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2016 rel. 2 sp1 (http://www.altova.com) by Eskild Nejsum (KOMBIT A/S) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types" targetNamespace="http://serviceplatformen.dk/xml/wsdl/soap11/SFTP/1/types">
+	<simpleType name="UUIDType">
+		<restriction base="string">
+			<pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="CVRURNType">
+		<restriction base="string">
+			<pattern value="urn:oio:cvr-nr:[0-9]{8}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="StringType">
+		<restriction base="string"/>
+	</simpleType>
+	<element name="SFTPDynamicRoutingInfo" type="tns:SFTPDynamicRoutingInfoType"/>
+	<complexType name="SFTPDynamicRoutingInfoType">
+		<sequence>
+			<element name="InfRef" type="string"/>
+			<element name="SenderIt-system" type="tns:UUIDType"/>
+			<element name="SenderAuthority" type="tns:CVRURNType"/>
+			<element name="TransactionId" type="tns:UUIDType"/>
+			<element name="SenderTimestamp" type="dateTime"/>
+			<element name="RecipientIt-system" type="tns:UUIDType" minOccurs="0"/>
+			<element name="RecipientAuthority" type="tns:CVRURNType"/>
+			<element name="RouteParameterList" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="RouteParameter" type="tns:RouteParameterType" maxOccurs="unbounded">
+							<annotation>
+								<documentation>Supplerende parameter der anvendes i routing, når routing er konfigureret til det.
+Hvis der skal anvendes en RouteParameter, er det defineret specifikt for den enkelte integration.</documentation>
+							</annotation>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RouteParameterType">
+		<sequence>
+			<any namespace="##any" processContents="skip"/>
+		</sequence>
+	</complexType>
+</schema>
