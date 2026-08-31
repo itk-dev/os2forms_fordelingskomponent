@@ -17,7 +17,7 @@
         "drupal/system_stream_wrapper": "^2.1",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "^1.9",
-        "os2forms/os2forms": "dev-selvbetjening.aarhuskommune.dk as 5.2.0",
+        "os2forms/os2forms": "^5.2",
         "os2web/os2web_datalookup": "dev-selvbetjening.aarhuskommune.dk as 3.4.0"
     },
     "require-dev": {
