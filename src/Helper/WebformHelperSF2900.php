@@ -54,24 +54,10 @@ final class WebformHelperSF2900 implements LoggerInterface {
   private const string PDF_MIME_TYPE = 'application/pdf';
 
   /**
-   * The webform submission storage.
-   *
-   * @var \Drupal\webform\WebformSubmissionStorageInterface
-   */
-  protected WebformSubmissionStorageInterface $webformSubmissionStorage;
-
-  /**
-   * The queue storage.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected EntityStorageInterface $queueStorage;
-
-  /**
    * Constructor.
    */
   public function __construct(
-    EntityTypeManagerInterface $entityTypeManager,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly Settings $settings,
     #[Autowire(service: 'plugin.manager.element_info')]
     private readonly ElementInfoManager $elementInfoManager,
@@ -84,8 +70,20 @@ final class WebformHelperSF2900 implements LoggerInterface {
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
     private readonly LoggerChannelInterface $submissionLogger,
   ) {
-    $this->webformSubmissionStorage = $entityTypeManager->getStorage('webform_submission');
-    $this->queueStorage = $entityTypeManager->getStorage('advancedqueue_queue');
+  }
+
+  /**
+   * Get webform submission storage.
+   */
+  private function webformSubmissionStorage(): WebformSubmissionStorageInterface {
+    return $this->entityTypeManager->getStorage('webform_submission');
+  }
+
+  /**
+   * Get queue storage.
+   */
+  private function queueStorage(): EntityStorageInterface {
+    return $this->entityTypeManager->getStorage('advancedqueue_queue');
   }
 
   /**
@@ -209,14 +207,14 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Load webform submission by id.
    */
   public function loadSubmission(int $id): ?WebformSubmissionInterface {
-    return $this->webformSubmissionStorage->load($id);
+    return $this->webformSubmissionStorage()->load($id);
   }
 
   /**
    * Load submission IDs for a webform.
    */
   public function loadSubmissionIds(WebformInterface $webform): array {
-    return $this->webformSubmissionStorage->getQuery()
+    return $this->webformSubmissionStorage()->getQuery()
       ->accessCheck()
       ->condition('webform_id', $webform->id())
       ->sort('created', 'DESC')
@@ -242,7 +240,7 @@ final class WebformHelperSF2900 implements LoggerInterface {
     $id = $this->settings->getGeneralSettings()->queue ?? NULL;
 
     /** @var ?\Drupal\advancedqueue\Entity\QueueInterface $queue */
-    $queue = $this->queueStorage->load($id);
+    $queue = $this->queueStorage()->load($id);
 
     if (NULL === $queue) {
       throw new RuntimeException(sprintf('Cannot load queue %s', $id));

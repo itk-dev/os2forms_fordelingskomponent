@@ -89,11 +89,6 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
   private const string SFTP_MESSAGE_SUCCESS = 'SUCCESS';
 
   /**
-   * The file storage.
-   */
-  private FileStorageInterface $fileStorage;
-
-  /**
    * The serializer.
    */
   private Serializer $serializer;
@@ -109,7 +104,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     private readonly KeyRepositoryInterface $keyRepository,
     private readonly KeyHelper $keyHelper,
     private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
-    EntityTypeManagerInterface $entityTypeManager,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
     private readonly LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
@@ -117,8 +112,14 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
     #[Autowire(service: 'os2web_audit.logger')]
     private readonly AuditLogger $auditLogger,
   ) {
-    $this->fileStorage = $entityTypeManager->getStorage('file');
     $this->serializer = new Serializer();
+  }
+
+  /**
+   * Get file storage.
+   */
+  private function fileStorage(): FileStorageInterface {
+    return $this->entityTypeManager->getStorage('file');
   }
 
   /**
@@ -381,7 +382,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       $values = $submission->getData()[$type] ?? NULL;
       if ($values) {
         /** @var \Drupal\file\FileInterface[] $files */
-        $files = $this->fileStorage->loadMultiple((array) $values);
+        $files = $this->fileStorage()->loadMultiple((array) $values);
         foreach ($files as $file) {
           $groups[$type][] = [
             'sftp_filename' => $this->getSftpFilename($handlerSettings, $submission, $file->getFilename()),
@@ -496,6 +497,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       'webform_submission' => $submission,
     ];
     foreach ($triggerObjects as $xml) {
+      $filename = NULL;
       try {
         $trigger = $this->serializer->deserialize($xml, Trigger::class);
         $filename = $trigger->getFileDescriptor()->getFileName();
@@ -534,7 +536,7 @@ final class FordelingskomponentHelper implements LoggerInterface, EventSubscribe
       }
       catch (\Exception $exception) {
         $this->logger->warning('Error checking file %filename: %message', $context + [
-          '%filename' => $filename,
+          '%filename' => $filename ?? '(unknown)',
           '%message' => $exception->getMessage(),
           'exception' => $exception,
         ]);

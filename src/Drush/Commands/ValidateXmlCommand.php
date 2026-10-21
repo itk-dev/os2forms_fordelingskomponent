@@ -28,25 +28,27 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class ValidateXmlCommand extends AbstractCommand {
 
-  /**
-   * The webform storage.
-   */
-  private readonly WebformEntityStorageInterface $webformStorage;
-
-  /**
-   * The submission starage.
-   */
-  private readonly WebformSubmissionStorageInterface $submissionStorage;
-
   public function __construct(
     FordelingskomponentHelper $helper,
     Settings $settings,
-    EntityTypeManagerInterface $entityTypeManager,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly WebformHelperSF2900 $webformHelper,
   ) {
     parent::__construct($helper, $settings);
-    $this->webformStorage = $entityTypeManager->getStorage('webform');
-    $this->submissionStorage = $entityTypeManager->getStorage('webform_submission');
+  }
+
+  /**
+   * Get webform storage.
+   */
+  private function webformStorage(): WebformEntityStorageInterface {
+    return $this->entityTypeManager->getStorage('webform');
+  }
+
+  /**
+   * Get webform submission storage.
+   */
+  private function submissionStorage(): WebformSubmissionStorageInterface {
+    return $this->entityTypeManager->getStorage('webform_submission');
   }
 
   /**
@@ -141,7 +143,7 @@ final class ValidateXmlCommand extends AbstractCommand {
    */
   private function loadWebform(string $id): WebformInterface {
     /** @var ?WebformInterface $webform */
-    $webform = $this->webformStorage->load($id);
+    $webform = $this->webformStorage()->load($id);
 
     if (NULL === $webform) {
       throw new InvalidArgumentException(sprintf('Cannot load webform %s', $id));
@@ -174,7 +176,7 @@ final class ValidateXmlCommand extends AbstractCommand {
    *   The submissions.
    */
   private function loadSubmissions(WebformInterface $webform): array {
-    return $this->submissionStorage->loadByProperties([
+    return $this->submissionStorage()->loadByProperties([
       'webform_id' => $webform->id(),
     ]);
   }

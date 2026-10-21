@@ -43,17 +43,17 @@ final class WebformHandlerSF2900 extends WebformHandlerBase {
   /**
    * The settings.
    */
-  private Settings $settingsService;
+  protected Settings $settingsService;
 
   /**
    * The webform helper.
    */
-  private WebformHelperSF2900 $helper;
+  protected WebformHelperSF2900 $helper;
 
   /**
    * The XML helper.
    */
-  private XmlHelper $xmlHelper;
+  protected XmlHelper $xmlHelper;
 
   /**
    * {@inheritdoc}
