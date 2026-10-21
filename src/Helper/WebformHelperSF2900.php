@@ -37,7 +37,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Webform helper.
  */
-final class WebformHelperSF2900 implements LoggerInterface {
+final readonly class WebformHelperSF2900 implements LoggerInterface {
   use LoggerTrait;
 
   private const string PAYLOAD_KEY = 'os2forms_fordelingskomponent';
@@ -57,18 +57,18 @@ final class WebformHelperSF2900 implements LoggerInterface {
    * Constructor.
    */
   public function __construct(
-    private readonly EntityTypeManagerInterface $entityTypeManager,
-    private readonly Settings $settings,
+    private EntityTypeManagerInterface $entityTypeManager,
+    private Settings $settings,
     #[Autowire(service: 'plugin.manager.element_info')]
-    private readonly ElementInfoManager $elementInfoManager,
-    private readonly FordelingskomponentHelper $helper,
-    private readonly AnvenderForsendelseRepository $anvenderForsendelseRepository,
+    private ElementInfoManager $elementInfoManager,
+    private FordelingskomponentHelper $helper,
+    private AnvenderForsendelseRepository $anvenderForsendelseRepository,
     #[Autowire(service: 'webform.token_manager')]
-    private readonly WebformTokenManagerInterface $webformTokenManager,
+    private WebformTokenManagerInterface $webformTokenManager,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent')]
-    private readonly LoggerChannelInterface $logger,
+    private LoggerChannelInterface $logger,
     #[Autowire(service: 'logger.channel.os2forms_fordelingskomponent_submission')]
-    private readonly LoggerChannelInterface $submissionLogger,
+    private LoggerChannelInterface $submissionLogger,
   ) {
   }
 
