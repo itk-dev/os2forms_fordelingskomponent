@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Update ddev to run on `11.4.10`
+* Allow `os2forms/os2forms` `^6.0`
+
 ## [1.0.0-rc.2]
 
 * Require `os2forms/os2forms` `^5.2`
