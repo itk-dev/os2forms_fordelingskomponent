@@ -7,3 +7,4 @@ auth.json
 # DDEV stuff
 web/
 recipes/
+/.gitattributes
