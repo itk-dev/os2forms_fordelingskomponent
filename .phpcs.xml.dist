@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- This file is copied from config/drupal-module/php/.phpcs.xml.dist in https://github.com/itk-dev/devops_itkdev-docker. -->
+<!-- This file is copied from config/drupal-module-ddev/php/.phpcs.xml.dist in https://github.com/itk-dev/devops_itkdev-docker. -->
 <!-- Feel free to edit the file, but consider making a pull request if you find a general issue with the file. -->
 
 <ruleset name="PHP_CodeSniffer">
@@ -8,11 +8,14 @@
   <file>.</file>
 
   <!-- Exclude generated files -->
+  <exclude-pattern>node_modules</exclude-pattern>
   <exclude-pattern>vendor</exclude-pattern>
-  <exclude-pattern>rector.php</exclude-pattern>
+  <exclude-pattern>*.css</exclude-pattern>
+  <exclude-pattern>*.js</exclude-pattern>
+  <!-- DDEV -->
+  <exclude-pattern>web</exclude-pattern>
 
   <arg value="p"/>
-  <arg value="s"/>
 
   <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,txt,yml"/>
 
@@ -26,8 +29,5 @@
     <exclude name="Drupal.NamingConventions.ValidEnumCase.NoUpperAcronyms" />
     <exclude name="Drupal.NamingConventions.ValidEnumCase.NoUnderscores" />
   </rule>
-  <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
-  <rule ref="Drupal.Commenting.VariableComment.Missing">
-      <exclude-pattern>src/Settings/</exclude-pattern>
-  </rule>
+   <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
 </ruleset>
