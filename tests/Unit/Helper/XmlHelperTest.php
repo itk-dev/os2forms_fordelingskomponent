@@ -5,12 +5,15 @@ namespace Drupal\os2forms_fordelingskomponent\Test\Unit\Helper;
 use Drupal\os2forms_fordelingskomponent\Exception\InvalidXmlException;
 use Drupal\os2forms_fordelingskomponent\Helper\XmlHelper;
 use Drupal\os2forms_fordelingskomponent\Test\Unit\AbstractTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 /**
  * Xml helper test case.
  */
+#[CoversClass(XmlHelper::class)]
 class XmlHelperTest extends AbstractTestCase {
   /**
    * The Twig environment.
@@ -32,7 +35,7 @@ class XmlHelperTest extends AbstractTestCase {
   }
 
   /**
-   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
+   * Test strict variables.
    */
   public function testStrictVariables(): void {
     $this->assertFalse($this->twig->isStrictVariables());
@@ -43,9 +46,9 @@ class XmlHelperTest extends AbstractTestCase {
   }
 
   /**
-   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
-   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideRenderData
+   * Test render.
    */
+  #[DataProviderExternal(XmlHelperTestDataProvider::class, 'provideRenderData')]
   public function testRender(
     string $template,
     array $context,
@@ -60,9 +63,9 @@ class XmlHelperTest extends AbstractTestCase {
   }
 
   /**
-   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
-   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideValidateTemplateData()
+   * Test validate template.
    */
+  #[DataProviderExternal(XmlHelperTestDataProvider::class, 'provideValidateTemplateData')]
   public function testValidateTemplate(
     string $template,
     ?InvalidXmlException $expected = NULL,
@@ -76,9 +79,9 @@ class XmlHelperTest extends AbstractTestCase {
   }
 
   /**
-   * @covers       \Drupal\os2forms_fordelingskomponent\Helper\XmlHelper
-   * @dataProvider  \Drupal\os2forms_fordelingskomponent\Test\Unit\Helper\XmlHelperTestDataProvider::provideValidateXmlData()
+   * Test validate XML.
    */
+  #[DataProviderExternal(XmlHelperTestDataProvider::class, 'provideValidateXmlData')]
   public function testValidateXml(
     string $template,
     string $xsdUrl,

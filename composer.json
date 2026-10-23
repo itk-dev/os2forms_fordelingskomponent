@@ -17,32 +17,22 @@
         "drupal/system_stream_wrapper": "^2.1",
         "drush/drush": "^12 || ^13",
         "itk-dev/serviceplatformen": "^1.9",
-        "os2forms/os2forms": "^5.2",
-        "os2web/os2web_datalookup": "dev-selvbetjening.aarhuskommune.dk as 3.4.0"
+        "os2forms/os2forms": "^5.2 || ^6.0",
+        "os2web/os2web_datalookup": "^3.5.0"
     },
     "require-dev": {
         "drupal/coder": "^8.3",
         "ergebnis/composer-normalize": "^2.52",
         "mglaman/composer-drupal-lenient": "^1.0",
-        "mglaman/phpstan-drupal": "^1.1",
-        "palantirnet/drupal-rector": "0.x-dev",
+        "mglaman/phpstan-drupal": "^2.0",
+        "palantirnet/drupal-rector": "^1.0",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^1.0",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpunit/phpunit": "^9.6",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpunit/phpunit": "^11.5",
         "vincentlanglet/twig-cs-fixer": "^3.13"
     },
     "repositories": [
-        {
-            "name": "os2web/os2web_datalookup",
-            "type": "vcs",
-            "url": "https://github.com/itk-dev/os2web_datalookup"
-        },
-        {
-            "name": "os2forms/os2forms",
-            "type": "vcs",
-            "url": "https://github.com/itk-dev/os2forms"
-        },
         {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
@@ -83,6 +73,8 @@
         "drupal-lenient": {
             "allowed-list": [
                 "drupal/coc_forms_auto_export",
+                "drupal/events_logging",
+                "drupal/switch_page_theme",
                 "drupal/webform_node_element"
             ]
         }

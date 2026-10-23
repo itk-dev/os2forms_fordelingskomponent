@@ -93,8 +93,8 @@ final class AnvenderForsendelseRepository extends AbstractRepository {
       return 0;
     }
 
+    $ids = array_map(static fn(WebformSubmissionInterface $submission) => $submission->id(), $submissions);
     try {
-      $ids = array_map(static fn(WebformSubmissionInterface $submission) => $submission->id(), $submissions);
       return $this->database->delete(self::TABLE)
         ->condition('webform_submission_id', $ids, 'IN')
         ->execute();
