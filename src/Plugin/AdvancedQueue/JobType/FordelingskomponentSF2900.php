@@ -53,7 +53,7 @@ final class FordelingskomponentSF2900 extends JobTypeBase implements ContainerFa
     /**
      * The webform helper.
      */
-    private readonly WebformHelperSF2900 $helper,
+    protected WebformHelperSF2900 $helper,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }

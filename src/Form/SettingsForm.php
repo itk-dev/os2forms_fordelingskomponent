@@ -31,23 +31,22 @@ final class SettingsForm extends ConfigFormBase {
   private const string DOC_URL = 'https://github.com/itk-dev/os2forms_fordelingskomponent';
 
   /**
-   * The queue storage.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  private readonly EntityStorageInterface $queueStorage;
-
-  /**
    * Constructor.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
-    EntityTypeManagerInterface $entityTypeManager,
-    private readonly Settings $settings,
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected Settings $settings,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
-    $this->queueStorage = $entityTypeManager->getStorage('advancedqueue_queue');
+  }
+
+  /**
+   * Get queue storage.
+   */
+  private function queueStorage(): EntityStorageInterface {
+    return $this->entityTypeManager->getStorage('advancedqueue_queue');
   }
 
   /**
@@ -171,7 +170,7 @@ final class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Queue'),
       '#options' => array_map(
         static fn(EntityInterface $queue) => $queue->label(),
-        $this->queueStorage->loadMultiple()
+        $this->queueStorage()->loadMultiple()
       ),
       '#empty_option' => $this->t('No queue'),
       '#default_value' => $settings->queue,

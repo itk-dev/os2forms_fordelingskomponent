@@ -92,22 +92,29 @@ key_input_settings: {  }
 
 ## Development
 
-``` shell
-task composer:install
+We use [DDEV Drupal Contrib](https://github.com/ddev/ddev-drupal-contrib) for development[^1].
+
+[^1]: The DDEV environment has been created by running
+
+      ```shell
+      ddev config --project-type=drupal11 --docroot=Drupal
+      ddev add-on get ddev/ddev-drupal-contrib
+      ddev start
+      ddev poser --no-interaction
+      ddev symlink-project
+      # Detect expected Drupal and PHP versions.
+      ddev config --update
+      ```
+
+      (cf. <https://github.com/ddev/ddev-drupal-contrib#install>)
+
+Start the show by running
+
+```shell
+task ddev:start
 ```
 
-### Composer install hacks
-
-``` shell name=composer-install-hack
-# Create a temporary composer file to install https://github.com/mglaman/composer-drupal-lenient before the real install needs it.
-docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer init --no-interaction
-docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer config --no-plugins allow-plugins.mglaman/composer-drupal-lenient true
-docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm composer require mglaman/composer-drupal-lenient
-docker compose run --rm --env COMPOSER=composer.lenient.json phpfpm rm composer.lenient.*
-
-# Now we can install what we actually need.
-docker compose run --rm phpfpm composer install
-```
+Run `task` to see other useful development tasks.
 
 ### Kvittering
 
